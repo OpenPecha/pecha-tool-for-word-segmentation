@@ -1,5 +1,6 @@
 import { ActionFunction } from "@remix-run/node";
-import pusher from "~/service/pusher.server";
+import Pusher from "pusher";
+import { getPusher } from "~/service/pusher.server";
 
 export const action: ActionFunction = async ({ request }) => {
   let formData = await request.formData();
@@ -15,10 +16,12 @@ export const action: ActionFunction = async ({ request }) => {
     },
   };
   try {
+    let { KEY, CLUSTER, APP_ID, SECRET } = process.env;
+    let pusher: Pusher = await getPusher(APP_ID!, KEY!, SECRET!, CLUSTER!);
     let auth = pusher.authorizeChannel(socket_id, channel_name, presenceData);
     return auth;
   } catch (e) {
-    console.log(e.message);
+    console.log("error", e?.message);
   }
   return null;
 };

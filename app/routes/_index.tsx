@@ -16,30 +16,25 @@ import globalStyle from "~/styles/global.css";
 import { Space } from "~/tiptapProps/extension";
 import { editorProps } from "~/tiptapProps/events";
 import checkUnknown from "~/lib/checkUnknown";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { createUserIfNotExists } from "~/model/user";
-import pusher from "~/service/pusher.server";
+import { getter } from "~/service/pusher.server";
 import usePusherPresence from "~/lib/usePresence";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  let { PUSHER_KEY, PUSHER_CLUSTER } = process.env;
+  let { KEY, CLUSTER, APP_ID, SECRET } = process.env;
   let url = new URL(request.url);
-  console.log(PUSHER_CLUSTER, "cluster");
   let session = url.searchParams.get("session");
-  console.log("session", session);
-  if (!session) return redirect("/error");
+  if (!session) {
+    return redirect("/error");
+  } else {
+    let user = await createUserIfNotExists(session);
+    let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
+    let text = await getTextToDisplay(activeText, user?.id);
+    let textFromUser = await getTextToDisplayByUser(user?.id);
 
-  let channel = await pusher.get({
-    path: "/channels/presence-text/users",
-    params: {},
-  });
-  let presence = await channel.json();
-  let { users: activeText } = presence;
-  let user = await createUserIfNotExists(session);
-  let text = await getTextToDisplay(activeText, user?.id);
-  let textFromUser = await getTextToDisplayByUser(user?.id);
-
-  return { text, textFromUser, user, PUSHER_KEY, PUSHER_CLUSTER };
+    return { text, textFromUser, user, KEY, CLUSTER };
+  }
 };
 
 export const meta: V2_MetaFunction = () => {
@@ -57,8 +52,8 @@ export default function Index() {
   let text = data?.text?.original_text || "";
   const { textOnline } = usePusherPresence(
     `presence-text`,
-    data?.PUSHER_KEY,
-    data?.PUSHER_CLUSTER,
+    data?.KEY,
+    data?.CLUSTER,
     data?.user,
     data?.text
   );

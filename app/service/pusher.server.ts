@@ -1,11 +1,40 @@
 import Pusher from "pusher";
+async function getter(
+  APP_ID: string,
+  KEY: string,
+  SECRET: string,
+  CLUSTER: string
+) {
+  const pusher: Pusher = new Pusher({
+    appId: APP_ID!,
+    key: KEY!,
+    secret: SECRET!,
+    cluster: CLUSTER!,
+    useTLS: true,
+  });
 
-const pusher: Pusher = new Pusher({
-  appId: process.env.PUSHER_APP_ID!,
-  key: process.env.PUSHER_KEY!,
-  secret: process.env.PUSHER_SECRET!,
-  cluster: process.env.PUSHER_CLUSTER!,
-  useTLS: true,
-});
-
-export default pusher;
+  let channel = await pusher.get({
+    path: "/channels/presence-text/users",
+    params: {},
+  });
+  let presence = await channel.json();
+  let { users: activeText } = presence;
+  return activeText;
+}
+async function getPusher(
+  APP_ID: string,
+  KEY: string,
+  SECRET: string,
+  CLUSTER: string
+) {
+  console.log(KEY);
+  const pusher: Pusher = new Pusher({
+    appId: APP_ID!,
+    key: KEY!,
+    secret: SECRET!,
+    cluster: CLUSTER!,
+    useTLS: true,
+  });
+  return pusher;
+}
+export { getter, getPusher };
