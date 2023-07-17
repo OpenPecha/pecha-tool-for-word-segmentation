@@ -56,9 +56,9 @@ export default function Index() {
   let text = data?.text?.original_text || "";
   const { textOnline } = usePusherPresence(
     `presence-text`,
-    data.env.key,
-    data.env.cluster,
-    data.user,
+    data?.env?.key,
+    data?.env?.cluster,
+    data?.user,
     data?.text
   );
   let user = data.user;
