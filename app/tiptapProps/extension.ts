@@ -116,16 +116,3 @@ export const Space = (setter) =>
     },
   });
 export declare const Highlight: Mark<optionType, any>;
-
-function simulateBackspace() {
-  const event = new KeyboardEvent("keydown", {
-    key: "Backspace",
-    code: "Backspace",
-    keyCode: 8,
-    which: 8,
-    bubbles: true,
-    cancelable: true,
-  });
-
-  document.dispatchEvent(event);
-}

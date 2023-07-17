@@ -22,11 +22,11 @@ import pusher from "~/service/pusher.server";
 import usePusherPresence from "~/lib/usePresence";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  let { PUSHER_KEY, PUSHER_SECRET, PUSHER_CLUSTER, PUSHER_APP_ID } =
-    process.env;
+  let { PUSHER_KEY, PUSHER_CLUSTER } = process.env;
   let url = new URL(request.url);
-
+  console.log(PUSHER_CLUSTER, "cluster");
   let session = url.searchParams.get("session");
+  console.log("session", session);
   if (!session) return redirect("/error");
 
   let channel = await pusher.get({
