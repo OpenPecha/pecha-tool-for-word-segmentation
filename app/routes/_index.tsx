@@ -22,7 +22,8 @@ import pusher from "~/service/pusher.server";
 import usePusherPresence from "~/lib/usePresence";
 
 export const loader: LoaderFunction = async ({ request }) => {
-  let env = process.env;
+  let { PUSHER_KEY, PUSHER_SECRET, PUSHER_CLUSTER, PUSHER_APP_ID } =
+    process.env;
   let url = new URL(request.url);
 
   let session = url.searchParams.get("session");
@@ -38,7 +39,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   let text = await getTextToDisplay(activeText, user?.id);
   let textFromUser = await getTextToDisplayByUser(user?.id);
 
-  return { text, textFromUser, user, env };
+  return { text, textFromUser, user, PUSHER_KEY, PUSHER_CLUSTER };
 };
 
 export const meta: V2_MetaFunction = () => {
@@ -56,8 +57,8 @@ export default function Index() {
   let text = data?.text?.original_text || "";
   const { textOnline } = usePusherPresence(
     `presence-text`,
-    data?.env?.key,
-    data?.env?.cluster,
+    data?.PUSHER_KEY,
+    data?.PUSHER_CLUSTER,
     data?.user,
     data?.text
   );

@@ -22,16 +22,16 @@ function Sidebar({ user, online }) {
           <span className="info">text id :</span> {text?.id}
         </div>
         <div>
-          <span className="info">Approved :</span> {user.text.length}
+          <span className="info">Approved :</span> {user?.text?.length}
         </div>
         <div>
-          <span className="info">Rejected :</span> {user.rejected_list.length}
+          <span className="info">Rejected :</span> {user?.rejected_list?.length}
         </div>
         <div>
-          <span className="info">Ignored :</span> {user.ignored_list.length}
+          <span className="info">Ignored :</span> {user?.ignored_list?.length}
         </div>
         <div>
-          <span className="info">online Text :</span> {online?.length}
+          <span className="info">online User :</span> {online?.length}
         </div>
       </div>
       <div className="sidebar_menu " style={{ flex: 1 }}>
@@ -40,7 +40,7 @@ function Sidebar({ user, online }) {
           {user?.text.map((text) => {
             return (
               <div
-                key={text.id}
+                key={text?.id}
                 className="history-item"
                 onClick={() => resetText(text.id)}
               >
