@@ -1,7 +1,13 @@
 import { useState, useEffect } from "react";
 import Pusher from "pusher-js";
 
-const usePusherPresence = (channelName, id, cluster, user, text) => {
+const usePusherPresence = (
+  channelName: string,
+  id: string,
+  cluster: string,
+  user: any,
+  text: any
+) => {
   const [textOnline, settextOnline] = useState([]);
   useEffect(() => {
     if (!text) text = { id: Math.random() };
