@@ -5,75 +5,78 @@ function EditorContainer({ editor }: { editor: Editor }) {
   let content = editor?.getText();
   useEffect(() => {
     editor?.commands.focus();
-    let content = editor?.getText();
+    const content = editor?.getText();
+    const segments = document.querySelectorAll(".segment");
+    let clickCount = 0;
+    const events = [];
 
-    let segments = document.querySelectorAll(".segment");
-    var clickCount = 0;
-    let events = [];
-    segments.forEach((e, i) => {
-      events[i] = e.addEventListener("click", (e) => {
-        let modifiedContent = content;
-        let selection = e.target.innerText;
-        let locationText = e.target.classList;
-        let spaceToAddLocation =
-          parseInt(locationText[1].replace("s-", "")) + selection.length;
-        clickCount++;
-        setTimeout(function () {
-          if (clickCount === 1) {
-            // Single click
-            if (content[spaceToAddLocation] === " ") {
-              let firsthalf = content.slice(0, spaceToAddLocation);
-              let secondhalf = content.slice(
-                spaceToAddLocation + 1,
-                content.length
-              );
-              modifiedContent = firsthalf + secondhalf;
-            } else {
-              modifiedContent =
-                content.substring(0, spaceToAddLocation) +
-                " " +
-                content.substring(spaceToAddLocation);
-            }
-            let newText = insertHTMLonText(modifiedContent);
-            editor?.commands.setContent(newText);
-          } else if (clickCount === 2) {
-            // Double click
-            let condition = ["ར་", "ས་"];
-            let includedCondition;
-            let selection = e.target.innerText;
-            condition.forEach((e) => {
-              if (selection.includes(e)) {
-                includedCondition = e;
-              }
-            });
-            if (includedCondition) {
-              let content = editor.getText();
-              let s = selection.split(includedCondition);
-              s[1] = " ";
-              s[2] = includedCondition;
-              let middle = s.join("");
-              let firsthalf = content.slice(
-                0,
-                spaceToAddLocation - selection.length
-              );
-              let secondhalf = content.slice(
-                spaceToAddLocation - selection.length + selection.length,
-                content.length
-              );
-              modifiedContent = firsthalf + middle + secondhalf;
-              let newText = insertHTMLonText(modifiedContent);
-              editor?.commands.setContent(newText);
-            }
+    const handleSegmentClick = (event) => {
+      let modifiedContent = content;
+      const selection = event.target.innerText;
+      const locationText = event.target.classList;
+      const spaceToAddLocation =
+        parseInt(locationText[1].replace("s-", "")) + selection.length;
+      clickCount++;
+
+      setTimeout(() => {
+        if (clickCount === 1) {
+          // Single click
+          if (content[spaceToAddLocation] === " ") {
+            modifiedContent =
+              modifiedContent.slice(0, spaceToAddLocation) +
+              modifiedContent.slice(spaceToAddLocation + 1);
+          } else {
+            modifiedContent =
+              modifiedContent.slice(0, spaceToAddLocation) +
+              " " +
+              modifiedContent.slice(spaceToAddLocation);
           }
-          setTimeout(function () {
-            clickCount = 0;
-          }, 400);
-        }, 300);
-      });
+          const newText = insertHTMLonText(modifiedContent);
+          editor?.commands.setContent(newText);
+        } else if (clickCount === 2) {
+          // Double click
+          const condition = ["ར་", "ས་"];
+          let includedCondition;
+          condition.forEach((cond) => {
+            if (selection.includes(cond)) {
+              includedCondition = cond;
+            }
+          });
+          if (includedCondition) {
+            const s = selection.split(includedCondition);
+            s[1] = " ";
+            s[2] = includedCondition;
+            const middle = s.join("");
+            const start = spaceToAddLocation - selection.length;
+            const end =
+              spaceToAddLocation - selection.length + selection.length;
+            modifiedContent =
+              modifiedContent.slice(0, start) +
+              middle +
+              modifiedContent.slice(end);
+            const newText = insertHTMLonText(modifiedContent);
+            editor?.commands.setContent(newText);
+          }
+        }
+
+        setTimeout(() => {
+          clickCount = 0;
+        }, 400);
+      }, 300);
+    };
+
+    segments.forEach((segment, i) => {
+      const event = {
+        segment,
+        listener: handleSegmentClick,
+      };
+      segment.addEventListener("click", event.listener);
+      events[i] = event;
     });
+
     return () => {
-      segments.forEach((e, i) => {
-        e.removeEventListener("click", events[i]);
+      segments.forEach((segment, i) => {
+        segment.removeEventListener("click", events[i].listener);
       });
     };
   }, [editor, content]);

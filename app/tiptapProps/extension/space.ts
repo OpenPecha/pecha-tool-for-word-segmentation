@@ -31,14 +31,12 @@ export const replace = (replace, editor, dispatch) => {
 export const Space = (setter) =>
   Mark.create({
     name: "Space",
-
     addOptions() {
       return {
         multicolor: false,
         HTMLAttributes: {},
       };
     },
-
     addAttributes() {
       return {
         class: {
@@ -46,7 +44,6 @@ export const Space = (setter) =>
         },
       };
     },
-
     parseHTML() {
       return [
         {
@@ -54,7 +51,6 @@ export const Space = (setter) =>
         },
       ];
     },
-
     renderHTML({ HTMLAttributes }) {
       return [
         "span",
@@ -62,7 +58,6 @@ export const Space = (setter) =>
         0,
       ];
     },
-
     addCommands() {
       return {
         setSpace:
