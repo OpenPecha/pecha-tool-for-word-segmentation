@@ -5,6 +5,8 @@ function EditorContainer({ editor }: { editor: Editor }) {
   let content = editor?.getText();
   useEffect(() => {
     editor?.commands.focus();
+    let content = editor?.getText();
+
     let segments = document.querySelectorAll(".segment");
     var clickCount = 0;
     let events = [];
@@ -26,16 +28,14 @@ function EditorContainer({ editor }: { editor: Editor }) {
                 content.length
               );
               modifiedContent = firsthalf + secondhalf;
-              let newText = insertHTMLonText(modifiedContent);
-              editor?.commands.setContent(newText);
             } else {
               modifiedContent =
                 content.substring(0, spaceToAddLocation) +
                 " " +
                 content.substring(spaceToAddLocation);
-              let newText = insertHTMLonText(modifiedContent);
-              editor?.commands.setContent(newText);
             }
+            let newText = insertHTMLonText(modifiedContent);
+            editor?.commands.setContent(newText);
           } else if (clickCount === 2) {
             // Double click
             let condition = ["ར་", "ས་"];
@@ -65,8 +65,6 @@ function EditorContainer({ editor }: { editor: Editor }) {
               editor?.commands.setContent(newText);
             }
           }
-
-          // Reset click count after a short delay
           setTimeout(function () {
             clickCount = 0;
           }, 400);

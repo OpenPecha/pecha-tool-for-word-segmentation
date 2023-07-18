@@ -2,7 +2,7 @@ const handleDOMEvents = {
   keydown: (editor, event) => {
     let charCode = String.fromCharCode(event.which).toLowerCase();
     let copyPressed = (event.ctrlKey || event.metaKey) && charCode === "c";
-    
+
     if ([32].includes(event.keyCode)) {
       let btn = document.getElementById("spaceButton");
       btn?.click();
