@@ -13,13 +13,16 @@ import Sidebar from "~/components/Sidebar";
 import { replaceSpacesWithHTMLTag } from "~/lib/utils";
 import { getTextToDisplay, getTextToDisplayByUser } from "~/model/text";
 import globalStyle from "~/styles/global.css";
-import { Space } from "~/tiptapProps/extension";
+import { Space } from "~/tiptapProps/extension/space";
+import { Character } from "~/tiptapProps/extension/character";
+
 import { editorProps } from "~/tiptapProps/events";
 import checkUnknown from "~/lib/checkUnknown";
 import { useMemo } from "react";
 import { createUserIfNotExists } from "~/model/user";
 import { getter } from "~/service/pusher.server";
 import usePusherPresence from "~/lib/usePresence";
+import insertHTMLonText from "~/lib/insertHtmlOnText";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let { KEY, CLUSTER, APP_ID, SECRET } = process.env;
@@ -29,8 +32,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect("/error");
   } else {
     let user = await createUserIfNotExists(session);
-    let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
-    let text = await getTextToDisplay(activeText, user?.id);
+    // let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
+    let text = await getTextToDisplay([], user?.id);
     let textFromUser = await getTextToDisplayByUser(user?.id);
 
     return { text, textFromUser, user, KEY, CLUSTER };
@@ -58,15 +61,19 @@ export default function Index() {
     data?.text
   );
   let user = data.user;
-  let newText = checkUnknown(replaceSpacesWithHTMLTag(text));
+  let insertHTML = insertHTMLonText(text);
+  let newText = checkUnknown(insertHTML);
 
   const setter = () => {};
+  const charClick = () => {
+    console.log("clicked");
+  };
   let textMemo = useMemo(() => {
     if (newText) return newText;
   }, [newText]);
   const editor = useEditor(
     {
-      extensions: [StarterKit, Space(setter)],
+      extensions: [StarterKit, Space(setter), Character(charClick)],
       content: textMemo,
       editorProps,
     },

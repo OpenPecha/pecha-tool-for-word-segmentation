@@ -1,3 +1,10 @@
+@font-face {
+  font-family: "Monlam";
+  src: url("/font/monlam_bodyig.woff") format("woff");
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --purple: #583fcf;
   --normal-btn: #b9b9b9;
@@ -8,14 +15,18 @@
   display: flex;
 }
 .space {
-  background-color: #b9b9b9;
-  word-spacing: 2ch;
+  background-color: hsla(39, 100%, 68%, 1);
+  word-spacing: 0.5ch;
   margin-inline: 3px;
+  cursor: pointer;
+}
+.segment:hover {
+  background-color: yellow;
   cursor: pointer;
 }
 body {
   counter-reset: section;
-  font-family: "Roboto Condensed", "Arial Narrow", sans-serif;
+  font-family: "Monlam";
 }
 .container {
   border: 1px solid #ddd;
