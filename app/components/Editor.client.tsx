@@ -34,14 +34,10 @@ function EditorContainer({ editor }: { editor: Editor }) {
           const newText = insertHTMLonText(modifiedContent);
           editor?.commands.setContent(newText);
         } else if (clickCount === 2) {
-          // Double click
           const condition = ["ར་", "ས་"];
-          let includedCondition;
-          condition.forEach((cond) => {
-            if (selection.includes(cond)) {
-              includedCondition = cond;
-            }
-          });
+          const includedCondition = condition.find((cond) =>
+            selection.includes(cond)
+          );
           if (includedCondition) {
             const s = selection.split(includedCondition);
             s[1] = " ";
@@ -61,8 +57,8 @@ function EditorContainer({ editor }: { editor: Editor }) {
 
         setTimeout(() => {
           clickCount = 0;
-        }, 400);
-      }, 300);
+        }, 300);
+      }, 200);
     };
 
     segments.forEach((segment, i) => {

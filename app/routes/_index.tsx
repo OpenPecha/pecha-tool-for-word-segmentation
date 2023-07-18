@@ -8,7 +8,7 @@ import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Button from "~/components/Button";
-import Editor from "~/components/Editor";
+import Editor from "~/components/Editor.client";
 import Sidebar from "~/components/Sidebar";
 import { replaceSpacesWithHTMLTag } from "~/lib/utils";
 import { getTextToDisplay, getTextToDisplayByUser } from "~/model/text";
@@ -23,7 +23,7 @@ import { createUserIfNotExists } from "~/model/user";
 import { getter } from "~/service/pusher.server";
 import usePusherPresence from "~/lib/usePresence";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
-
+import { ClientOnly } from "remix-utils";
 export const loader: LoaderFunction = async ({ request }) => {
   let { KEY, CLUSTER, APP_ID, SECRET } = process.env;
   let url = new URL(request.url);
@@ -126,7 +126,9 @@ export default function Index() {
 
         <div className="container" onClick={() => editor?.commands.focus()}>
           <div className="label">transcript</div>
-          <Editor editor={editor!} />
+          <ClientOnly fallback={null}>
+            {() => <Editor editor={editor!} />}
+          </ClientOnly>
           {!editor && <div>loading...</div>}
         </div>
         <div className="btn-container">
