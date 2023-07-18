@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { EditorContent, BubbleMenu, Editor } from "@tiptap/react";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
-import { useLoaderData } from "@remix-run/react";
 function EditorContainer({ editor }: { editor: Editor }) {
   let content = useMemo(() => editor.getText(), [editor.getText()]);
   useEffect(() => {
@@ -34,7 +33,7 @@ function EditorContainer({ editor }: { editor: Editor }) {
           const newText = insertHTMLonText(modifiedContent);
           editor?.commands.setContent(newText);
         } else if (clickCount === 2) {
-          const condition = ["ར་", "ས་"];
+          const condition = ["ར་", "ས་", "འི་"];
           const includedCondition = condition.find((cond) =>
             selection.includes(cond)
           );

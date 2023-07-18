@@ -15,12 +15,10 @@ import { getTextToDisplay, getTextToDisplayByUser } from "~/model/text";
 import globalStyle from "~/styles/global.css";
 import { Space } from "~/tiptapProps/extension/space";
 import { Character } from "~/tiptapProps/extension/character";
-
 import { editorProps } from "~/tiptapProps/events";
 import checkUnknown from "~/lib/checkUnknown";
 import { useMemo } from "react";
 import { createUserIfNotExists } from "~/model/user";
-import { getter } from "~/service/pusher.server";
 import usePusherPresence from "~/lib/usePresence";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
@@ -65,9 +63,7 @@ export default function Index() {
   let newText = checkUnknown(insertHTML);
 
   const setter = () => {};
-  const charClick = () => {
-    console.log("clicked");
-  };
+  const charClick = () => {};
   let textMemo = useMemo(() => {
     if (newText) return newText;
   }, [newText]);
