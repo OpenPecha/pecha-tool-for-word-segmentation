@@ -1,15 +1,15 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { EditorContent, BubbleMenu, Editor } from "@tiptap/react";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
+import { useLoaderData } from "@remix-run/react";
 function EditorContainer({ editor }: { editor: Editor }) {
-  let content = editor?.getText();
+  let content = useMemo(() => editor.getText(), [editor.getText()]);
   useEffect(() => {
     editor?.commands.focus();
     const content = editor?.getText();
     const segments = document.querySelectorAll(".segment");
     let clickCount = 0;
     const events = [];
-
     const handleSegmentClick = (event) => {
       let modifiedContent = content;
       const selection = event.target.innerText;
