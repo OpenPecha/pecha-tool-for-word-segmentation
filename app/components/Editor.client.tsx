@@ -7,15 +7,19 @@ function EditorContainer({ editor }: { editor: Editor }) {
   useEffect(() => {
     editor?.commands.focus();
     const content = editor?.getText();
+    console.log("step1", content);
     const segments = document.querySelectorAll(".segment");
     let clickCount = 0;
     const events = [];
     const handleSegmentClick = (event) => {
       let modifiedContent = content;
       const selection = event.target.innerText;
+      console.log("step2", selection);
       const locationText = event.target.classList;
+      console.log("step3", locationText);
       const spaceToAddLocation =
         parseInt(locationText[1].replace("s-", "")) + selection.length;
+      console.log("step4", spaceToAddLocation);
       clickCount++;
 
       setTimeout(() => {
@@ -31,7 +35,9 @@ function EditorContainer({ editor }: { editor: Editor }) {
               " " +
               modifiedContent.slice(spaceToAddLocation);
           }
+          console.log("step5", modifiedContent);
           const newText = insertHTMLonText(modifiedContent);
+          console.log("step6", newText);
           editor?.commands.setContent(newText);
         } else if (clickCount === 2) {
           const condition = ["ར་", "ས་"];
