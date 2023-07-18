@@ -52,7 +52,7 @@ export const links: LinksFunction = () => {
 export default function Index() {
   let fetcher = useFetcher();
   const data = useLoaderData();
-  let text = data?.text?.original_text || "";
+  let text = data?.text?.original_text.trim() || "";
   const { textOnline } = usePusherPresence(
     `presence-text`,
     data?.KEY,
