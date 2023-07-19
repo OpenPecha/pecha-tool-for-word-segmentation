@@ -14,7 +14,7 @@ async function getter(
   });
 
   let channel = await pusher.get({
-    path: "/channels/presence-text/users",
+    path: `/channels/presence-text-${process.env.NODE_ENV}/users`,
     params: {},
   });
   let presence = await channel.json();
@@ -27,7 +27,6 @@ async function getPusher(
   SECRET: string,
   CLUSTER: string
 ) {
-  console.log(KEY);
   const pusher: Pusher = new Pusher({
     appId: APP_ID!,
     key: KEY!,

@@ -22,19 +22,21 @@ import { createUserIfNotExists } from "~/model/user";
 import usePusherPresence from "~/lib/usePresence";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
+import { getter } from "~/service/pusher.server";
 export const loader: LoaderFunction = async ({ request }) => {
-  let { KEY, CLUSTER, APP_ID, SECRET } = process.env;
+  let { KEY, CLUSTER, APP_ID, SECRET, NODE_ENV } = process.env;
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
+  let history = url.searchParams.get("history") || null;
   if (!session) {
     return redirect("/error");
   } else {
     let user = await createUserIfNotExists(session);
-    // let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
-    let text = await getTextToDisplay([], user?.id);
+    let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
+    let text = await getTextToDisplay(activeText, user?.id, history);
     let textFromUser = await getTextToDisplayByUser(user?.id);
 
-    return { text, textFromUser, user, KEY, CLUSTER };
+    return { text, textFromUser, user, KEY, CLUSTER, NODE_ENV };
   }
 };
 
@@ -52,7 +54,7 @@ export default function Index() {
   const data = useLoaderData();
   let text = data?.text?.original_text.trim() || "";
   const { textOnline } = usePusherPresence(
-    `presence-text`,
+    `presence-text-${data.NODE_ENV}`,
     data?.KEY,
     data?.CLUSTER,
     data?.user,
@@ -72,6 +74,7 @@ export default function Index() {
       extensions: [StarterKit, Space(setter), Character(charClick)],
       content: textMemo,
       editorProps,
+      editable: false,
     },
     [textMemo]
   );
@@ -84,9 +87,7 @@ export default function Index() {
     );
   };
   let undoTask = async () => {
-    let text = checkUnknown(
-      replaceSpacesWithHTMLTag(data?.text?.original_text)
-    );
+    let text = checkUnknown(insertHTMLonText(data?.text?.original_text));
     editor?.commands.setContent(text);
   };
   let ignoreTask = async () => {
@@ -132,25 +133,29 @@ export default function Index() {
             disabled={isButtonDisabled}
             handleClick={saveText}
             value="CONFIRM"
-            title="CONFIRM"
+            title="CONFIRM (a)"
+            shortCut="a"
           />
           <Button
             disabled={isButtonDisabled}
             handleClick={rejectTask}
             value="REJECT"
-            title="REJECT"
+            title="REJECT (x)"
+            shortCut="x"
           />
           <Button
             disabled={isButtonDisabled}
             handleClick={ignoreTask}
             value="IGNORE"
-            title="IGNORE"
+            title="IGNORE (i)"
+            shortCut="i"
           />
           <Button
             disabled={isButtonDisabled}
             handleClick={undoTask}
             value="UNDO"
-            title="UNDO"
+            title="UNDO (backspace)"
+            shortCut="Backspace"
           />
         </div>
       </div>

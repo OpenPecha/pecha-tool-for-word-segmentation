@@ -1,6 +1,22 @@
 import { db } from "~/service/db.server";
 
-export async function getTextToDisplay(activeText: any, userId: string) {
+export async function getTextToDisplay(
+  activeText: any = [],
+  userId: string,
+  history: any
+) {
+  if (history) {
+    const text = await db.text.findUnique({
+      where: { id: parseInt(history) },
+    });
+    return {
+      ...text,
+      id: text?.id,
+      original_text: text?.modified_text,
+      status: text?.status,
+    };
+  }
+
   const excludedIds = activeText?.map((item) => parseInt(item.id));
   const user = await db.user.findUnique({
     where: { id: userId },

@@ -1,6 +1,10 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { EditorContent, BubbleMenu, Editor } from "@tiptap/react";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
+import selectText from "~/lib/selectRange";
+
+let select = 0;
+
 function EditorContainer({ editor }: { editor: Editor }) {
   let content = useMemo(() => editor.getText(), [editor.getText()]);
   useEffect(() => {
@@ -59,7 +63,6 @@ function EditorContainer({ editor }: { editor: Editor }) {
         }, 300);
       }, 200);
     };
-
     segments.forEach((segment, i) => {
       const event = {
         segment,
@@ -68,11 +71,43 @@ function EditorContainer({ editor }: { editor: Editor }) {
       segment.addEventListener("click", event.listener);
       events[i] = event;
     });
+    function handleKeyDown(e) {
+      let key = e.key;
+      if (
+        key === "ArrowUp" ||
+        key === "ArrowDown" ||
+        key === "ArrowLeft" ||
+        key === "ArrowRight" ||
+        key === " "
+      ) {
+        let elements = [];
+        segments.forEach((segment, i) => {
+          elements.push(segment);
+        });
+        if (select >= 0) {
+          if (key === "ArrowRight") {
+            select = select < segments.length - 1 ? select + 1 : select;
+            selectText(elements[select]);
+          }
+          if (key === "ArrowLeft") {
+            select = select !== 0 ? select - 1 : select;
+            selectText(elements[select]);
+          }
+        } else {
+          select = 0;
+        }
+        if (key === " ") {
+          elements[select].click();
+        }
+      }
+    }
 
+    document.addEventListener("keydown", handleKeyDown);
     return () => {
       segments.forEach((segment, i) => {
         segment.removeEventListener("click", events[i].listener);
       });
+      document.removeEventListener("keydown", handleKeyDown);
     };
   }, [editor, content]);
   const handleClick = () => {
@@ -85,14 +120,6 @@ function EditorContainer({ editor }: { editor: Editor }) {
     editor?.commands.setContent(newText);
   };
 
-  useEffect(() => {
-    let containers = document.querySelector(".container");
-    if (editor?.isFocused === true) {
-      containers?.classList.add("active");
-    } else {
-      containers?.classList.remove("active");
-    }
-  }, [editor?.isFocused]);
   return (
     <div className="editor-container">
       <EditorContent editor={editor} />
@@ -111,9 +138,11 @@ function EditorContainer({ editor }: { editor: Editor }) {
             return false;
           }}
         >
-          <button onClick={handleClick} id="spaceButton">
-            +
-          </button>
+          <button
+            onClick={handleClick}
+            id="spaceButton"
+            style={{ display: "none" }}
+          ></button>
         </BubbleMenu>
       )}
     </div>

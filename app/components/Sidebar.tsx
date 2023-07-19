@@ -1,4 +1,4 @@
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import React from "react";
 
 function Sidebar({ user, online }) {
@@ -39,13 +39,14 @@ function Sidebar({ user, online }) {
         <div className="history-container">
           {user?.text.map((text) => {
             return (
-              <div
+              <Link
+                to={`/?session=${user.username}&history=${text.id}`}
                 key={text?.id}
                 className="history-item"
-                onClick={() => resetText(text.id)}
+                // onClick={() => resetText(text.id)}
               >
                 {text.modified_text}
-              </div>
+              </Link>
             );
           })}
         </div>

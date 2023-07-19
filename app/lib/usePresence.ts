@@ -8,9 +8,11 @@ const usePusherPresence = (
   user: any,
   text: any
 ) => {
+  if (!text) {
+    return { id: user?.id };
+  }
   const [textOnline, settextOnline] = useState([]);
   useEffect(() => {
-    if (!text) text = { id: Math.random() };
     const pusher = new Pusher(id, {
       cluster,
       authEndpoint: "/auth/pusher",
@@ -44,7 +46,7 @@ const usePusherPresence = (
       channel.unbind();
       pusher.unsubscribe(channelName);
     };
-  }, [channelName, text?.id]);
+  }, [channelName, user]);
   return { textOnline };
 };
 
