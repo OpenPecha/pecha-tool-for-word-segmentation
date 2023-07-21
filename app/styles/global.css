@@ -20,13 +20,14 @@
   margin-inline: 3px;
   cursor: pointer;
 }
-.segment:hover {
+.seg:hover {
   background-color: yellow;
   cursor: pointer;
 }
 body {
   counter-reset: section;
   font-family: "Monlam";
+  overflow: hidden;
 }
 .container {
   border: 1px solid #ddd;

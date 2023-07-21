@@ -8,9 +8,8 @@ let select = 0;
 function EditorContainer({ editor }: { editor: Editor }) {
   let content = useMemo(() => editor.getText(), [editor.getText()]);
   useEffect(() => {
-    editor?.commands.focus();
     const content = editor?.getText();
-    const segments = document.querySelectorAll(".segment");
+    const segments = document.querySelectorAll(".seg");
     let clickCount = 0;
     const events = [];
     const handleSegmentClick = (event) => {
@@ -101,7 +100,10 @@ function EditorContainer({ editor }: { editor: Editor }) {
         }
       }
     }
-
+    if (select > 1) {
+      let elements = document.querySelectorAll(".seg");
+      selectText(elements[select]);
+    }
     document.addEventListener("keydown", handleKeyDown);
     return () => {
       segments.forEach((segment, i) => {

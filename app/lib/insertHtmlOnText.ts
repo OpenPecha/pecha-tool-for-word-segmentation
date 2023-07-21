@@ -8,7 +8,7 @@ function insertHTMLonText(text: string) {
     if (word === " ") {
       textHTML += replaceSpacesWithHTMLTag(word);
     } else {
-      textHTML += `<Character class='segment s-${length}'>${word}</Character>`;
+      textHTML += `<Character class='seg s-${length}'>${word}</Character>`;
     }
     length += word.length;
   });
