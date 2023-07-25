@@ -50,7 +50,7 @@ def upload_data_to_postgres(csv_file, database, user, password, host, port, tabl
             print("Connection closed.")
 
 # Replace these values with your PostgreSQL credentials and table name
-database = "sentensesegmetation"
+database = "wordsegmentation"
 user = "postgres"
 password = "123"
 host = "localhost"  # Usually 'localhost' if running locally

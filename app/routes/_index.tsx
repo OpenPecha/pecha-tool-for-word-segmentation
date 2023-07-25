@@ -119,15 +119,17 @@ export default function Index() {
           flexDirection: "column",
         }}
       >
-        {!data.text && <div>Thank you . your work is complete ! 😊😊😊</div>}
-
-        <div className="container">
-          <div className="label">transcript</div>
-          <ClientOnly fallback={null}>
-            {() => <Editor editor={editor!} />}
-          </ClientOnly>
-          {!editor && <div>loading...</div>}
-        </div>
+        {!data.text ? (
+          <div>Thank you . your work is complete ! 😊😊😊</div>
+        ) : (
+          <div className="container">
+            <div className="label">transcript</div>
+            <ClientOnly fallback={null}>
+              {() => <Editor editor={editor!} />}
+            </ClientOnly>
+            {!editor && <div>loading...</div>}
+          </div>
+        )}
         <div className="btn-container">
           <Button
             disabled={isButtonDisabled}

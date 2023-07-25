@@ -15,17 +15,16 @@ function Sidebar({ user, online }) {
     <div className="header">
       <div className="sidebar_title" onClick={() => setOpenMenu(true)}>
         <Hamburger />
-        Pecha Tools
+        Word Segmentation
       </div>
       <div className={`sidebar ${openMenu ? "open" : ""}`}>
         <div className={`sidebar_menu`}>
           <div className="sidebar-Header">
-            <div className="title">Pecha Tools</div>
+            <div className="title">Word Segmentation</div>
             <div className="close" onClick={() => setOpenMenu(false)}>
               x
             </div>
           </div>
-          <div className="sidebar-section-title">Word Segmentation</div>
           <div>
             <span className="info">User :</span> {user?.username}
           </div>
