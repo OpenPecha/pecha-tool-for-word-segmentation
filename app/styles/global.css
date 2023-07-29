@@ -199,9 +199,21 @@ button:disabled {
   }
   .sidebar_title {
     position: absolute;
-    top: 0;
     left: 0;
-    right: 0;
+    color: #fff;
+    width: 100%;
+    display: flex;
+    padding: 5px 10px;
+    z-index: 10;
+    position: fixed;
+    flex-wrap: nowrap;
+    font-size: 14px;
+    background: #54606e;
+    align-items: center;
+    font-family: "Lato", "Trebuchet MS", Roboto, Helvetica, Arial, sans-serif;
+    flex-direction: row;
+    height: 20px;
+    justify-content: flex-start;
   }
   .sidebar_title > svg {
     display: inline-block;
