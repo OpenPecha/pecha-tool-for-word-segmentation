@@ -124,7 +124,7 @@ function EditorContainer({ editor }: { editor: Editor }) {
     editor?.commands.setContent(newText);
   };
   return (
-    <div className="text-slate-600 h-[90%] m-auto bg-white max-h-[50dvh] overflow-y-scroll p-2">
+    <div className="text-slate-600 h-[90%] m-auto bg-white max-h-[60dvh] overflow-y-scroll p-2 text-3xl">
       <EditorContent editor={editor} />
       {editor && (
         <BubbleMenu

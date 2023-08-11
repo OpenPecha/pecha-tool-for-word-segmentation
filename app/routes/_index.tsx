@@ -109,7 +109,7 @@ export default function Index() {
         {!data.text ? (
           <div>Thank you . your work is complete ! 😊😊😊</div>
         ) : (
-          <div className="container md:h-[45vh]">
+          <div className="container md:h-[54vh]">
             <div className="label">transcript</div>
             <ClientOnly fallback={null}>
               {() => <Editor editor={editor!} />}
