@@ -1,5 +1,5 @@
 import { LinksFunction, json } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { Link, useFetcher } from "@remix-run/react";
 import { Editor, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import React, { useEffect, useMemo, useState } from "react";
@@ -73,7 +73,7 @@ function UserDetail() {
     },
     [textMemo]
   );
-
+  if (!editor) return null;
   let saveText = async () => {
     let modified_text = editor!.getText();
     let id = selectedId;
@@ -100,6 +100,12 @@ function UserDetail() {
         selectedId={selectedId}
         setSelectedId={setSelectedId}
       />
+      <Link
+        to={`/admin?session=${data.admin}`}
+        className="decoration-neutral text-inherit bg-yellow-600 h-fit px-2 py-1 rounded-sm"
+      >
+        back
+      </Link>
       <div
         style={{
           flex: 1,

@@ -54,7 +54,7 @@ function AdminHistorySidebar({
     <div className="sidebar-Header">
       <Link to={`/admin?session=${data.admin}`}>
         <div className="title" style={{ cursor: "pointer" }}>
-          Sentence segmentation
+          Word segmentation
         </div>
       </Link>
       <div className="close" onClick={() => setOpenMenu(false)}>
@@ -71,7 +71,7 @@ function AdminHistorySidebar({
           to={`/admin?session=${data.admin}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          Sentence segmentation
+          Word segmentation
         </Link>
       </div>
       <div className={`sidebar ${openMenu ? "open" : ""}`}>

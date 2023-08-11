@@ -32,26 +32,13 @@ body {
   box-shadow: 1px 1px 5px #ddd;
   max-height: 450px;
   width: 90%;
-  height: fit-content;
 }
 .container.active {
   outline: var(--purple);
   border: 2px solid var(--purple);
 }
-.editor-container {
-  color: #444;
-  margin: auto;
-  padding: 40px;
-  display: flex;
-  justify-content: center;
-  background: #fff;
-  border-radius: 0;
-  word-wrap: break-word;
-  white-space: pre-wrap;
-  max-height: 65%;
-  overflow: scroll;
-}
-.editor-container *::selection {
+
+*::selection {
   background-color: yellow;
 }
 .ProseMirror:focus {
@@ -71,6 +58,8 @@ button:disabled {
   padding-top: 5px;
 }
 .btn-container {
+  position: fixed;
+  bottom: 10px;
   display: flex;
   gap: 10px;
   justify-content: center;

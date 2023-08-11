@@ -1,10 +1,12 @@
 import { User } from "@prisma/client";
 import { LoaderFunction, redirect } from "@remix-run/node";
-import { Link, useLoaderData } from "@remix-run/react";
-import React, { useState } from "react";
+import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react";
+import React, { useRef, useState } from "react";
 import { getAprovedGroup } from "~/model/text";
 import { getUser, getUsers } from "~/model/user";
-
+import { FiEdit2 } from "react-icons/fi";
+import { TiTick } from "react-icons/ti";
+import { ImCross } from "react-icons/im";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -77,7 +79,8 @@ function admin() {
           <table className="table">
             <thead>
               <tr>
-                <th>User</th>
+                <th>Name</th>
+                <th>Email</th>
                 <th>Role</th>
                 <th>Assigned Jobs</th>
               </tr>
@@ -98,9 +101,57 @@ export default admin;
 
 function Users({ user }: { user: User }) {
   let { groups, user: Admin } = useLoaderData();
+  const [openEdit, setOpenEdit] = useState(false);
+  const inputRef = useRef();
   let url = `/admin/${user.username}?session=${Admin.username}`;
+  const fetcher = useFetcher();
+
+  function handleSubmit() {
+    let value = inputRef.current.value;
+    if (!value) return;
+    fetcher.submit(
+      {
+        id: user.id,
+        nickname: value,
+      },
+      {
+        action: "/api/user",
+        method: "POST",
+      }
+    );
+    setOpenEdit(false);
+  }
+
   return (
     <tr>
+      <td className="flex gap-2">
+        {!openEdit ? (
+          <>
+            <Link to={url} style={{ textDecoration: "none", color: "inherit" }}>
+              {user.nickname}
+            </Link>
+            <button onClick={() => setOpenEdit(true)}>
+              <FiEdit2 />
+            </button>
+          </>
+        ) : (
+          <div className="flex gap-2">
+            <input
+              type="text"
+              defaultValue={user.nickname}
+              name="nickname"
+              ref={inputRef}
+              className="input input-bordered w-full max-w-xs"
+            />
+            <button type="button" onClick={handleSubmit}>
+              <TiTick color="green" size={24} />
+            </button>
+            <button type="button" onClick={() => setOpenEdit(false)}>
+              <ImCross color="red" size={20} />
+            </button>
+          </div>
+        )}
+      </td>
       <td>
         <Link to={url} style={{ textDecoration: "none", color: "inherit" }}>
           {user.username}

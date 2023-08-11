@@ -63,17 +63,15 @@ export default function Index() {
 
   const setter = () => {};
   const charClick = () => {};
-  let textMemo = useMemo(() => {
-    if (newText) return newText;
-  }, [newText]);
+
   const editor = useEditor(
     {
       extensions: [StarterKit, Space(setter), Character(charClick)],
-      content: textMemo,
+      content: newText,
       editorProps,
       editable: false,
     },
-    [textMemo]
+    [newText]
   );
   let saveText = async () => {
     let modified_text = editor!.getText();
@@ -107,19 +105,11 @@ export default function Index() {
     <div className="main">
       <Sidebar user={data.user} online={textOnline} />
 
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-        }}
-      >
+      <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
         {!data.text ? (
           <div>Thank you . your work is complete ! 😊😊😊</div>
         ) : (
-          <div className="container">
+          <div className="container md:h-[45vh]">
             <div className="label">transcript</div>
             <ClientOnly fallback={null}>
               {() => <Editor editor={editor!} />}

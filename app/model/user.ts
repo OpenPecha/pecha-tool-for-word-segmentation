@@ -18,6 +18,7 @@ export const createUserIfNotExists = async (username: string) => {
     const newUser = await db.user.create({
       data: {
         username: username,
+        nickname: username,
       },
       include: {
         text: true,
@@ -53,6 +54,22 @@ export const getUser = async (username: string) => {
         text: true,
         rejected_list: true,
         ignored_list: true,
+      },
+    });
+    return user;
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+
+export const updateUserNickname = async (id: string, name: string) => {
+  try {
+    let user = await db.user.update({
+      where: {
+        id,
+      },
+      data: {
+        nickname: name,
       },
     });
     return user;
