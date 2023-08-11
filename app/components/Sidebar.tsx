@@ -1,6 +1,24 @@
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import React, { useState } from "react";
-import truncateText from "~/lib/truncate";
+
+interface HistoryItemProps {
+  id: number;
+  user: any;
+  onClick: () => void;
+  icon: JSX.Element;
+}
+
+function HistoryItem({ id, user, onClick, icon }: HistoryItemProps) {
+  return (
+    <Link
+      to={`/?session=${user.username}&history=${id}`}
+      className="history-item flex gap-3"
+      onClick={onClick}
+    >
+      {id} {icon}
+    </Link>
+  );
+}
 
 function Sidebar({ user, online }) {
   let data = useLoaderData();
@@ -25,12 +43,29 @@ function Sidebar({ user, online }) {
               x
             </div>
           </div>
+          {user.role === "ADMIN" && (
+            <Link
+              to={`/admin?session=${user?.username}`}
+              style={{
+                textDecoration: "none",
+                color: "white",
+                background: "gray",
+                padding: 10,
+              }}
+            >
+              Admin
+            </Link>
+          )}
           <div>
             <span className="info">User :</span> {user?.username}
           </div>
           <div>
             <span className="info">text id :</span> {text?.id}
           </div>
+          <div>
+            <span className="info">Batch :</span> {text?.batch}
+          </div>
+          <div></div>
           <div>
             <span className="info">Approved :</span> {user?.text?.length}
           </div>
@@ -48,30 +83,19 @@ function Sidebar({ user, online }) {
         <div className="sidebar_menu " style={{ flex: 1 }}>
           <div className="sidebar-section-title">History</div>
           <div className="history-container">
-            {user?.text.map((text) => {
-              return (
-                <Link
-                  to={`/?session=${user.username}&history=${text.id}`}
-                  key={text?.id}
-                  className="history-item"
-                  onClick={() => setOpenMenu(false)}
-                >
-                  {text.modified_text} <Tick />
-                </Link>
-              );
-            })}
-            {user?.rejected_list.map((text) => {
-              return (
-                <Link
-                  to={`/?session=${user.username}&history=${text.id}`}
-                  key={text?.id}
-                  className="history-item"
-                  onClick={() => setOpenMenu(false)}
-                >
-                  {truncateText(text.original_text, 40)} <Cross />
-                </Link>
-              );
-            })}
+            {user &&
+              (user.rejected_list || user.text) &&
+              [...(user?.rejected_list || []), ...(user?.text || [])]
+                .sort(sortUpdate)
+                .map((text: Text) => (
+                  <HistoryItem
+                    user={user}
+                    id={text?.id}
+                    key={text.id + "-accepted"}
+                    onClick={() => setOpenMenu(false)}
+                    icon={text?.status === "APPROVED" ? <Tick /> : <Cross />}
+                  />
+                ))}
           </div>
         </div>
       </div>
@@ -81,7 +105,7 @@ function Sidebar({ user, online }) {
 
 export default Sidebar;
 
-function Hamburger() {
+export function Hamburger() {
   return (
     <svg
       aria-hidden="true"
@@ -95,7 +119,7 @@ function Hamburger() {
   );
 }
 
-function Tick() {
+export function Tick() {
   return (
     <svg
       aria-hidden="true"
@@ -108,7 +132,7 @@ function Tick() {
     </svg>
   );
 }
-function Cross() {
+export function Cross() {
   return (
     <svg
       aria-hidden="true"
@@ -120,4 +144,10 @@ function Cross() {
       <path d="M18.984 6.422l-5.578 5.578 5.578 5.578-1.406 1.406-5.578-5.578-5.578 5.578-1.406-1.406 5.578-5.578-5.578-5.578 1.406-1.406 5.578 5.578 5.578-5.578z"></path>
     </svg>
   );
+}
+
+function sortUpdate(a: Text, b: Text) {
+  const parsedDate1 = new Date(a.updatedAt);
+  const parsedDate2 = new Date(b.updatedAt);
+  return parsedDate2 - parsedDate1;
 }

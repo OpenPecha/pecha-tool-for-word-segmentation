@@ -14,13 +14,14 @@ export const action: ActionFunction = async ({ request }) => {
   let session = url.searchParams.get("session");
   let history = url.searchParams.get("history");
   let text = null;
+  let isAdmin = formData.get("admin") as string;
 
   if (request.method === "POST") {
     const modified_text = formData.get("modified_text") as string;
     const userId = formData.get("userId") as string;
     const id = formData.get("id") as string;
     await removeRejectText(parseInt(id), userId, "APPROVED");
-    text = await saveText(parseInt(id), modified_text, userId);
+    text = await saveText(parseInt(id), modified_text, userId, !!isAdmin);
   }
 
   if (request.method === "DELETE") {

@@ -123,7 +123,7 @@ function EditorContainer({ editor }: { editor: Editor }) {
   };
 
   return (
-    <div className="editor-container">
+    <div className="text-slate-600 m-auto bg-white max-h-[50dvh] overflow-y-scroll p-2">
       <EditorContent editor={editor} />
       {editor && (
         <BubbleMenu

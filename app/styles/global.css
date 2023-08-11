@@ -1,9 +1,4 @@
-@font-face {
-  font-family: "Monlam";
-  src: url("/font/monlam_bodyig.woff") format("woff");
-  font-style: normal;
-  font-display: swap;
-}
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300&family=Roboto+Condensed&display=swap");
 
 :root {
   --purple: #583fcf;
@@ -26,8 +21,10 @@
 }
 body {
   counter-reset: section;
-  font-family: "Monlam";
   overflow: hidden;
+  font-size: 20px;
+
+  font-family: "Lato", "Trebuchet MS", Roboto, Helvetica, Arial, sans-serif;
 }
 .container {
   border: 1px solid #ddd;
@@ -42,16 +39,13 @@ body {
   border: 2px solid var(--purple);
 }
 .editor-container {
-  text-align: center;
   color: #444;
   margin: auto;
   padding: 40px;
   display: flex;
   justify-content: center;
   background: #fff;
-  font-family: "Lato", "Trebuchet MS", Roboto, Helvetica, Arial, sans-serif;
   border-radius: 0;
-  font-size: 20px;
   word-wrap: break-word;
   white-space: pre-wrap;
   max-height: 65%;

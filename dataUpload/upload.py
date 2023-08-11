@@ -2,6 +2,11 @@ import csv
 import psycopg2
 from psycopg2 import Error
 from datetime import datetime
+import os
+from dotenv import load_dotenv
+
+# Load the environment variables from the .env file
+load_dotenv()
 
 def clean_text(text):
     # Remove leading and trailing whitespace
@@ -10,7 +15,13 @@ def clean_text(text):
     cleaned_text = cleaned_text.lower()
     return cleaned_text
 
-def upload_data_to_postgres(csv_file, database, user, password, host, port, table_name):
+group=1
+
+def upload_data_to_postgres(txt_file, database, user, password, host, port, table_name):
+    global group
+    TEXT_PER_GROUP=10
+    LINES_PER_TEXT=1
+
     try:
         # Establish a connection to the PostgreSQL database
         connection = psycopg2.connect(
@@ -22,24 +33,27 @@ def upload_data_to_postgres(csv_file, database, user, password, host, port, tabl
         )
         cursor = connection.cursor()
 
+        # Upload data from TXT file to the table
+        with open(txt_file, 'r', encoding='utf-8') as file:
+            lines = file.readlines()
+            batch = os.path.basename(txt_file)
+            line_count=0
 
-
-        # Upload data from CSV file to the table
-        with open(csv_file, 'r',encoding='utf-8') as file:
-            csv_data = csv.reader(file)
-            next(csv_data)  # Skip the header row if it exists
-
-            for row in csv_data:
-                original_text = clean_text(row[0])  # Assuming the CSV has two columns 'original_text' and 'modified_text'
+            for idx in range(0, len(lines), LINES_PER_TEXT):
+                original_text = " ".join([clean_text(line) for line in lines[idx:idx+LINES_PER_TEXT]])
                 createdAt = datetime.now()
-                modified_text=datetime.now()
-                insert_query = f'INSERT INTO "Text" (original_text, "createdAt", "updatedAt") VALUES (%s, %s, %s);'
-                data_to_insert=(original_text, createdAt, modified_text)
-                cursor.execute(insert_query, data_to_insert)
+                updatedAt = datetime.now()
+                line_count+=1
+              
+                if(original_text!=" " or original_text!=""):
+                     if(line_count%TEXT_PER_GROUP==0):
+                          group+=1
+                     insert_query = f'INSERT INTO {table_name} (original_text, "createdAt", "updatedAt", "version", "batch") VALUES (%s, %s, %s, %s, %s);'
+                     data_to_insert = (original_text, createdAt, updatedAt, batch, group)
+                     cursor.execute(insert_query, data_to_insert)
+                     print(f'Group {group}: Lines merged and inserted')
+            connection.commit()  # Commit after every 30 groups
 
-            connection.commit()
-
-        print("Data upload successful.")
 
     except (Exception, Error) as e:
         print(f"Error while uploading data to PostgreSQL: {e}")
@@ -50,12 +64,16 @@ def upload_data_to_postgres(csv_file, database, user, password, host, port, tabl
             print("Connection closed.")
 
 # Replace these values with your PostgreSQL credentials and table name
-database = "wordsegmentation"
-user = "postgres"
-password = "123"
-host = "localhost"  # Usually 'localhost' if running locally
-port = "5432"  # Usually 5432 by default
+database = os.environ.get("DATABASE")
+user = os.environ.get("USER")
+password = os.environ.get("PASSWORD")
+host = os.environ.get("HOST")  # Usually 'localhost' if running locally
+port = os.environ.get("PORT")  # Usually 5432 by default
 table_name = '"Text"'  # Replace 'your_table' with the actual table name in your database
 
-csv_file_path = "data.csv"
-upload_data_to_postgres(csv_file_path, database, user, password, host, port, table_name)
+input_folder_path = "input"   # Replace this with the path to your TXT file
+
+for filename in os.listdir(input_folder_path):
+    if filename.endswith(".txt"):
+        txt_file_path = os.path.join(input_folder_path, filename)
+        upload_data_to_postgres(txt_file_path, database, user, password, host, port, table_name)

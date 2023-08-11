@@ -32,8 +32,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect("/error");
   } else {
     let user = await createUserIfNotExists(session);
-    let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
-    let text = await getTextToDisplay(activeText, user?.id, history);
+    // let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
+    let text = await getTextToDisplay(user?.id, history);
     let textFromUser = await getTextToDisplayByUser(user?.id);
 
     return { text, textFromUser, user, KEY, CLUSTER, NODE_ENV };
@@ -45,9 +45,6 @@ export const meta: V2_MetaFunction = () => {
     { title: "Pecha Tools" },
     { name: "description", content: "Word segmentation" },
   ];
-};
-export const links: LinksFunction = () => {
-  return [{ rel: "stylesheet", href: globalStyle }];
 };
 export default function Index() {
   let fetcher = useFetcher();
@@ -138,13 +135,13 @@ export default function Index() {
             title="CONFIRM (a)"
             shortCut="a"
           />
-          <Button
+          {/* <Button
             disabled={isButtonDisabled}
             handleClick={rejectTask}
             value="REJECT"
             title="REJECT (x)"
             shortCut="x"
-          />
+          /> */}
           <Button
             disabled={isButtonDisabled}
             handleClick={ignoreTask}

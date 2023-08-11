@@ -30,14 +30,14 @@ export const createUserIfNotExists = async (username: string) => {
 
 export const getUsers = async () => {
   try {
-    let user = db.user.findMany({
+    let users = await db.user.findMany({
       include: {
         text: true,
         rejected_list: true,
         ignored_list: true,
       },
     });
-    return user;
+    return users;
   } catch (e) {
     throw new Error(e);
   }

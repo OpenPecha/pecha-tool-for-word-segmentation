@@ -1,6 +1,10 @@
 import psycopg2
 from psycopg2 import Error
+import os
+from dotenv import load_dotenv
 
+# Load the environment variables from the .env file
+load_dotenv()
 def delete_all_data_from_table(database, user, password, host, port, table_name):
     try:
         # Establish a connection to the PostgreSQL database
@@ -30,12 +34,11 @@ def delete_all_data_from_table(database, user, password, host, port, table_name)
             connection.close()
             print("Connection closed.")
 # Replace these values with your PostgreSQL credentials and table name
-database = "wordsegmentation"
-user = "postgres"
-password = "123"
-host = "localhost"  # Usually 'localhost' if running locally
-port = "5432"  # Usually 5432 by default
+database = os.environ.get("DATABASE")
+user = os.environ.get("USER")
+password = os.environ.get("PASSWORD")
+host = os.environ.get("HOST")  # Usually 'localhost' if running locally
+port = os.environ.get("PORT")  # Usually 5432 by default
 table_name = '"Text"'  # Replace 'your_table' with the actual table name in your database
 
-csv_file_path = "data.csv"
 delete_all_data_from_table(database, user, password, host, port, table_name)
