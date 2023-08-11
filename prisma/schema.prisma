@@ -47,5 +47,6 @@ enum Status {
 
 enum Role {
   USER
+  ANNOTATOR
   ADMIN
 }

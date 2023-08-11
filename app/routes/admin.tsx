@@ -79,9 +79,9 @@ function admin() {
           <table className="table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
+                <th>user</th>
                 <th>Role</th>
+                <th>Active</th>
                 <th>Assigned Jobs</th>
               </tr>
             </thead>
@@ -113,6 +113,7 @@ function Users({ user }: { user: User }) {
       {
         id: user.id,
         nickname: value,
+        action: "change_nickname",
       },
       {
         action: "/api/user",
@@ -121,43 +122,66 @@ function Users({ user }: { user: User }) {
     );
     setOpenEdit(false);
   }
-
+  function handleChangeRole() {
+    fetcher.submit(
+      {
+        id: user.id,
+        role: user.role === "ANNOTATOR" ? "USER" : "ANNOTATOR",
+        action: "change_role",
+      },
+      {
+        action: "/api/user",
+        method: "POST",
+      }
+    );
+  }
   return (
     <tr>
       <td className="flex gap-2">
-        {!openEdit ? (
-          <>
-            <Link to={url} style={{ textDecoration: "none", color: "inherit" }}>
+        <div className="flex gap-2">
+          {!openEdit ? (
+            <>
               {user.nickname}
-            </Link>
-            <button onClick={() => setOpenEdit(true)}>
-              <FiEdit2 />
-            </button>
-          </>
-        ) : (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              defaultValue={user.nickname}
-              name="nickname"
-              ref={inputRef}
-              className="input input-bordered w-full max-w-xs"
-            />
-            <button type="button" onClick={handleSubmit}>
-              <TiTick color="green" size={24} />
-            </button>
-            <button type="button" onClick={() => setOpenEdit(false)}>
-              <ImCross color="red" size={20} />
-            </button>
-          </div>
-        )}
-      </td>
-      <td>
+              <button onClick={() => setOpenEdit(true)}>
+                <FiEdit2 />
+              </button>
+            </>
+          ) : (
+            <>
+              {" "}
+              <input
+                type="text"
+                defaultValue={
+                  user.nickname === user.username ? "" : user.nickname
+                }
+                name="nickname"
+                ref={inputRef}
+                className="input input-xs input-bordered w-full max-w-xs"
+              />
+              <button type="button" onClick={handleSubmit}>
+                <TiTick color="green" size={24} />
+              </button>
+              <button type="button" onClick={() => setOpenEdit(false)}>
+                <ImCross color="red" size={20} />
+              </button>
+            </>
+          )}
+        </div>
+        (
         <Link to={url} style={{ textDecoration: "none", color: "inherit" }}>
           {user.username}
         </Link>
+        )
       </td>
       <td>{user.role}</td>
+      <td>
+        <input
+          type="checkbox"
+          className="toggle toggle-success"
+          checked={user.role === "ANNOTATOR"}
+          onChange={handleChangeRole}
+        />
+      </td>
       <td className="flex gap-2 ">
         {user.assigned_batch.map((item) => {
           return (

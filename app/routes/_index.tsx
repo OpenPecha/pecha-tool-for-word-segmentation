@@ -33,9 +33,12 @@ export const loader: LoaderFunction = async ({ request }) => {
   } else {
     let user = await createUserIfNotExists(session);
     // let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
-    let text = await getTextToDisplay(user?.id, history);
-    let textFromUser = await getTextToDisplayByUser(user?.id);
+    let text = null;
+    if (user.role === "ANNOTATOR" || user.role === "ADMIN") {
+      text = await getTextToDisplay(user?.id, history);
+    }
 
+    let textFromUser = await getTextToDisplayByUser(user?.id);
     return { text, textFromUser, user, KEY, CLUSTER, NODE_ENV };
   }
 };

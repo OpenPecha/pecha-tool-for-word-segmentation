@@ -1,3 +1,4 @@
+import { Role } from "@prisma/client";
 import { db } from "~/service/db.server";
 
 export const createUserIfNotExists = async (username: string) => {
@@ -70,6 +71,21 @@ export const updateUserNickname = async (id: string, name: string) => {
       },
       data: {
         nickname: name,
+      },
+    });
+    return user;
+  } catch (e) {
+    throw new Error(e);
+  }
+};
+export const updateUserRole = async (id: string, role: Role) => {
+  try {
+    let user = await db.user.update({
+      where: {
+        id,
+      },
+      data: {
+        role,
       },
     });
     return user;
