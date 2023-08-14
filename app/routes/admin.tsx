@@ -82,6 +82,7 @@ function admin() {
                 <th>user</th>
                 <th>Role</th>
                 <th>Active</th>
+                <th>total reviewed</th>
                 <th>Assigned Jobs</th>
               </tr>
             </thead>
@@ -105,7 +106,7 @@ function Users({ user }: { user: User }) {
   const inputRef = useRef();
   let url = `/admin/${user.username}?session=${Admin.username}`;
   const fetcher = useFetcher();
-
+  const reviewed_count = user.text.filter((item) => item.reviewed).length;
   function handleSubmit() {
     let value = inputRef.current.value;
     if (!value) return;
@@ -177,11 +178,16 @@ function Users({ user }: { user: User }) {
       <td>
         <input
           type="checkbox"
-          className="toggle toggle-success"
+          className={`toggle toggle-success ${
+            fetcher.state !== "idle" &&
+            "cursor-not-allowed opacity-50 pointer-events-non"
+          }`}
           checked={user.role === "ANNOTATOR"}
           onChange={handleChangeRole}
+          aria-label="Toggle_role"
         />
       </td>
+      <td>{reviewed_count}</td>
       <td className="flex gap-2 ">
         {user.assigned_batch.map((item) => {
           return (

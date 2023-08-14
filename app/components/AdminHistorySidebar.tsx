@@ -77,19 +77,12 @@ function AdminHistorySidebar({
       <div className={`sidebar ${openMenu ? "open" : ""}`}>
         <div className="sidebar_menu">
           <SidebarHeader />
-          {user.role === "ADMIN" && (
-            <Link
-              to={`/admin?session=${user?.username}`}
-              style={{
-                textDecoration: "none",
-                color: "white",
-                background: "gray",
-                padding: 10,
-              }}
-            >
-              Admin
-            </Link>
-          )}
+          <Link
+            to={`/admin?session=${data?.admin}`}
+            className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 "
+          >
+            ADMIN
+          </Link>
           <div>
             <span className="info">User :</span> {user?.username}
           </div>

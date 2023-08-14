@@ -6,13 +6,20 @@ interface HistoryItemProps {
   user: any;
   onClick: () => void;
   icon: JSX.Element;
+  disabled?: boolean;
 }
 
-function HistoryItem({ id, user, onClick, icon }: HistoryItemProps) {
+function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
+  if (disabled)
+    return (
+      <div className="history-item flex gap-3">
+        {id} {icon}
+      </div>
+    );
   return (
     <Link
       to={`/?session=${user.username}&history=${id}`}
-      className="history-item flex gap-3"
+      className="history-item flex gap-3 items-center"
       onClick={onClick}
     >
       {id} {icon}
@@ -46,14 +53,9 @@ function Sidebar({ user, online }) {
           {user.role === "ADMIN" && (
             <Link
               to={`/admin?session=${user?.username}`}
-              style={{
-                textDecoration: "none",
-                color: "white",
-                background: "gray",
-                padding: 10,
-              }}
+              className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 rounded-sm"
             >
-              Admin
+              ADMIN
             </Link>
           )}
           <div>
@@ -85,7 +87,7 @@ function Sidebar({ user, online }) {
           <div className="history-container">
             {user &&
               (user.rejected_list || user.text) &&
-              [...(user?.rejected_list || []), ...(user?.text || [])]
+              (user?.rejected_list || [])
                 .sort(sortUpdate)
                 .map((text: Text) => (
                   <HistoryItem
@@ -93,9 +95,24 @@ function Sidebar({ user, online }) {
                     id={text?.id}
                     key={text.id + "-accepted"}
                     onClick={() => setOpenMenu(false)}
-                    icon={text?.status === "APPROVED" ? <Tick /> : <Cross />}
+                    icon={<Cross />}
                   />
                 ))}
+            {(user?.text || []).sort(sortUpdate).map((text: Text) => (
+              <HistoryItem
+                user={user}
+                id={text?.id}
+                key={text.id + "-rejected"}
+                onClick={() => setOpenMenu(false)}
+                disabled={text?.reviewed}
+                icon={
+                  <div className="flex items-center justify-between flex-1">
+                    <Tick />
+                    {text?.reviewed && <span>reviewed</span>}
+                  </div>
+                }
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -149,5 +166,14 @@ export function Cross() {
 function sortUpdate(a: Text, b: Text) {
   const parsedDate1 = new Date(a.updatedAt);
   const parsedDate2 = new Date(b.updatedAt);
-  return parsedDate2 - parsedDate1;
+  if (a.reviewed === b.reviewed) {
+    return parsedDate2 - parsedDate1;
+  }
+  if (a.reviewed) {
+    return 1;
+  }
+  if (b.reviewed) {
+    return -1;
+  }
+  return 0;
 }

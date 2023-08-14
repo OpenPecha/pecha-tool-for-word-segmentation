@@ -38,8 +38,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       text = await getTextToDisplay(user?.id, history);
     }
 
-    let textFromUser = await getTextToDisplayByUser(user?.id);
-    return { text, textFromUser, user, KEY, CLUSTER, NODE_ENV };
+    return { text, user, KEY, CLUSTER, NODE_ENV };
   }
 };
 
@@ -102,7 +101,7 @@ export default function Index() {
       { method: "PATCH", action: "/api/text" }
     );
   };
-  let isButtonDisabled = !editor || !data.text;
+  let isButtonDisabled = !editor || !data.text || data.text.reviewed;
   if (data.error) return <div>{data.error}</div>;
   return (
     <div className="main">

@@ -100,25 +100,12 @@ function UserDetail() {
         selectedId={selectedId}
         setSelectedId={setSelectedId}
       />
-      <Link
-        to={`/admin?session=${data.admin}`}
-        className="decoration-neutral text-inherit bg-yellow-600 h-fit px-2 py-1 rounded-sm"
-      >
-        back
-      </Link>
-      <div
-        style={{
-          flex: 1,
-          display: "flex",
-          justifyContent: "space-around",
-          alignItems: "center",
-          flexDirection: "column",
-        }}
-      >
+
+      <div className="flex-1 flex items-center flex-col md:mt-[10vh]">
         {!text || !selectedId || !editor ? (
           <div>Thank you . your work is complete ! 😊😊😊</div>
         ) : (
-          <div className="container">
+          <div className="container md:h-[54vh]">
             <div className="label">transcript</div>
             <ClientOnly fallback={null}>
               {() => <EditorContainer editor={editor!} />}

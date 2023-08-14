@@ -4,28 +4,38 @@ import { getUnassignedBatch } from "./group";
 
 export async function checkAndAssignBatch(userId: string) {
   try {
-    let batchToAssign;
+    let batchToAssign = null;
     // 1. Retrieve the user's current assigned batches (if any)
     const user = await db.user.findUnique({
       where: { id: userId },
-      select: { assigned_batch: true },
+      select: {
+        assigned_batch: true,
+        ignored_list: true,
+      },
     });
     let assigned_batch = user?.assigned_batch;
+    let ignored_list = user?.ignored_list.map((item) => item.id) || [];
     if (!user) return null;
     if (assigned_batch?.length === 0) {
-      batchToAssign = await getUnassignedBatch();
+      batchToAssign = await getUnassignedBatch(userId);
     } else {
+      let textsInBatch = await db.text.findMany({
+        where: {
+          batch: { in: user.assigned_batch },
+          id: { notIn: ignored_list },
+        },
+      });
       for (const batch of user.assigned_batch) {
-        const textsInBatch = await db.text.findMany({
-          where: { batch: batch },
-        });
-
+        let batchList = textsInBatch.filter((item) => item.batch === batch);
         // If there is any text with a null modified_text, return false
-        if (textsInBatch.some((text) => text.modified_text === null)) {
-          batchToAssign = batch;
-        } else {
-          batchToAssign = await getUnassignedBatch();
+        if (batchList.some((text) => text.modified_text === null)) {
+          return batch;
         }
+      }
+      //check if all assigned batch is reviewed
+      const allReviewed = textsInBatch.every((item) => item.reviewed);
+      if (!batchToAssign && allReviewed) {
+        batchToAssign = await getUnassignedBatch(userId);
       }
     }
     // 3. Assign the batch to the user
@@ -123,6 +133,7 @@ export async function rejectText(id: number, userId: string) {
       status: "PENDING",
       modified_by: { disconnect: { id: userId } },
       rejected_by: { connect: { id: userId } },
+      reviewed: false,
     },
   });
   return text;

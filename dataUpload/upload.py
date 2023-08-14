@@ -20,7 +20,7 @@ group=1
 def upload_data_to_postgres(txt_file, database, user, password, host, port, table_name):
     global group
     TEXT_PER_GROUP=10
-    LINES_PER_TEXT=1
+    LINES_PER_TEXT=10
 
     try:
         # Establish a connection to the PostgreSQL database

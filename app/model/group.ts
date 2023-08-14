@@ -44,11 +44,30 @@ export const getAllAssignedBatches = async () => {
   }
 };
 
-export const getUnassignedBatch = async () => {
+export const getUnassignedBatch = async (userId) => {
   try {
     const allBatches = await getAllUniqueBatches();
     const assignedBatches = await getAllAssignedBatches();
-
+    const userWithIgnoredText = await db.user.findMany({
+      where: {
+        NOT: { id: userId },
+      },
+      select: { ignored_list: true },
+    });
+    const ignoredTextbatches =
+      userWithIgnoredText.flatMap((user) =>
+        user.ignored_list.map((item) => item.batch)
+      ) || [];
+    // // check if any assigned batch contain ignored text
+    let assigned_text_reviewed_contain_ignore = await db.text.findMany({
+      where: {
+        batch: { in: ignoredTextbatches },
+      },
+    });
+    let filtered = assigned_text_reviewed_contain_ignore.find(
+      (item) => !item.reviewed
+    );
+    if (filtered) return filtered?.batch;
     // Finding the batches that are not assigned
     const unassignedBatches = allBatches
       .filter((batch) => !assignedBatches.includes(batch))
