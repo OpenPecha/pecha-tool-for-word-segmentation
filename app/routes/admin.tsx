@@ -1,9 +1,9 @@
 import { User } from "@prisma/client";
-import { LoaderFunction, redirect } from "@remix-run/node";
+import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react";
 import React, { useRef, useState } from "react";
 import { getAprovedGroup } from "~/model/text";
-import { getUser, getUsers } from "~/model/user";
+import { getUser, getUsers, removeBatchFromUser } from "~/model/user";
 import { FiEdit2 } from "react-icons/fi";
 import { TiTick } from "react-icons/ti";
 import { ImCross } from "react-icons/im";
@@ -17,6 +17,15 @@ export const loader: LoaderFunction = async ({ request }) => {
   return { user, users, groups };
 };
 
+export const action: ActionFunction = async ({ request }) => {
+  let formdata = await request.formData();
+  if (request.method === "DELETE") {
+    let batch = formdata.get("batch") as string;
+    let userId = formdata.get("id") as string;
+    let removed = await removeBatchFromUser(parseInt(batch), userId);
+    return removed;
+  }
+};
 function admin() {
   let { user, users } = useLoaderData();
   let [search, setSearch] = useState("");
@@ -104,6 +113,8 @@ function Users({ user }: { user: User }) {
   const inputRef = useRef();
   let url = `/admin/${user.username}?session=${Admin.username}`;
   const fetcher = useFetcher();
+  const userfetcher = useFetcher();
+
   const reviewed_count = user.text.filter((item) => item.reviewed).length;
   function handleSubmit() {
     let value = inputRef.current.value;
@@ -134,6 +145,39 @@ function Users({ user }: { user: User }) {
       }
     );
   }
+  let addGroup = (e) => {
+    let nextGroup = select[0];
+    if (typeof nextGroup === "undefined") alert("no more group to assign");
+    if (nextGroup > -1)
+      userfetcher.submit(
+        { group: nextGroup, id: user.id },
+        {
+          method: "POST",
+        }
+      );
+  };
+  let removeBatch = (e) => {
+    if (groups[e].rejected) {
+      alert(
+        "group contain rejected data, contact the annotator to either ignore or accept!"
+      );
+      return null;
+    }
+    let c = confirm("Are you sure you want to remove this group from user?");
+    if (c)
+      userfetcher.submit(
+        { batch: e, id: user.id },
+        {
+          method: "DELETE",
+        }
+      );
+  };
+  let adding =
+    userfetcher.formData?.get("id") === user.id &&
+    fetcher.formMethod === "POST";
+  let removing =
+    userfetcher.formData?.get("id") === user.id &&
+    fetcher.formMethod === "DELETE";
   return (
     <tr>
       <td className="flex gap-2">
@@ -180,7 +224,7 @@ function Users({ user }: { user: User }) {
             fetcher.state !== "idle" &&
             "cursor-not-allowed opacity-50 pointer-events-non"
           }`}
-          checked={user.allow_assign || false}
+          checked={user?.allow_assign!}
           onChange={handleChangeRole}
           aria-label="Toggle_role"
         />
@@ -190,13 +234,10 @@ function Users({ user }: { user: User }) {
         {user.assigned_batch.map((item) => {
           return (
             <span
-              className="bg-green-300 p-1"
+              className="bg-green-300  mr-1 cursor-pointer p-2 border-2 border-gray-500"
+              onClick={() => removeBatch(item)}
               key={item}
               style={{
-                marginRight: 5,
-                border: "1px solid gray",
-                padding: 3,
-                cursor: "pointer",
                 background: groups[item].reviewed
                   ? "lightgreen"
                   : groups[item].approved
