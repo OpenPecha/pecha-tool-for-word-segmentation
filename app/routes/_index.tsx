@@ -21,6 +21,7 @@ import usePusherPresence from "~/lib/usePresence";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
 import { getter } from "~/service/pusher.server";
+import { useEffect } from "react";
 export const loader: LoaderFunction = async ({ request }) => {
   let { KEY, CLUSTER, APP_ID, SECRET, NODE_ENV } = process.env;
   let url = new URL(request.url);
@@ -35,6 +36,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (user.allow_assign) {
       text = await getTextToDisplay(user?.id, history);
     }
+
     return { text, user, KEY, CLUSTER, NODE_ENV };
   }
 };
@@ -48,8 +50,8 @@ export const meta: V2_MetaFunction = () => {
 export default function Index() {
   let fetcher = useFetcher();
   const data = useLoaderData();
-  const [showSheet, setShowSheet] = useState(false);
-  let text = data?.text?.original_text.trim() || "";
+  const text = data?.text?.original_text.trim() || "";
+
   const { textOnline } = usePusherPresence(
     `presence-text-${data.NODE_ENV}`,
     data?.KEY,
@@ -112,6 +114,7 @@ export default function Index() {
           <div className="container md:h-[54vh]">
             <div className="flex items-center justify-between label">
               <div>transcript</div>
+
               <div onClick={() => window.my_modal_1.showModal()}>sheet</div>
               <dialog id="my_modal_1" className="modal">
                 <form method="dialog" className="modal-box p-0">

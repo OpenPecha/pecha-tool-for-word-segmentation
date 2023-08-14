@@ -34,7 +34,14 @@ function splitText(text: string) {
   if (mergedArray[mergedArray.length - 1] === "undefined་") {
     mergedArray.pop();
   }
-  return mergedArray;
+  let return_data = mergedArray.map((word) => {
+    if (word.startsWith(" ")) {
+      let temp = word.replace(" ", "");
+      return [" ", temp];
+    }
+    return word;
+  });
+  return return_data.flat();
 }
 
 export default insertHTMLonText;

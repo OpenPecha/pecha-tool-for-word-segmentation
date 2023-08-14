@@ -5,6 +5,7 @@
   --normal-btn: #b9b9b9;
   --success-btn: #4fd364;
   --cancel-btn: #f74c4a;
+  --space-height: 16px;
 }
 .main {
   display: flex;
@@ -14,6 +15,13 @@
   word-spacing: 0.5ch;
   margin-inline: 3px;
   cursor: pointer;
+  display: inline-block;
+  height: var(--space-height);
+  transform: translateY(17px);
+  border: 1px solid gray;
+}
+.space:hover {
+  background-color: hsla(40, 24%, 43%, 0.8);
 }
 .seg:hover {
   background-color: yellow;

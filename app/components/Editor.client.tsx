@@ -37,7 +37,7 @@ function EditorContainer({ editor }: { editor: Editor }) {
             const newText = insertHTMLonText(modifiedContent);
             editor?.commands.setContent(newText);
           } else if (clickCount === 2) {
-            const condition = ["ར་", "ས་", "འི་"];
+            const condition = ["ར་", "ས་", "འི་", "།།", "།"];
             const includedCondition = condition.find((cond) =>
               selection.includes(cond)
             );

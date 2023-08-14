@@ -42,22 +42,17 @@ function admin() {
   let list = users.filter((data) => data.username.includes(search));
   return (
     <div className="p-3">
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
+      <div className="flex justify-between">
         <Link
           to={`/?session=${user.username}`}
-          style={{
-            textDecoration: "none",
-            color: "white",
-            background: "gray",
-            padding: 10,
-          }}
+          className="text-white bg-gray-500 p-2"
         >
           Home
         </Link>
-        <div style={{ display: "flex", alignItems: "center", marginRight: 10 }}>
+        <div className="flex items-center mr-3">
           {colorScheme?.map((data) => {
             return (
-              <div style={{ display: "flex", alignItems: "center" }}>
+              <div className="flex gap-2 items-center" key={data.color}>
                 <span
                   style={{
                     display: "inline-block",
