@@ -20,7 +20,8 @@ model User {
   rejected_list Text[]   @relation("UserRejectedText")
   ignored_list  Text[]   @relation("UserIgnoredText")
   assigned_batch Int[]    @default([])
-  role          Role     @default(USER)
+  role          Role     @default(ANNOTATOR)
+  allow_assign  Boolean? @default(false)
 }
 
 model Text {

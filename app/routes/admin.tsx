@@ -21,11 +21,9 @@ function admin() {
   let { user, users } = useLoaderData();
   let [search, setSearch] = useState("");
 
-  users = users
-    ?.filter((user) => {
-      return user.role !== "ADMIN";
-    })
-    .sort((a, b) => b.assigned_batch.length - a.assigned_batch.length);
+  users = users.sort(
+    (a, b) => b.assigned_batch.length - a.assigned_batch.length
+  );
   let colorScheme = [
     { color: "lightblue", text: "all accepted" },
     { color: "pink", text: "some rejected" },
@@ -127,8 +125,8 @@ function Users({ user }: { user: User }) {
     fetcher.submit(
       {
         id: user.id,
-        role: user.role === "ANNOTATOR" ? "USER" : "ANNOTATOR",
-        action: "change_role",
+        allow: !user.allow_assign,
+        action: "change_allow_assign",
       },
       {
         action: "/api/user",
@@ -182,7 +180,7 @@ function Users({ user }: { user: User }) {
             fetcher.state !== "idle" &&
             "cursor-not-allowed opacity-50 pointer-events-non"
           }`}
-          checked={user.role === "ANNOTATOR"}
+          checked={user.allow_assign || false}
           onChange={handleChangeRole}
           aria-label="Toggle_role"
         />

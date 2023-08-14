@@ -78,14 +78,14 @@ export const updateUserNickname = async (id: string, name: string) => {
     throw new Error(e);
   }
 };
-export const updateUserRole = async (id: string, role: Role) => {
+export const updateUserAssign = async (id: string, allow: boolean) => {
   try {
     let user = await db.user.update({
       where: {
         id,
       },
       data: {
-        role,
+        allow_assign: allow,
       },
     });
     return user;

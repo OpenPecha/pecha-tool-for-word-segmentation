@@ -10,9 +10,7 @@ import StarterKit from "@tiptap/starter-kit";
 import Button from "~/components/Button";
 import Editor from "~/components/Editor.client";
 import Sidebar from "~/components/Sidebar";
-import { replaceSpacesWithHTMLTag } from "~/lib/utils";
 import { getTextToDisplay, getTextToDisplayByUser } from "~/model/text";
-import globalStyle from "~/styles/global.css";
 import { Space } from "~/tiptapProps/extension/space";
 import { Character } from "~/tiptapProps/extension/character";
 import { editorProps } from "~/tiptapProps/events";
@@ -34,10 +32,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     let user = await createUserIfNotExists(session);
     // let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
     let text = null;
-    if (user.role === "ANNOTATOR" || user.role === "ADMIN") {
+    if (user.allow_assign) {
       text = await getTextToDisplay(user?.id, history);
     }
-
     return { text, user, KEY, CLUSTER, NODE_ENV };
   }
 };
@@ -123,7 +120,6 @@ export default function Index() {
                     src="https://docs.google.com/spreadsheets/d/1ZdkguvvvWiqZoEh4LLbceYsnHubBDpAAdi4DToFN9I0/edit?usp=sharing"
                   ></iframe>
                 </form>
-
                 <form method="dialog" className="modal-backdrop">
                   <button>close</button>
                 </form>

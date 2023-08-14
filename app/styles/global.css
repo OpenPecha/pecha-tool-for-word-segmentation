@@ -236,3 +236,6 @@ button:disabled {
     padding: 20px;
   }
 }
+iframe > .docs-material {
+  display: none !important;
+}
