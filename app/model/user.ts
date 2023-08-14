@@ -19,7 +19,7 @@ export const createUserIfNotExists = async (username: string) => {
     const newUser = await db.user.create({
       data: {
         username: username,
-        nickname: username,
+        nickname: username.split("@")[0],
       },
       include: {
         text: true,
