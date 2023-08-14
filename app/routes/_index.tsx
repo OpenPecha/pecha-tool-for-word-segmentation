@@ -17,7 +17,7 @@ import { Space } from "~/tiptapProps/extension/space";
 import { Character } from "~/tiptapProps/extension/character";
 import { editorProps } from "~/tiptapProps/events";
 import checkUnknown from "~/lib/checkUnknown";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { createUserIfNotExists } from "~/model/user";
 import usePusherPresence from "~/lib/usePresence";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
@@ -51,6 +51,7 @@ export const meta: V2_MetaFunction = () => {
 export default function Index() {
   let fetcher = useFetcher();
   const data = useLoaderData();
+  const [showSheet, setShowSheet] = useState(false);
   let text = data?.text?.original_text.trim() || "";
   const { textOnline } = usePusherPresence(
     `presence-text-${data.NODE_ENV}`,
@@ -112,7 +113,22 @@ export default function Index() {
           <div>Thank you . your work is complete ! 😊😊😊</div>
         ) : (
           <div className="container md:h-[54vh]">
-            <div className="label">transcript</div>
+            <div className="flex items-center justify-between label">
+              <div>transcript</div>
+              <div onClick={() => window.my_modal_1.showModal()}>sheet</div>
+              <dialog id="my_modal_1" className="modal">
+                <form method="dialog" className="modal-box p-0">
+                  <iframe
+                    className="w-full h-[80vh]"
+                    src="https://docs.google.com/spreadsheets/d/1ZdkguvvvWiqZoEh4LLbceYsnHubBDpAAdi4DToFN9I0/edit?usp=sharing"
+                  ></iframe>
+                </form>
+
+                <form method="dialog" className="modal-backdrop">
+                  <button>close</button>
+                </form>
+              </dialog>
+            </div>
             <ClientOnly fallback={null}>
               {() => <Editor editor={editor!} />}
             </ClientOnly>
