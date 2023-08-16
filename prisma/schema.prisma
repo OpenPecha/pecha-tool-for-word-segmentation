@@ -19,6 +19,7 @@ model User {
   text          Text[]   @relation("UserModifiedText")
   rejected_list Text[]   @relation("UserRejectedText")
   ignored_list  Text[]   @relation("UserIgnoredText")
+  reviewed_list Text[]  @relation("UserReviewedText")
   assigned_batch Int[]    @default([])
   role          Role     @default(ANNOTATOR)
   allow_assign  Boolean? @default(false)
@@ -38,6 +39,8 @@ model Text {
   batch          Int?     @default(0)
   version         String?  @default("")
   reviewed       Boolean? @default(false)
+  reviewed_by    User?  @relation("UserReviewedText",fields: [reviewed_by_id],references: [id])
+  reviewed_by_id  String?   
 }
 
 enum Status {

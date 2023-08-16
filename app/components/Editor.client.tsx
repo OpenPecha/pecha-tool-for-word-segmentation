@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect } from "react";
 import { EditorContent, BubbleMenu, Editor } from "@tiptap/react";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import selectText from "~/lib/selectRange";

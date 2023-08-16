@@ -1,37 +1,36 @@
-import { LinksFunction, json } from "@remix-run/node";
-import { Link, useFetcher } from "@remix-run/react";
-import { Editor, useEditor } from "@tiptap/react";
+import { json } from "@remix-run/node";
+import { useFetcher } from "@remix-run/react";
+import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import React, { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { LoaderFunction, useLoaderData } from "react-router";
 import checkUnknown from "~/lib/checkUnknown";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { getUser } from "~/model/user";
 import { Character } from "~/tiptapProps/extension/character";
 import { editorProps } from "~/tiptapProps/events";
-import AdminHistorySidebar, {
-  sortUpdate,
-} from "~/components/AdminHistorySidebar";
+import AdminHistorySidebar from "~/components/AdminHistorySidebar";
 import { ClientOnly } from "remix-utils";
 import EditorContainer from "~/components/Editor.client";
 import Button from "~/components/Button";
 import { db } from "~/service/db.server";
 import { Space } from "~/tiptapProps/extension/space";
+import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
-  let user = await getUser(params.slug);
-  let where = { modified_by_id: user?.id, status: "APPROVED", reviewed: false };
+  let admin = await getUser(session!);
+  let user = await getUser(params.slug!);
   let text = await db.text.findMany({
-    where: where,
+    where: { modified_by_id: user?.id, status: "APPROVED", reviewed: false },
     orderBy: { updatedAt: "desc" },
   });
   let id_now = await db.text.findFirst({
     where: { reviewed: false, modified_by_id: user?.id, status: "APPROVED" },
     orderBy: { id: "asc" },
   });
-  return json({ user, admin: session, text, id_now: id_now?.id });
+  return json({ user, admin, text, id_now: id_now?.id });
 };
 
 function UserDetail() {
@@ -50,7 +49,7 @@ function UserDetail() {
   useEffect(() => {
     let display = selectedId
       ? user.text.find((d) => d.id === selectedId)
-      : user.text.sort(sortUpdate).find((d) => d.id === text.id);
+      : user.text.sort(sortUpdate_reviewed).find((d) => d.id === text.id);
     if (display) {
       let show =
         JSON.parse(display?.modified_text)?.join(" ") || display?.original_text;
@@ -78,7 +77,7 @@ function UserDetail() {
     let modified_text = editor!.getText();
     let id = selectedId;
     fetcher.submit(
-      { id, modified_text, userId: user.id, admin: true },
+      { id, modified_text, userId: user.id, adminId: data.admin.id },
       { method: "POST", action: "/api/text" }
     );
   };
@@ -93,7 +92,7 @@ function UserDetail() {
   };
   let isButtonDisabled = !editor || !text;
   return (
-    <div className="main">
+    <div className="flex flex-col md:flex-row">
       <AdminHistorySidebar
         user={user}
         online={[]}
@@ -105,8 +104,10 @@ function UserDetail() {
         {!text || !selectedId || !editor ? (
           <div>Thank you . your work is complete ! 😊😊😊</div>
         ) : (
-          <div className="container md:h-[54vh]">
-            <div className="label">transcript</div>
+          <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
+            <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
+              transcript
+            </div>
             <ClientOnly fallback={null}>
               {() => <EditorContainer editor={editor!} />}
             </ClientOnly>
@@ -115,7 +116,7 @@ function UserDetail() {
         )}
         <ClientOnly fallback={null}>
           {() => (
-            <div className="btn-container">
+            <div className="flex gap-2 fixed bottom-0 justify-center">
               <Button
                 disabled={isButtonDisabled}
                 handleClick={saveText}

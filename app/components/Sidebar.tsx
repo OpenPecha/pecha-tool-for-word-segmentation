@@ -1,33 +1,16 @@
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
-import React, { useState } from "react";
+import { useState } from "react";
+import TextInfo from "./TextInfo";
+import { HistoryItem } from "./History";
+import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
+import { Cross, Hamburger, Tick } from "./svgs";
 
-interface HistoryItemProps {
+export type historyText = {
   id: number;
-  user: any;
-  onClick: () => void;
-  icon: JSX.Element;
-  disabled?: boolean;
-}
+  reviewed: boolean;
+};
 
-function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
-  if (disabled)
-    return (
-      <div className="history-item flex gap-3">
-        {id} {icon}
-      </div>
-    );
-  return (
-    <Link
-      to={`/?session=${user.username}&history=${id}`}
-      className="history-item flex gap-3 items-center"
-      onClick={onClick}
-    >
-      {id} {icon}
-    </Link>
-  );
-}
-
-function Sidebar({ user, online }) {
+function Sidebar({ user }) {
   let data = useLoaderData();
   let text = data.text;
   const fetcher = useFetcher();
@@ -35,21 +18,32 @@ function Sidebar({ user, online }) {
   function resetText(id: string) {
     fetcher.submit({ id }, { method: "DELETE", action: "api/text" });
   }
-
+  function SidebarHeader() {
+    return (
+      <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden ">
+        <div>About</div>
+        <div className="cursor-pointer p-2" onClick={() => setOpenMenu(false)}>
+          x
+        </div>
+      </div>
+    );
+  }
   return (
-    <div className="header">
-      <div className="sidebar_title" onClick={() => setOpenMenu(true)}>
+    <div className="flex flex-col">
+      <div
+        className=" flex px-2 py-3 text-white bg-gray-600 text-lg font-semibold items-center  gap-2 "
+        onClick={() => setOpenMenu(true)}
+      >
         <Hamburger />
         Word Segmentation
       </div>
-      <div className={`sidebar ${openMenu ? "open" : ""}`}>
-        <div className={`sidebar_menu`}>
-          <div className="sidebar-Header">
-            <div className="title">Word Segmentation</div>
-            <div className="close" onClick={() => setOpenMenu(false)}>
-              x
-            </div>
-          </div>
+      <div
+        className={`flex flex-col text-white bg-[#54606e] overflow-y-auto overflow-x-hidden max-h-[100vh] transition-all -translate-x-full z-30 ${
+          openMenu ? "block translate-x-0" : ""
+        } min-h-[100vh] w-[260px] md:translate-x-0`}
+      >
+        <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
+          <SidebarHeader />
           {user.role === "ADMIN" && (
             <Link
               to={`/admin?session=${user?.username}`}
@@ -58,38 +52,24 @@ function Sidebar({ user, online }) {
               ADMIN
             </Link>
           )}
-          <div>
-            <span className="info">User :</span> {user?.username}
-          </div>
-          <div>
-            <span className="info">text id :</span> {text?.id}
-          </div>
-          <div>
-            <span className="info">Batch :</span> {text?.batch}
-          </div>
-          <div></div>
-          <div>
-            <span className="info">Approved :</span> {user?.text?.length}
-          </div>
-          <div>
-            <span className="info">Rejected :</span>{" "}
-            {user?.rejected_list?.length}
-          </div>
-          <div>
-            <span className="info">Ignored :</span> {user?.ignored_list?.length}
-          </div>
-          <div>
-            <span className="info">online User :</span> {online?.length}
-          </div>
+          <TextInfo>User : {user?.username}</TextInfo>
+          <TextInfo>text id :{text?.id}</TextInfo>
+          <TextInfo>Batch : {text?.batch}</TextInfo>
+          <TextInfo>Approved : {user?.text?.length}</TextInfo>
+          <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
+          <TextInfo>Ignored : {user?.ignored_list?.length}</TextInfo>
+          <TextInfo>
+            Reviewed : {user?.text.filter((r) => r.reviewed)?.length}
+          </TextInfo>
         </div>
-        <div className="sidebar_menu " style={{ flex: 1 }}>
-          <div className="sidebar-section-title">History</div>
-          <div className="history-container">
+        <div className="flex-1">
+          <div className="text-sm mb-2 font-bold">History</div>
+          <div className="flex flex-col gap-2 max-h-[30vh] overflow-y-auto">
             {user &&
               (user.rejected_list || user.text) &&
               (user?.rejected_list || [])
-                .sort(sortUpdate)
-                .map((text: Text) => (
+                .sort(sortUpdate_reviewed)
+                .map((text: historyText) => (
                   <HistoryItem
                     user={user}
                     id={text?.id}
@@ -98,21 +78,23 @@ function Sidebar({ user, online }) {
                     icon={<Cross />}
                   />
                 ))}
-            {(user?.text || []).sort(sortUpdate).map((text: Text) => (
-              <HistoryItem
-                user={user}
-                id={text?.id}
-                key={text.id + "-rejected"}
-                onClick={() => setOpenMenu(false)}
-                disabled={text?.reviewed}
-                icon={
-                  <div className="flex items-center justify-between flex-1">
-                    <Tick />
-                    {text?.reviewed && <span>reviewed</span>}
-                  </div>
-                }
-              />
-            ))}
+            {(user?.text || [])
+              .sort(sortUpdate_reviewed)
+              .map((text: historyText) => (
+                <HistoryItem
+                  user={user}
+                  id={text?.id}
+                  key={text.id + "-rejected"}
+                  onClick={() => setOpenMenu(false)}
+                  disabled={text?.reviewed}
+                  icon={
+                    <div className="flex items-center justify-between flex-1">
+                      <Tick />
+                      {text?.reviewed && <span>reviewed</span>}
+                    </div>
+                  }
+                />
+              ))}
           </div>
         </div>
       </div>
@@ -121,59 +103,3 @@ function Sidebar({ user, online }) {
 }
 
 export default Sidebar;
-
-export function Hamburger() {
-  return (
-    <svg
-      aria-hidden="true"
-      fill="gray"
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-    >
-      <path d="M3 5h18q0.414 0 0.707 0.293t0.293 0.707-0.293 0.707-0.707 0.293h-18q-0.414 0-0.707-0.293t-0.293-0.707 0.293-0.707 0.707-0.293zM3 17h18q0.414 0 0.707 0.293t0.293 0.707-0.293 0.707-0.707 0.293h-18q-0.414 0-0.707-0.293t-0.293-0.707 0.293-0.707 0.707-0.293zM3 11h18q0.414 0 0.707 0.293t0.293 0.707-0.293 0.707-0.707 0.293h-18q-0.414 0-0.707-0.293t-0.293-0.707 0.293-0.707 0.707-0.293z"></path>
-    </svg>
-  );
-}
-
-export function Tick() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="tickSVG"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-    >
-      <path d="M9 16.172l10.594-10.594 1.406 1.406-12 12-5.578-5.578 1.406-1.406z"></path>
-    </svg>
-  );
-}
-export function Cross() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="crossSVG"
-      width="18"
-      height="18"
-      viewBox="0 0 24 24"
-    >
-      <path d="M18.984 6.422l-5.578 5.578 5.578 5.578-1.406 1.406-5.578-5.578-5.578 5.578-1.406-1.406 5.578-5.578-5.578-5.578 1.406-1.406 5.578 5.578 5.578-5.578z"></path>
-    </svg>
-  );
-}
-
-function sortUpdate(a: Text, b: Text) {
-  const parsedDate1 = new Date(a.updatedAt);
-  const parsedDate2 = new Date(b.updatedAt);
-  if (a.reviewed === b.reviewed) {
-    return parsedDate2 - parsedDate1;
-  }
-  if (a.reviewed) {
-    return 1;
-  }
-  if (b.reviewed) {
-    return -1;
-  }
-  return 0;
-}

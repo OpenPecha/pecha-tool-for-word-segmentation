@@ -139,7 +139,9 @@ async function areAllTextsIgnoredOrReviewed(userId: string, batchId: number) {
   if (!user) {
     throw new Error("User not found");
   }
-
+  let approved_count = user.text.length;
+  let reviewed_count = user.text.filter((l) => l.reviewed).length;
+  if (approved_count === reviewed_count) return true;
   const ignoredTexts = await db.text.findMany({
     where: {
       batch: batchId,

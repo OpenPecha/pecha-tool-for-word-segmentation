@@ -103,18 +103,23 @@ export default function Index() {
   let isButtonDisabled = !editor || !data.text || data.text.reviewed;
   if (data.error) return <div>{data.error}</div>;
   return (
-    <div className="main">
+    <div className="flex flex-col md:flex-row">
       <Sidebar user={data.user} online={textOnline} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
         {!data.text ? (
           <div>Thank you . your work is complete ! 😊😊😊</div>
         ) : (
-          <div className="container md:h-[54vh]">
-            <div className="flex items-center justify-between label">
+          <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
+            <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
               <div>transcript</div>
 
-              <div onClick={() => window.my_modal_1.showModal()}>sheet</div>
+              <div
+                onClick={() => window.my_modal_1.showModal()}
+                className="cursor-pointer"
+              >
+                reference
+              </div>
               <dialog id="my_modal_1" className="modal">
                 <form method="dialog" className="modal-box p-0">
                   <iframe
@@ -133,7 +138,7 @@ export default function Index() {
             {!editor && <div>loading...</div>}
           </div>
         )}
-        <div className="btn-container">
+        <div className="flex gap-2 fixed bottom-0 justify-center ">
           <Button
             disabled={isButtonDisabled}
             handleClick={saveText}

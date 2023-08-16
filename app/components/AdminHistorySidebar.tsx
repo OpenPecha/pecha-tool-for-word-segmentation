@@ -1,37 +1,10 @@
 import { Link, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import { Text } from "@prisma/client";
-import { Hamburger, Tick } from "./Sidebar";
-
-interface HistoryItemProps {
-  id: number;
-  onClick: () => void;
-  icon: JSX.Element;
-  reviewed: boolean;
-  selectedId: number;
-}
-
-function HistoryItem({
-  id,
-  onClick,
-  icon,
-  reviewed,
-  selectedId,
-}: HistoryItemProps) {
-  let { admin, text } = useLoaderData();
-  return (
-    <div
-      className="history-item flex gap-3"
-      style={{
-        background: selectedId == id ? "rgba(1,1,1,0.4)" : "",
-      }}
-      onClick={onClick}
-    >
-      {id}
-      {reviewed ? icon : null}
-    </div>
-  );
-}
+import { historyText } from "./Sidebar";
+import TextInfo from "./TextInfo";
+import { AdminHistoryItem } from "./History";
+import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
+import { Hamburger, Tick } from "./svgs";
 
 interface SidebarProps {
   user: any;
@@ -51,11 +24,9 @@ function AdminHistorySidebar({
   const [openMenu, setOpenMenu] = useState(false);
 
   const SidebarHeader = () => (
-    <div className="sidebar-Header">
+    <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden">
       <Link to={`/admin?session=${data.admin}`}>
-        <div className="title" style={{ cursor: "pointer" }}>
-          Word segmentation
-        </div>
+        <div className="cursor-pointer">Word segmentation</div>
       </Link>
       <div className="close" onClick={() => setOpenMenu(false)}>
         x
@@ -64,8 +35,11 @@ function AdminHistorySidebar({
   );
 
   return (
-    <div className="header">
-      <div className="sidebar_title" onClick={() => setOpenMenu(true)}>
+    <div className="flex flex-col">
+      <div
+        className="flex px-2 py-3 text-white bg-gray-600 text-lg font-semibold items-center  gap-2 "
+        onClick={() => setOpenMenu(true)}
+      >
         <Hamburger />
         <Link
           to={`/admin?session=${data.admin}`}
@@ -74,8 +48,12 @@ function AdminHistorySidebar({
           Word segmentation
         </Link>
       </div>
-      <div className={`sidebar ${openMenu ? "open" : ""}`}>
-        <div className="sidebar_menu">
+      <div
+        className={`flex flex-col text-white bg-[#54606e] overflow-y-auto overflow-x-hidden max-h-[100vh] transition-all -translate-x-full z-30 ${
+          openMenu ? "block translate-x-0" : ""
+        } min-h-[100vh] w-[260px] md:translate-x-0`}
+      >
+        <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
           <SidebarHeader />
           <Link
             to={`/admin?session=${data?.admin}`}
@@ -83,44 +61,32 @@ function AdminHistorySidebar({
           >
             ADMIN
           </Link>
-          <div>
-            <span className="info">User :</span> {user?.username}
-          </div>
-          <div>
-            <span className="info">text id :</span> {selectedId}
-          </div>
-          <div>
-            <span className="info">Approved :</span> {user?.text?.length}
-          </div>
-          <div>
-            <span className="info">Rejected :</span>{" "}
-            {user?.rejected_list?.length}
-          </div>
-          <div>
-            <span className="info">Ignored :</span> {user?.ignored_list?.length}
-          </div>
-          <div>
-            <span className="info">online User :</span> {online?.length}
-          </div>
+          <TextInfo>User : {user?.username}</TextInfo>
+          <TextInfo>text id :{selectedId}</TextInfo>
+          <TextInfo>Approved :{user?.text?.length}</TextInfo>
+          <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
+          <TextInfo>Ignored : {user?.ignored_list?.length}</TextInfo>
         </div>
-        <div className="sidebar_menu" style={{ flex: 1 }}>
-          <div className="sidebar-section-title">History</div>
-          <div className="history-container">
+        <div className="flex-1">
+          <div className="text-sm mb-2 font-bold">History</div>
+          <div className="flex flex-col gap-2 max-h-[30vh] overflow-y-auto">
             {user &&
               user.text &&
-              [...(user?.text || [])].sort(sortUpdate).map((text: Text) => (
-                <HistoryItem
-                  id={text?.id}
-                  key={text.id + "-accepted"}
-                  onClick={() => {
-                    setOpenMenu(false);
-                    setSelectedId(text?.id);
-                  }}
-                  icon={<Tick />}
-                  reviewed={text?.reviewed!}
-                  selectedId={selectedId!}
-                />
-              ))}
+              [...(user?.text || [])]
+                .sort(sortUpdate_reviewed)
+                .map((text: historyText) => (
+                  <AdminHistoryItem
+                    id={text?.id}
+                    key={text.id + "-accepted"}
+                    onClick={() => {
+                      setOpenMenu(false);
+                      setSelectedId(text?.id);
+                    }}
+                    icon={<Tick />}
+                    reviewed={text?.reviewed!}
+                    selectedId={selectedId!}
+                  />
+                ))}
           </div>
         </div>
       </div>
@@ -129,6 +95,3 @@ function AdminHistorySidebar({
 }
 
 export default AdminHistorySidebar;
-export function sortUpdate(a: Text, b: Text) {
-  return a.reviewed === b.reviewed ? 0 : a.reviewed ? 1 : -1;
-}

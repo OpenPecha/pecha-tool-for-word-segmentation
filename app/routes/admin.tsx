@@ -1,8 +1,8 @@
 import { User } from "@prisma/client";
 import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
-import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react";
-import React, { useMemo, useRef, useState } from "react";
-import { getAprovedGroup } from "~/model/text";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { useRef, useState } from "react";
+import { getAprovedBatch } from "~/model/text";
 import { getUser, getUsers, removeBatchFromUser } from "~/model/user";
 import { FiEdit2 } from "react-icons/fi";
 import { TiTick } from "react-icons/ti";
@@ -13,7 +13,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (!session) return redirect("/error");
   let user: User | null = await getUser(session);
   let users: User[] = await getUsers();
-  let groups = await getAprovedGroup();
+  let groups = await getAprovedBatch();
   return { user, users, groups };
 };
 
@@ -141,17 +141,7 @@ function Users({ user }: { user: User }) {
       }
     );
   }
-  let addGroup = (e) => {
-    let nextGroup = select[0];
-    if (typeof nextGroup === "undefined") alert("no more group to assign");
-    if (nextGroup > -1)
-      userfetcher.submit(
-        { group: nextGroup, id: user.id },
-        {
-          method: "POST",
-        }
-      );
-  };
+
   let removeBatch = (e) => {
     if (groups[e].rejected) {
       alert(
@@ -160,7 +150,6 @@ function Users({ user }: { user: User }) {
       return null;
     }
     let c = confirm("Are you sure you want to remove this group from user?");
-    //check all text in batch are either ignored or reviewed
 
     if (c)
       userfetcher.submit(
@@ -170,9 +159,7 @@ function Users({ user }: { user: User }) {
         }
       );
   };
-  let adding =
-    userfetcher.formData?.get("id") === user.id &&
-    fetcher.formMethod === "POST";
+
   let removing =
     userfetcher.formData?.get("id") === user.id &&
     fetcher.formMethod === "DELETE";
@@ -182,7 +169,7 @@ function Users({ user }: { user: User }) {
         <div className="flex gap-2">
           {!openEdit ? (
             <>
-              {user.nickname}
+              {fetcher?.formData?.get("nickname") || user.nickname}
               <button onClick={() => setOpenEdit(true)}>
                 <FiEdit2 />
               </button>
@@ -192,9 +179,7 @@ function Users({ user }: { user: User }) {
               {" "}
               <input
                 type="text"
-                defaultValue={
-                  user.nickname === user.username ? "" : user.nickname
-                }
+                defaultValue={user.nickname!}
                 name="nickname"
                 ref={inputRef}
                 className="input input-xs input-bordered w-full max-w-xs"
@@ -253,6 +238,7 @@ function Users({ user }: { user: User }) {
             </span>
           );
         })}
+        {removing && <div>wait</div>}
       </td>
     </tr>
   );
