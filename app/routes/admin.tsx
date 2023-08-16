@@ -1,7 +1,7 @@
 import { User } from "@prisma/client";
 import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
 import { Form, Link, useFetcher, useLoaderData } from "@remix-run/react";
-import React, { useRef, useState } from "react";
+import React, { useMemo, useRef, useState } from "react";
 import { getAprovedGroup } from "~/model/text";
 import { getUser, getUsers, removeBatchFromUser } from "~/model/user";
 import { FiEdit2 } from "react-icons/fi";
@@ -39,7 +39,10 @@ function admin() {
     { color: "yellow", text: "some Ignored" },
     { color: "lightgreen", text: "all reviewed" },
   ];
-  let list = users.filter((data) => data.username.includes(search));
+  let list = useMemo(
+    () => users.filter((data) => data.username.includes(search)),
+    [users]
+  );
   return (
     <div className="p-3">
       <div className="flex justify-between">
