@@ -1,4 +1,4 @@
-import { Status } from "@prisma/client";
+import { Status, User } from "@prisma/client";
 import { db } from "~/service/db.server";
 import { getUnassignedBatch } from "./group";
 

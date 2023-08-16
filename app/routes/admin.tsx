@@ -39,10 +39,8 @@ function admin() {
     { color: "yellow", text: "some Ignored" },
     { color: "lightgreen", text: "all reviewed" },
   ];
-  let list = useMemo(
-    () => users.filter((data) => data.username.includes(search)),
-    [users]
-  );
+  let list = users.filter((data) => data.username.includes(search));
+
   return (
     <div className="p-3">
       <div className="flex justify-between">
@@ -87,7 +85,7 @@ function admin() {
                 <th>user</th>
                 <th>Role</th>
                 <th>Active</th>
-                <th>total reviewed</th>
+                <th>approved/reviewed</th>
                 <th>Assigned Jobs</th>
               </tr>
             </thead>
@@ -113,6 +111,7 @@ function Users({ user }: { user: User }) {
   const fetcher = useFetcher();
   const userfetcher = useFetcher();
   const reviewed_count = user?.text.filter((item) => item.reviewed).length;
+  const approved_count = user.text.length;
   function handleSubmit() {
     let value = inputRef.current.value;
     if (!value) return;
@@ -161,6 +160,8 @@ function Users({ user }: { user: User }) {
       return null;
     }
     let c = confirm("Are you sure you want to remove this group from user?");
+    //check all text in batch are either ignored or reviewed
+
     if (c)
       userfetcher.submit(
         { batch: e, id: user.id },
@@ -226,7 +227,9 @@ function Users({ user }: { user: User }) {
           aria-label="Toggle_role"
         />
       </td>
-      <td>{reviewed_count}</td>
+      <td>
+        {approved_count}/{reviewed_count}
+      </td>
       <td className="flex gap-2 ">
         {user.assigned_batch.map((item) => {
           return (

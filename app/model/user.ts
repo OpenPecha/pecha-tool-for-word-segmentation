@@ -1,5 +1,6 @@
 import { Role } from "@prisma/client";
 import { db } from "~/service/db.server";
+import { ignoreText } from "./text";
 
 export const createUserIfNotExists = async (username: string) => {
   const existingUser = await db.user.findUnique({
@@ -95,25 +96,75 @@ export const updateUserAssign = async (id: string, allow: boolean) => {
 };
 
 export const removeBatchFromUser = async (batch: number, id: string) => {
+  //check if all text inside batch is either ignored by user or reviewed;
+
   try {
     const user = await db.user.findUnique({
       where: { id },
+      include: { ignored_list: true },
     });
+    let isAllIgnored = await areAllTextsIgnoredOrReviewed(id, batch);
+    console.log(isAllIgnored);
     if (!user) throw new Error("user not found");
-    const updatedAssignedBatchs = user.assigned_batch.filter(
-      (number) => number !== batch
-    );
+    if (isAllIgnored) {
+      const updatedAssignedBatchs = user.assigned_batch.filter(
+        (number) => number !== batch
+      );
 
-    let updatedUser = await db.user.update({
-      where: {
-        id,
-      },
-      data: {
-        assigned_batch: updatedAssignedBatchs,
-      },
-    });
-    return updatedUser;
+      let updatedUser = await db.user.update({
+        where: {
+          id,
+        },
+        data: {
+          assigned_batch: updatedAssignedBatchs,
+        },
+      });
+      return updatedUser;
+    }
+    return null;
   } catch (e) {
     throw new Error("cannot add group" + e);
   }
 };
+
+async function areAllTextsIgnoredOrReviewed(userId: string, batchId: number) {
+  const user = await db.user.findUnique({
+    where: { id: userId },
+    include: {
+      ignored_list: { where: { batch: batchId } },
+      text: { where: { batch: batchId } },
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const ignoredTexts = await db.text.findMany({
+    where: {
+      batch: batchId,
+      ignored_by: { some: { username: { equals: user.username } } },
+    },
+    include: {
+      ignored_by: true,
+    },
+  });
+
+  const ignoredTextIds = ignoredTexts.map((text) => text.id);
+
+  const remainingTexts = await db.text.findMany({
+    where: {
+      batch: batchId,
+      NOT: {
+        id: { in: ignoredTextIds },
+      },
+    },
+  });
+
+  // Check if all texts in the batch are either ignored or reviewed
+  const allIgnoredOrReviewed = remainingTexts.every((text) => {
+    return text.reviewed === true;
+  });
+
+  return allIgnoredOrReviewed;
+}
