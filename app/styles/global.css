@@ -13,18 +13,12 @@
   margin-inline: 3px;
   cursor: pointer;
   display: inline-block;
-  height: var(--space-height);
   transform: translateY(17px);
   border: 1px solid gray;
-  position: relative;
   width: 15px;
+  height: var(--space-height);
 }
-.space::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background-color: hsla(39, 100%, 68%, 1);
-}
+
 .space:hover {
   background-color: hsla(40, 24%, 43%, 0.8);
 }
