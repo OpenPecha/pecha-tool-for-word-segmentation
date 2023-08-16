@@ -31,7 +31,6 @@ body {
   counter-reset: section;
   overflow: hidden;
   font-size: 20px;
-
   font-family: "Lato", "Trebuchet MS", Roboto, Helvetica, Arial, sans-serif;
 }
 .container {

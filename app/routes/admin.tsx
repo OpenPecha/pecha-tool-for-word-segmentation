@@ -109,8 +109,7 @@ function Users({ user }: { user: User }) {
   let url = `/admin/${user.username}?session=${Admin.username}`;
   const fetcher = useFetcher();
   const userfetcher = useFetcher();
-
-  const reviewed_count = user.text.filter((item) => item.reviewed).length;
+  const reviewed_count = user?.text.filter((item) => item.reviewed).length;
   function handleSubmit() {
     let value = inputRef.current.value;
     if (!value) return;

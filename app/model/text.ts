@@ -92,6 +92,9 @@ export async function getTextToDisplay(userId: string, history: any) {
         notIn: [...(ignoredIds || []), ...(rejectedIds || [])],
       },
     },
+    orderBy: {
+      id: "asc",
+    },
   });
   if (!text) return null;
   return text;

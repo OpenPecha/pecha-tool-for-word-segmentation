@@ -21,7 +21,6 @@ import usePusherPresence from "~/lib/usePresence";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
 import { getter } from "~/service/pusher.server";
-import { useEffect } from "react";
 export const loader: LoaderFunction = async ({ request }) => {
   let { KEY, CLUSTER, APP_ID, SECRET, NODE_ENV } = process.env;
   let url = new URL(request.url);
