@@ -65,7 +65,9 @@ export async function getTextToDisplay(userId: string, history: any) {
     const text = await db.text.findUnique({
       where: { id: parseInt(history) },
     });
-    let show = JSON.parse(text?.modified_text).join(" ") || text?.original_text;
+    let show = text?.modified_text
+      ? JSON.parse(text?.modified_text).join(" ")
+      : text?.original_text;
     return {
       ...text,
       id: text?.id,

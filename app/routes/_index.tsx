@@ -15,14 +15,11 @@ import { Space } from "~/tiptapProps/extension/space";
 import { Character } from "~/tiptapProps/extension/character";
 import { editorProps } from "~/tiptapProps/events";
 import checkUnknown from "~/lib/checkUnknown";
-import { useMemo, useState } from "react";
 import { createUserIfNotExists } from "~/model/user";
-import usePusherPresence from "~/lib/usePresence";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
-import { getter } from "~/service/pusher.server";
 export const loader: LoaderFunction = async ({ request }) => {
-  let { KEY, CLUSTER, APP_ID, SECRET, NODE_ENV } = process.env;
+  let { NODE_ENV } = process.env;
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   let history = url.searchParams.get("history") || null;
@@ -30,13 +27,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect("/error");
   } else {
     let user = await createUserIfNotExists(session);
-    // let activeText = await getter(APP_ID!, KEY!, SECRET!, CLUSTER!);
     let text = null;
     if (user.allow_assign) {
       text = await getTextToDisplay(user?.id, history);
     }
 
-    return { text, user, KEY, CLUSTER, NODE_ENV };
+    return { text, user, NODE_ENV };
   }
 };
 
@@ -51,13 +47,6 @@ export default function Index() {
   const data = useLoaderData();
   const text = data?.text?.original_text.trim() || "";
 
-  const { textOnline } = usePusherPresence(
-    `presence-text-${data.NODE_ENV}`,
-    data?.KEY,
-    data?.CLUSTER,
-    data?.user,
-    data?.text
-  );
   let user = data.user;
   let insertHTML = insertHTMLonText(text);
   let newText = checkUnknown(insertHTML);
@@ -104,7 +93,7 @@ export default function Index() {
   if (data.error) return <div>{data.error}</div>;
   return (
     <div className="flex flex-col md:flex-row">
-      <Sidebar user={data.user} online={textOnline} />
+      <Sidebar user={data.user} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
         {!data.text ? (
@@ -146,20 +135,20 @@ export default function Index() {
             title="CONFIRM (a)"
             shortCut="a"
           />
-          {/* <Button
+          <Button
             disabled={isButtonDisabled}
             handleClick={rejectTask}
             value="REJECT"
             title="REJECT (x)"
             shortCut="x"
-          /> */}
-          <Button
+          />
+          {/* <Button
             disabled={isButtonDisabled}
             handleClick={ignoreTask}
             value="IGNORE"
             title="IGNORE (i)"
             shortCut="i"
-          />
+          /> */}
           <Button
             disabled={isButtonDisabled}
             handleClick={undoTask}
