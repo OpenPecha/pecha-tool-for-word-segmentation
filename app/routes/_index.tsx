@@ -4,6 +4,7 @@ import {
   type LoaderFunction,
   type V2_MetaFunction,
 } from "@remix-run/node";
+import { useRef } from "react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -46,7 +47,7 @@ export default function Index() {
   let fetcher = useFetcher();
   const data = useLoaderData();
   const text = data?.text?.original_text.trim() || "";
-
+  let dialogref = useRef(null);
   let user = data.user;
   let insertHTML = insertHTMLonText(text);
   let newText = checkUnknown(insertHTML);
@@ -104,12 +105,12 @@ export default function Index() {
               <div>transcript</div>
 
               <div
-                onClick={() => window.my_modal_1.showModal()}
+                onClick={() => dialogref.current?.showModal()}
                 className="cursor-pointer"
               >
                 reference
               </div>
-              <dialog id="my_modal_1" className="modal">
+              <dialog ref={dialogref} className="modal">
                 <form method="dialog" className="modal-box p-0">
                   <iframe
                     className="w-full h-[80vh]"
