@@ -34,7 +34,7 @@ function admin() {
     (a, b) => b.assigned_batch.length - a.assigned_batch.length
   );
   let colorScheme = [
-    { color: "lightblue", text: "all accepted" },
+    { color: "lightblue", text: "ready to review" },
     { color: "pink", text: "some rejected" },
     { color: "yellow", text: "some Ignored" },
     { color: "lightgreen", text: "all reviewed" },
@@ -106,14 +106,14 @@ export default admin;
 function Users({ user }: { user: User }) {
   let { groups, user: Admin } = useLoaderData();
   const [openEdit, setOpenEdit] = useState(false);
-  const inputRef = useRef();
+  const inputRef = useRef(null);
   let url = `/admin/${user.username}?session=${Admin.username}`;
   const fetcher = useFetcher();
   const userfetcher = useFetcher();
   const reviewed_count = user?.text.filter((item) => item.reviewed).length;
   const approved_count = user.text.length;
   function handleSubmit() {
-    let value = inputRef.current.value;
+    let value = inputRef.current?.value;
     if (!value) return;
     fetcher.submit(
       {
