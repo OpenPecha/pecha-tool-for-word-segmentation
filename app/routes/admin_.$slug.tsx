@@ -77,7 +77,7 @@ function UserDetail() {
     let modified_text = editor!.getText();
     let id = selectedId;
     fetcher.submit(
-      { id, modified_text, userId: user.id, adminId: data.admin.id },
+      { id, modified_text, userId: user.id, adminId: data?.admin?.id },
       { method: "POST", action: "/api/text" }
     );
   };
@@ -95,7 +95,6 @@ function UserDetail() {
     <div className="flex flex-col md:flex-row">
       <AdminHistorySidebar
         user={user}
-        online={[]}
         selectedId={selectedId}
         setSelectedId={setSelectedId}
       />

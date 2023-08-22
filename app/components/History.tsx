@@ -6,7 +6,13 @@ interface HistoryItemProps {
   icon: JSX.Element;
   disabled?: boolean;
 }
-
+interface AdminHistoryItemProps {
+  id: number;
+  onClick: () => void;
+  icon: JSX.Element;
+  reviewed: boolean;
+  selectedId: number;
+}
 function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
   if (disabled)
     return (
@@ -23,14 +29,6 @@ function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
       {id} {icon}
     </Link>
   );
-}
-
-interface AdminHistoryItemProps {
-  id: number;
-  onClick: () => void;
-  icon: JSX.Element;
-  reviewed: boolean;
-  selectedId: number;
 }
 
 function AdminHistoryItem({
@@ -54,4 +52,24 @@ function AdminHistoryItem({
   );
 }
 
-export { HistoryItem, AdminHistoryItem };
+function DemoHistoryItem({
+  id,
+  user,
+  onClick,
+  icon,
+  disabled,
+}: HistoryItemProps) {
+  if (disabled)
+    return (
+      <div className="text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800">
+        {id} {icon}
+      </div>
+    );
+  return (
+    <div className="history-item flex gap-3 items-center" onClick={onClick}>
+      {id} {icon}
+    </div>
+  );
+}
+
+export { HistoryItem, AdminHistoryItem, DemoHistoryItem };

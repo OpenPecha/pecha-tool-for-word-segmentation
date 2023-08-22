@@ -1,21 +1,18 @@
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
-import TextInfo from "./TextInfo";
-import { HistoryItem } from "./History";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
-import { Cross, Hamburger, Tick } from "./svgs";
+import { Cross, Hamburger, Tick } from "../svgs";
+import TextInfo from "../TextInfo";
+import { DemoHistoryItem } from "../History";
 
 export type historyText = {
   id: number;
   reviewed: boolean;
 };
 
-function Sidebar({ user, text }) {
-  const fetcher = useFetcher();
+function Sidebar({ user, text, setHistory }) {
   let [openMenu, setOpenMenu] = useState(false);
-  function resetText(id: string) {
-    fetcher.submit({ id }, { method: "DELETE", action: "api/text" });
-  }
+
   function SidebarHeader() {
     return (
       <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden ">
@@ -68,22 +65,28 @@ function Sidebar({ user, text }) {
               (user?.rejected_list || [])
                 .sort(sortUpdate_reviewed)
                 .map((text: historyText) => (
-                  <HistoryItem
+                  <DemoHistoryItem
                     user={user}
                     id={text?.id}
                     key={text.id + "-accepted"}
-                    onClick={() => setOpenMenu(false)}
+                    onClick={() => {
+                      setOpenMenu(false);
+                      setHistory(text.id);
+                    }}
                     icon={<Cross />}
                   />
                 ))}
             {(user?.text || [])
               .sort(sortUpdate_reviewed)
               .map((text: historyText) => (
-                <HistoryItem
+                <DemoHistoryItem
                   user={user}
                   id={text?.id}
                   key={text.id + "-rejected"}
-                  onClick={() => setOpenMenu(false)}
+                  onClick={() => {
+                    setOpenMenu(false);
+                    setHistory(text.id);
+                  }}
                   disabled={text?.reviewed}
                   icon={
                     <div className="flex items-center justify-between flex-1">

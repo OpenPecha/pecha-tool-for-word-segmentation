@@ -94,7 +94,7 @@ export default function Index() {
   if (data.error) return <div>{data.error}</div>;
   return (
     <div className="flex flex-col md:flex-row">
-      <Sidebar user={data.user} />
+      <Sidebar user={data.user} text={data.text} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
         {!data.text ? (
