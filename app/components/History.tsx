@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link, useLoaderData } from "@remix-run/react";
 interface HistoryItemProps {
   id: number;
   user: any;
@@ -14,6 +14,7 @@ interface AdminHistoryItemProps {
   selectedId: number;
 }
 function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
+  const { history } = useLoaderData();
   if (disabled)
     return (
       <div className="text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800">
@@ -23,7 +24,9 @@ function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
   return (
     <Link
       to={`/?session=${user.username}&history=${id}`}
-      className="history-item flex gap-3 items-center"
+      className={`flex gap-3 items-center ${
+        history == id ? "bg-gray-700" : ""
+      }`}
       onClick={onClick}
     >
       {id} {icon}

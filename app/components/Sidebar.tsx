@@ -55,7 +55,6 @@ function Sidebar({ user, text }) {
           <TextInfo>Batch : {text?.batch}</TextInfo>
           <TextInfo>Approved : {user?.text?.length}</TextInfo>
           <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
-          <TextInfo>Ignored : {user?.ignored_list?.length}</TextInfo>
           <TextInfo>
             Reviewed : {user?.text.filter((r) => r.reviewed)?.length}
           </TextInfo>

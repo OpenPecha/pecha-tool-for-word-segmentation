@@ -31,11 +31,10 @@ export const action: ActionFunction = async ({ request }) => {
     const userId = formData.get("userId") as string;
     const action = formData.get("_action") as string;
     if (action === "reject") {
+      await updateTextRejectCount(parseInt(id));
       let numberOfReject = await getNumberOfReject(parseInt(id));
       if (numberOfReject !== 0 && numberOfReject % 3 === 0) {
         await updateUserAssign(userId, false);
-      } else {
-        await updateTextRejectCount(parseInt(id));
       }
       text = await rejectText(parseInt(id), userId);
     }

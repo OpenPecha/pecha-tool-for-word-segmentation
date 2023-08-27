@@ -8,8 +8,8 @@ import { Hamburger, Tick } from "./svgs";
 
 interface SidebarProps {
   user: any;
-  setSelectedId: (data: number | null) => void;
-  selectedId: number | null;
+  setSelectedId: (data: number | undefined) => void;
+  selectedId: number | undefined;
 }
 
 function AdminHistorySidebar({

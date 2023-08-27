@@ -19,6 +19,7 @@ import checkUnknown from "~/lib/checkUnknown";
 import { createUserIfNotExists } from "~/model/user";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
+import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 export const loader: LoaderFunction = async ({ request }) => {
   let { NODE_ENV } = process.env;
   let url = new URL(request.url);
@@ -33,7 +34,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       text = await getTextToDisplay(user?.id, history);
     }
 
-    return { text, user, NODE_ENV };
+    return { text, user, NODE_ENV, history };
   }
 };
 
@@ -51,19 +52,8 @@ export default function Index() {
   let user = data.user;
   let insertHTML = insertHTMLonText(text);
   let newText = checkUnknown(insertHTML);
+  let editor = useEditorTiptap(newText);
 
-  const setter = () => {};
-  const charClick = () => {};
-
-  const editor = useEditor(
-    {
-      extensions: [StarterKit, Space(setter), Character(charClick)],
-      content: newText,
-      editorProps,
-      editable: false,
-    },
-    [newText]
-  );
   let saveText = async () => {
     let modified_text = editor!.getText();
     let id = data.text.id;
@@ -99,8 +89,8 @@ export default function Index() {
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
         {!user.allow_assign && (
           <div className="font-bold first-letter:uppercase first-letter:text-red-400">
-            your work must have been rejected 3 times or more . please contact
-            admin .
+            A single work must have been rejected 3 times or more . please
+            contact admin .
           </div>
         )}
         {!data.text ? (

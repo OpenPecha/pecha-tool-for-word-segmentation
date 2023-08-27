@@ -1,4 +1,4 @@
-import { json } from "@remix-run/node";
+import { DataFunctionArgs, LoaderArgs, json, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -16,43 +16,47 @@ import Button from "~/components/Button";
 import { db } from "~/service/db.server";
 import { Space } from "~/tiptapProps/extension/space";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
+import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 
-export const loader: LoaderFunction = async ({ request, params }) => {
+export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   let admin = await getUser(session!);
   let user = await getUser(params.slug!);
-  let text = await db.text.findMany({
+  let text_data = await db.text.findMany({
     where: { modified_by_id: user?.id, status: "APPROVED", reviewed: false },
     orderBy: { updatedAt: "desc" },
   });
-  let id_now = await db.text.findFirst({
+  let currentText = await db.text.findFirst({
     where: { reviewed: false, modified_by_id: user?.id, status: "APPROVED" },
     orderBy: { id: "asc" },
   });
-  return json({ user, admin, text, id_now: id_now?.id });
+  return { user, admin, text_data, id_now: currentText?.id };
 };
 
-function UserDetail() {
-  let fetcher = useFetcher();
-  const data = useLoaderData();
-  let user = data?.user;
-  let text = data?.text?.sort((a, b) =>
-    a.review === b.review ? 0 : !a.review ? 1 : -1
-  );
+type LoaderType = Awaited<ReturnType<typeof loader>>;
 
+function UserDetail() {
+  const fetcher = useFetcher();
+  const data = useLoaderData();
+  const { user, text_data, admin, id_now } = data as LoaderType;
+  let text = text_data?.sort((a, b) =>
+    a.reviewed === b.reviewed ? 0 : !a.reviewed ? 1 : -1
+  );
   const [content, setContent] = useState("");
-  const [selectedId, setSelectedId] = useState(data?.id_now);
+  const [selectedId, setSelectedId] = useState<number | undefined>(id_now);
   useEffect(() => {
-    setSelectedId(data?.id_now);
-  }, [data]);
+    setSelectedId(id_now);
+  }, [id_now]);
   useEffect(() => {
+    if (!user) return;
     let display = selectedId
       ? user.text.find((d) => d.id === selectedId)
       : user.text.sort(sortUpdate_reviewed).find((d) => d.id === text.id);
     if (display) {
       let show =
-        JSON.parse(display?.modified_text)?.join(" ") || display?.original_text;
+        JSON.parse(display?.modified_text!)?.join(" ") ||
+        display?.original_text;
       setContent(show);
     }
   }, [selectedId]);
@@ -61,32 +65,24 @@ function UserDetail() {
   let textMemo = useMemo(() => {
     if (newText) return newText;
   }, [newText]);
-  const setter = () => {};
-  const charClick = () => {};
-  const editor = useEditor(
-    {
-      extensions: [StarterKit, Space(setter), Character(charClick)],
-      content: textMemo,
-      editorProps,
-      editable: false,
-    },
-    [textMemo]
-  );
+  let editor = useEditorTiptap(textMemo);
+
   if (!editor) return null;
   let saveText = async () => {
-    let modified_text = editor!.getText();
-    let id = selectedId;
     fetcher.submit(
-      { id, modified_text, userId: user.id, adminId: data?.admin?.id },
+      {
+        id: selectedId!,
+        modified_text: editor?.getText(),
+        userId: user.id,
+        adminId: admin?.id,
+      },
       { method: "POST", action: "/api/text" }
     );
   };
 
   let rejectTask = async () => {
-    let id = selectedId;
-
     fetcher.submit(
-      { id, userId: user.id, _action: "reject", admin: true },
+      { id: selectedId!, userId: user.id, _action: "reject", admin: true },
       { method: "PATCH", action: "/api/text" }
     );
   };
@@ -95,7 +91,7 @@ function UserDetail() {
     <div className="flex flex-col md:flex-row">
       <AdminHistorySidebar
         user={user}
-        selectedId={selectedId}
+        selectedId={selectedId!}
         setSelectedId={setSelectedId}
       />
 
