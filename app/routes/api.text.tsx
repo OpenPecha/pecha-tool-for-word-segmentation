@@ -1,10 +1,13 @@
 import { ActionFunction, redirect } from "@remix-run/node";
 import {
+  getNumberOfReject,
   ignoreText,
   rejectText,
   removeRejectText,
   saveText,
+  updateTextRejectCount,
 } from "~/model/text";
+import { updateUserAssign } from "~/model/user";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -28,6 +31,12 @@ export const action: ActionFunction = async ({ request }) => {
     const userId = formData.get("userId") as string;
     const action = formData.get("_action") as string;
     if (action === "reject") {
+      let numberOfReject = await getNumberOfReject(parseInt(id));
+      if (numberOfReject !== 0 && numberOfReject % 3 === 0) {
+        await updateUserAssign(userId, false);
+      } else {
+        await updateTextRejectCount(parseInt(id));
+      }
       text = await rejectText(parseInt(id), userId);
     }
     if (action === "ignore") {

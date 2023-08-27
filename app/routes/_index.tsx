@@ -97,8 +97,14 @@ export default function Index() {
       <Sidebar user={data.user} text={data.text} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
+        {!user.allow_assign && (
+          <div className="font-bold first-letter:uppercase first-letter:text-red-400">
+            your work must have been rejected 3 times or more . please contact
+            admin .
+          </div>
+        )}
         {!data.text ? (
-          <div>Thank you . your work is complete ! 😊😊😊</div>
+          <div>Thank you . your work is complete ! 😊😊😊 </div>
         ) : (
           <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">

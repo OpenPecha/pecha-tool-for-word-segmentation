@@ -41,6 +41,7 @@ model Text {
   reviewed       Boolean? @default(false)
   reviewed_by    User?  @relation("UserReviewedText",fields: [reviewed_by_id],references: [id])
   reviewed_by_id  String?   
+  reject_count   Int?     @default(0)
 }
 
 enum Status {
