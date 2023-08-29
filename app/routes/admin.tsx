@@ -227,7 +227,7 @@ function Users({ user }: { user: User }) {
         {user.assigned_batch.map((item) => {
           return (
             <span
-              className="bg-green-300  mr-1 cursor-pointer p-1 border-2 rounded border-gray-300"
+              className=" text-black  mr-1 cursor-pointer p-1 border-2 rounded border-gray-300"
               onClick={() => removeBatch(item)}
               key={item}
               style={{
