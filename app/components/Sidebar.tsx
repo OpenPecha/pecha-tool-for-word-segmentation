@@ -1,17 +1,23 @@
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { Link } from "@remix-run/react";
 import { useState } from "react";
 import TextInfo from "./TextInfo";
 import { HistoryItem } from "./History";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { Cross, Crossburger, Hamburger, Tick } from "./svgs";
+import { useOnlineCount } from "./hooks/useOnlineCount";
+import type { User, Text } from "@prisma/client";
 
 export type historyText = {
   id: number;
   reviewed: boolean;
 };
+type userType = {
+  user: User & { text: any[]; rejected_list: any[] };
+  text: Text;
+};
 
-function Sidebar({ user, text }) {
-  const fetcher = useFetcher();
+function Sidebar({ user, text }: userType) {
+  const onlineCount = useOnlineCount();
   let [openMenu, setOpenMenu] = useState(false);
 
   return (
@@ -41,6 +47,7 @@ function Sidebar({ user, text }) {
           <TextInfo>Batch : {text?.batch}</TextInfo>
           <TextInfo>Approved : {user?.text?.length}</TextInfo>
           <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
+          <TextInfo>Online:{onlineCount}</TextInfo>
           <TextInfo>
             Reviewed : {user?.text.filter((r) => r.reviewed)?.length}
           </TextInfo>
@@ -49,14 +56,14 @@ function Sidebar({ user, text }) {
           <div className="text-sm mb-2 font-bold">History</div>
           <div className="flex flex-col gap-2 max-h-[30vh] overflow-y-auto">
             {user &&
-              (user.rejected_list || user.text) &&
+              user?.rejected_list?.length > 0 &&
               (user?.rejected_list || [])
                 .sort(sortUpdate_reviewed)
                 .map((text: historyText) => (
                   <HistoryItem
                     user={user}
                     id={text?.id}
-                    key={text.id + "-accepted"}
+                    key={text.id + "-rejected"}
                     onClick={() => setOpenMenu(false)}
                     icon={<Cross />}
                   />
@@ -67,7 +74,7 @@ function Sidebar({ user, text }) {
                 <HistoryItem
                   user={user}
                   id={text?.id}
-                  key={text.id + "-rejected"}
+                  key={text.id + "-accepted"}
                   onClick={() => setOpenMenu(false)}
                   disabled={text?.reviewed}
                   icon={

@@ -7,15 +7,31 @@ import {
   Scripts,
   ScrollRestoration,
 } from "@remix-run/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import tailwindStyle from "./styles/tailwind.css";
 import globalStyle from "./styles/global.css";
-
+import { SocketProvider, connect } from "./components/contexts/SocketContext";
+import { io } from "socket.io-client";
+import type { Socket } from "socket.io-client";
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStyle },
   { rel: "stylesheet", href: globalStyle },
 ];
 export default function App() {
+  const [socket, setSocket] = useState<Socket>();
+
+  useEffect(() => {
+    const socket = connect();
+    setSocket(socket);
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("confirmation", (data) => {});
+  }, [socket]);
   return (
     <html lang="en">
       <head>
@@ -25,7 +41,9 @@ export default function App() {
         <Links />
       </head>
       <body className="m-0 overflow-hidden font-[20px]">
-        <Outlet />
+        <SocketProvider socket={socket}>
+          <Outlet />
+        </SocketProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

@@ -14,8 +14,6 @@ export async function checkAndAssignBatch(userId: string) {
       },
     });
     let assigned_batch = user?.assigned_batch;
-    console.log(assigned_batch);
-    let ignored_list = user?.ignored_list.map((item) => item.id) || [];
     if (!user) return null;
     if (assigned_batch?.length === 0) {
       batchToAssign = await getUnassignedBatch(userId);

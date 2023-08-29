@@ -1,12 +1,18 @@
 import { User } from "@prisma/client";
 import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
-import { useRef, useState } from "react";
+import {
+  Link,
+  useFetcher,
+  useLoaderData,
+  useRevalidator,
+} from "@remix-run/react";
+import { useRef, useState, useEffect } from "react";
 import { getAprovedBatch } from "~/model/text";
 import { getUser, getUsers, removeBatchFromUser } from "~/model/user";
 import { FiEdit2 } from "react-icons/fi";
 import { TiTick } from "react-icons/ti";
 import { ImCross } from "react-icons/im";
+import { useSocket } from "~/components/contexts/SocketContext";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -97,6 +103,7 @@ export default admin;
 
 function Users({ user }: { user: User }) {
   let { groups, user: Admin } = useLoaderData();
+  const socket = useSocket();
   const [openEdit, setOpenEdit] = useState(false);
   const inputRef = useRef(null);
   let url = `/admin/${user.username}?session=${Admin.username}`;
@@ -104,6 +111,14 @@ function Users({ user }: { user: User }) {
   const userfetcher = useFetcher();
   const reviewed_count = user?.text.filter((item) => item.reviewed).length;
   const approved_count = user.text.length;
+  const reval = useRevalidator();
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("text-status-changed", (data) => {
+      reval.revalidate();
+    });
+  }, [socket]);
+
   function handleSubmit() {
     let value = inputRef.current?.value;
     if (!value) return;
@@ -120,7 +135,7 @@ function Users({ user }: { user: User }) {
     );
     setOpenEdit(false);
   }
-  function handleChangeRole() {
+  function handleChangeAllow() {
     fetcher.submit(
       {
         id: user.id,
@@ -132,6 +147,7 @@ function Users({ user }: { user: User }) {
         method: "POST",
       }
     );
+    socket?.emit("change-allow", { user });
   }
 
   let removeBatch = (e) => {
@@ -200,7 +216,7 @@ function Users({ user }: { user: User }) {
             "cursor-not-allowed opacity-50 pointer-events-non"
           }`}
           checked={user?.allow_assign!}
-          onChange={handleChangeRole}
+          onChange={handleChangeAllow}
           aria-label="Toggle_role"
         />
       </td>

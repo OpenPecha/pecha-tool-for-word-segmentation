@@ -4,8 +4,8 @@ import {
   type LoaderFunction,
   type V2_MetaFunction,
 } from "@remix-run/node";
-import { useRef } from "react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useEffect, useRef } from "react";
+import { useFetcher, useLoaderData, useRevalidator } from "@remix-run/react";
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import Button from "~/components/Button";
@@ -20,6 +20,7 @@ import { createUserIfNotExists } from "~/model/user";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
+import { connect, useSocket } from "~/components/contexts/SocketContext";
 export const loader: LoaderFunction = async ({ request }) => {
   let { NODE_ENV } = process.env;
   let url = new URL(request.url);
@@ -53,6 +54,17 @@ export default function Index() {
   let insertHTML = insertHTMLonText(text);
   let newText = checkUnknown(insertHTML);
   let editor = useEditorTiptap(newText);
+  const socket = useSocket();
+  const revalidate = useRevalidator();
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("change-allow", (data) => {
+      if (data.user.id === user.id) revalidate.revalidate();
+    });
+    socket.on("reviewed", (data) => {
+      if (data.user.id === user.id) revalidate.revalidate();
+    });
+  }, [socket]);
 
   let saveText = async () => {
     let modified_text = editor!.getText();
@@ -61,43 +73,41 @@ export default function Index() {
       { id, modified_text, userId: user.id },
       { method: "POST", action: "/api/text" }
     );
+    socket?.emit("text-status-changed", { user });
   };
   let undoTask = async () => {
     let text = checkUnknown(insertHTMLonText(data?.text?.original_text));
     editor?.commands.setContent(text);
   };
-  let ignoreTask = async () => {
-    let id = data.text.id;
-    fetcher.submit(
-      { id, userId: user.id, _action: "ignore" },
-      { method: "PATCH", action: "/api/text" }
-    );
-  };
+
   let rejectTask = async () => {
     let id = data.text.id;
     fetcher.submit(
       { id, userId: user.id, _action: "reject" },
       { method: "PATCH", action: "/api/text" }
     );
+    socket?.emit("text-status-changed", { user });
   };
-  let isButtonDisabled = !editor || !data.text || data.text.reviewed;
+
+  let isButtonDisabled = !data.text || data.text.reviewed;
+
   if (data.error) return <div>{data.error}</div>;
   return (
     <div className="flex flex-col md:flex-row">
       <Sidebar user={data.user} text={data.text} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
-        {!user.allow_assign && (
-          <div className="font-bold first-letter:uppercase first-letter:text-red-400">
-            A single work must have been rejected 3 times or more . please
-            contact admin .
-          </div>
-        )}
         {!data.text ? (
           <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm text-center py-4">
+            {!user.allow_assign && (
+              <div className="font-bold first-letter:uppercase first-letter:text-red-400">
+                A single work must have been rejected 3 times or more . please
+                contact admin .
+              </div>
+            )}
             Thank you . your work is complete ! 😊😊😊
             <br />
-            {user?.rejected_list.length > 0 ? (
+            {user?.rejected_list?.length > 0 ? (
               <div>you have some rejected work,please visit them</div>
             ) : (
               <div>once work are reviewed , you will be assigned new work</div>

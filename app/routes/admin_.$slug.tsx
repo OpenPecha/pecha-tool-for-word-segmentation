@@ -17,6 +17,7 @@ import { db } from "~/service/db.server";
 import { Space } from "~/tiptapProps/extension/space";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
+import { useSocket } from "~/components/contexts/SocketContext";
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
@@ -44,6 +45,7 @@ function UserDetail() {
   let text = text_data?.sort((a, b) =>
     a.reviewed === b.reviewed ? 0 : !a.reviewed ? 1 : -1
   );
+  const socket = useSocket();
   const [content, setContent] = useState("");
   const [selectedId, setSelectedId] = useState<number | undefined>(id_now);
   useEffect(() => {
@@ -69,6 +71,11 @@ function UserDetail() {
   let editor = useEditorTiptap(textMemo);
 
   if (!editor) return null;
+  function text_reviewed() {
+    setTimeout(() => {
+      socket?.emit("reviewed", { user });
+    }, 1000);
+  }
   let saveText = async () => {
     fetcher.submit(
       {
@@ -79,6 +86,7 @@ function UserDetail() {
       },
       { method: "POST", action: "/api/text" }
     );
+    text_reviewed();
   };
 
   let rejectTask = async () => {
@@ -86,8 +94,9 @@ function UserDetail() {
       { id: selectedId!, userId: user.id, _action: "reject", admin: true },
       { method: "PATCH", action: "/api/text" }
     );
+    text_reviewed();
   };
-  let isButtonDisabled = !editor || !text;
+  let isButtonDisabled = text.length < 1;
   return (
     <div className="flex flex-col md:flex-row">
       <AdminHistorySidebar
@@ -98,7 +107,9 @@ function UserDetail() {
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh]">
         {!text || !selectedId || !editor ? (
-          <div>Thank you . your work is complete ! 😊😊😊</div>
+          <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
+            Thank you . your work is complete ! 😊😊😊
+          </div>
         ) : (
           <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">

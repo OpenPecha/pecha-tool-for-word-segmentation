@@ -104,7 +104,6 @@ export const removeBatchFromUser = async (batch: number, id: string) => {
       include: { ignored_list: true },
     });
     let isAllIgnored = await areAllTextsIgnoredOrReviewed(id, batch);
-    console.log(isAllIgnored);
     if (!user) throw new Error("user not found");
     if (isAllIgnored) {
       const updatedAssignedBatchs = user.assigned_batch.filter(

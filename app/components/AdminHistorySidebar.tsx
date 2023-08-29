@@ -1,10 +1,11 @@
-import { Link, useLoaderData } from "@remix-run/react";
-import { useState } from "react";
+import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
+import { useState, useEffect } from "react";
 import { historyText } from "./Sidebar";
 import TextInfo from "./TextInfo";
 import { AdminHistoryItem } from "./History";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { Hamburger, Tick } from "./svgs";
+import { useSocket } from "./contexts/SocketContext";
 
 interface SidebarProps {
   user: any;
@@ -18,9 +19,16 @@ function AdminHistorySidebar({
   selectedId,
 }: SidebarProps) {
   const data = useLoaderData();
-
+  const socket = useSocket();
   const [openMenu, setOpenMenu] = useState(false);
+  const reval = useRevalidator();
 
+  useEffect(() => {
+    if (!socket) return;
+    socket.on("text-status-changed", (data) => {
+      reval.revalidate();
+    });
+  }, [socket]);
   const SidebarHeader = () => (
     <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden">
       <Link to={`/admin?session=${data.admin.username}`}>
