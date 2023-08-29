@@ -94,7 +94,15 @@ export default function Index() {
           </div>
         )}
         {!data.text ? (
-          <div>Thank you . your work is complete ! 😊😊😊 </div>
+          <div>
+            Thank you . your work is complete ! 😊😊😊
+            <br />
+            {user?.rejected_list.length > 0 ? (
+              <div>you have some rejected work,please visit them</div>
+            ) : (
+              <div>once work are reviewed , you will be assigned new work</div>
+            )}
+          </div>
         ) : (
           <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
@@ -124,36 +132,38 @@ export default function Index() {
             {!editor && <div>loading...</div>}
           </div>
         )}
-        <div className="flex gap-2 fixed bottom-0 justify-center ">
-          <Button
-            disabled={isButtonDisabled}
-            handleClick={saveText}
-            value="CONFIRM"
-            title="CONFIRM (a)"
-            shortCut="a"
-          />
-          <Button
-            disabled={isButtonDisabled}
-            handleClick={rejectTask}
-            value="REJECT"
-            title="REJECT (x)"
-            shortCut="x"
-          />
-          {/* <Button
+        {data.text && (
+          <div className="flex gap-2 fixed bottom-0 justify-center ">
+            <Button
+              disabled={isButtonDisabled}
+              handleClick={saveText}
+              value="CONFIRM"
+              title="CONFIRM (a)"
+              shortCut="a"
+            />
+            <Button
+              disabled={isButtonDisabled}
+              handleClick={rejectTask}
+              value="REJECT"
+              title="REJECT (x)"
+              shortCut="x"
+            />
+            {/* <Button
             disabled={isButtonDisabled}
             handleClick={ignoreTask}
             value="IGNORE"
             title="IGNORE (i)"
             shortCut="i"
           /> */}
-          <Button
-            disabled={isButtonDisabled}
-            handleClick={undoTask}
-            value="UNDO"
-            title="UNDO (backspace)"
-            shortCut="Backspace"
-          />
-        </div>
+            <Button
+              disabled={isButtonDisabled}
+              handleClick={undoTask}
+              value="UNDO"
+              title="UNDO (backspace)"
+              shortCut="Backspace"
+            />
+          </div>
+        )}
       </div>
     </div>
   );

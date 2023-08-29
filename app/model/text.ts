@@ -14,6 +14,7 @@ export async function checkAndAssignBatch(userId: string) {
       },
     });
     let assigned_batch = user?.assigned_batch;
+    console.log(assigned_batch);
     let ignored_list = user?.ignored_list.map((item) => item.id) || [];
     if (!user) return null;
     if (assigned_batch?.length === 0) {
@@ -22,13 +23,19 @@ export async function checkAndAssignBatch(userId: string) {
       let textsInBatch = await db.text.findMany({
         where: {
           batch: { in: user.assigned_batch },
-          id: { notIn: ignored_list },
         },
       });
       for (const batch of user.assigned_batch) {
         let batchList = textsInBatch.filter((item) => item.batch === batch);
         // If there is any text with a null modified_text, return false
         if (batchList.some((text) => text.modified_text === null)) {
+          return batch;
+        }
+        if (
+          batchList.some(
+            (text) => text.status === null || text.status === "PENDING"
+          )
+        ) {
           return batch;
         }
       }
@@ -83,15 +90,13 @@ export async function getTextToDisplay(userId: string, history: any) {
       rejected_list: true,
     },
   });
-  const ignoredIds = user?.ignored_list.map((item: any) => item.id);
   const rejectedIds = user?.rejected_list.map((item: any) => item.id);
   let text = await db.text.findFirst({
     where: {
       batch: batch,
-      modified_text: null,
       OR: [{ status: null }, { status: "PENDING" }],
       id: {
-        notIn: [...(ignoredIds || []), ...(rejectedIds || [])],
+        notIn: [...(rejectedIds || [])],
       },
     },
     orderBy: {
