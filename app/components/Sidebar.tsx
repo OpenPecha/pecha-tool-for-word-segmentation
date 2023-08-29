@@ -3,7 +3,7 @@ import { useState } from "react";
 import TextInfo from "./TextInfo";
 import { HistoryItem } from "./History";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
-import { Cross, Hamburger, Tick } from "./svgs";
+import { Cross, Crossburger, Hamburger, Tick } from "./svgs";
 
 export type historyText = {
   id: number;
@@ -13,26 +13,13 @@ export type historyText = {
 function Sidebar({ user, text }) {
   const fetcher = useFetcher();
   let [openMenu, setOpenMenu] = useState(false);
-  function resetText(id: string) {
-    fetcher.submit({ id }, { method: "DELETE", action: "api/text" });
-  }
-  function SidebarHeader() {
-    return (
-      <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden ">
-        <div>About</div>
-        <div className="cursor-pointer p-2" onClick={() => setOpenMenu(false)}>
-          x
-        </div>
-      </div>
-    );
-  }
+
   return (
     <div className="flex flex-col">
-      <div
-        className=" flex px-2 py-3 text-white bg-gray-600 text-lg font-semibold items-center  gap-2 "
-        onClick={() => setOpenMenu(true)}
-      >
-        <Hamburger />
+      <div className=" flex px-2 py-3 text-white bg-gray-600 text-lg font-semibold items-center  gap-2 ">
+        <div onClick={() => setOpenMenu((p) => !p)}>
+          {!openMenu ? <Hamburger /> : <Crossburger />}
+        </div>
         Word Segmentation
       </div>
       <div
@@ -41,7 +28,6 @@ function Sidebar({ user, text }) {
         } min-h-[100vh] w-[260px] md:translate-x-0`}
       >
         <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
-          <SidebarHeader />
           {user.role === "ADMIN" && (
             <Link
               to={`/admin?session=${user?.username}`}
@@ -50,7 +36,7 @@ function Sidebar({ user, text }) {
               ADMIN
             </Link>
           )}
-          <TextInfo>User : {user?.username}</TextInfo>
+          <TextInfo>User : {user?.username.split("@")[0]}</TextInfo>
           <TextInfo>text id :{text?.id}</TextInfo>
           <TextInfo>Batch : {text?.batch}</TextInfo>
           <TextInfo>Approved : {user?.text?.length}</TextInfo>

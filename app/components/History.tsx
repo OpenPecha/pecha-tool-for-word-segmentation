@@ -17,14 +17,14 @@ function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
   const { history } = useLoaderData();
   if (disabled)
     return (
-      <div className="text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800">
+      <div className="px-2 text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800">
         {id} {icon}
       </div>
     );
   return (
     <Link
       to={`/?session=${user.username}&history=${id}`}
-      className={`flex gap-3 items-center ${
+      className={`px-2 flex gap-3 items-center ${
         history == id ? "bg-gray-700" : ""
       }`}
       onClick={onClick}

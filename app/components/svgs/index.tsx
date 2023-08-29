@@ -12,7 +12,45 @@ export function Hamburger() {
     </svg>
   );
 }
+export function Crossburger() {
+  return (
+    <svg
+      height="20"
+      width="20"
+      className="inline-block mr-2 cursor-pointer md:hidden "
+      version="1.1"
+      id="Layer_1"
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="-184.32 -184.32 880.64 880.64"
+      fill="#000000"
+    >
+      <g id="SVGRepo_bgCarrier" stroke-width="0">
+        <rect
+          x="-184.32"
+          y="-184.32"
+          width="880.64"
+          height="880.64"
+          rx="440.32"
+          fill="#000040"
+          strokeWidth="0"
+        />
+      </g>
 
+      <g
+        id="SVGRepo_tracerCarrier"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+
+      <g id="SVGRepo_iconCarrier">
+        <path
+          style={{ fill: "#ffffff" }}
+          d="M384.955,256l120.28-120.28c9.019-9.019,9.019-23.642,0-32.66L408.94,6.765 c-9.019-9.019-23.642-9.019-32.66,0l-120.28,120.28L135.718,6.765c-9.019-9.019-23.642-9.019-32.66,0L6.764,103.058 c-9.019,9.019-9.019,23.642,0,32.66l120.28,120.28L6.764,376.28c-9.019,9.019-9.019,23.642,0,32.66l96.295,96.294 c9.019,9.019,23.642,9.019,32.66,0l120.28-120.28l120.28,120.28c9.019,9.019,23.642,9.019,32.66,0l96.295-96.294 c9.019-9.019,9.019-23.642,0-32.66L384.955,256z"
+        />{" "}
+      </g>
+    </svg>
+  );
+}
 export function Tick() {
   return (
     <svg
