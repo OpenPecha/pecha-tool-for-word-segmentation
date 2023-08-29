@@ -31,6 +31,7 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     where: { reviewed: false, modified_by_id: user?.id, status: "APPROVED" },
     orderBy: { id: "asc" },
   });
+
   return { user, admin, text_data, id_now: currentText?.id };
 };
 

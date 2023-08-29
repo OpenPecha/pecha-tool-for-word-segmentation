@@ -94,7 +94,7 @@ export default function Index() {
           </div>
         )}
         {!data.text ? (
-          <div>
+          <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm text-center py-4">
             Thank you . your work is complete ! 😊😊😊
             <br />
             {user?.rejected_list.length > 0 ? (
