@@ -82,10 +82,10 @@ function admin() {
           <table className="table">
             <thead>
               <tr>
-                <th>user</th>
+                <th>User</th>
                 <th>Role</th>
                 <th>Active</th>
-                <th>approved/reviewed</th>
+                <th>Approved/Reviewed</th>
                 <th>Assigned Jobs</th>
               </tr>
             </thead>
