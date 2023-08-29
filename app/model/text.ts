@@ -127,7 +127,7 @@ export async function rejectText(id: number, userId: string) {
       id,
     },
     data: {
-      status: "PENDING",
+      status: "REJECTED",
       modified_by: { disconnect: { id: userId } },
       rejected_by: { connect: { id: userId } },
       reviewed: false,
@@ -224,17 +224,8 @@ export async function getAprovedBatch() {
     let approved = text.every((item) => item.status === "APPROVED");
     let reviewed = text.every((item) => item.reviewed === true);
     let rejected = text.some((item) => item.status === "REJECTED");
-    const ignored = text.reduce((acc, t) => {
-      const ignoredUsersWithNonNullUsername = t.ignored_by.filter(
-        (user) => user.username !== null
-      );
-      const ignoredUsernames = ignoredUsersWithNonNullUsername.map(
-        (user) => user.username
-      );
-      return acc.concat(ignoredUsernames);
-    }, []);
 
-    result[item] = { approved, rejected, ignored, reviewed };
+    result[item] = { approved, rejected, reviewed };
   }
 
   return result;

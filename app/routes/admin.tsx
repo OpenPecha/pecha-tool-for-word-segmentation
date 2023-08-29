@@ -34,10 +34,9 @@ function admin() {
     (a, b) => b.assigned_batch.length - a.assigned_batch.length
   );
   let colorScheme = [
-    { color: "lightblue", text: "ready to review" },
-    { color: "pink", text: "some rejected" },
-    { color: "yellow", text: "some Ignored" },
-    { color: "lightgreen", text: "all reviewed" },
+    { color: "bg-blue-300", text: "ready" },
+    { color: "bg-red-300", text: "some rejected" },
+    { color: "bg-green-300", text: "all accepted" },
   ];
   let list = users.filter((data) => data.username.includes(search));
 
@@ -50,19 +49,12 @@ function admin() {
         >
           Home
         </Link>
-        <div className="flex items-center mr-3">
+        <div className="flex items-center gap-2">
           {colorScheme?.map((data) => {
             return (
               <div className="flex gap-2 items-center" key={data.color}>
                 <span
-                  style={{
-                    display: "inline-block",
-                    width: 20,
-                    height: 20,
-                    marginInline: 10,
-                    backgroundColor: data.color,
-                    border: "1px solid black",
-                  }}
+                  className={`inline-block w-4 h-4 rounded-full ${data.color} border-2 border-gray-300]`}
                 ></span>
                 {data.text}
               </div>
@@ -227,8 +219,6 @@ function Users({ user }: { user: User }) {
                   ? "lightgreen"
                   : groups[item].approved
                   ? "lightblue"
-                  : groups[item].ignored.includes(user.username)
-                  ? "yellow"
                   : groups[item].rejected
                   ? "pink"
                   : "white",
