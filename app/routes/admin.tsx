@@ -35,7 +35,7 @@ export const action: ActionFunction = async ({ request }) => {
 function admin() {
   let { user, users } = useLoaderData();
   let [search, setSearch] = useState("");
-
+  let dashboardRef = useRef<HTMLDialogElement>(null);
   users = users.sort(
     (a, b) => b.assigned_batch.length - a.assigned_batch.length
   );
@@ -49,12 +49,30 @@ function admin() {
   return (
     <div className="p-3">
       <div className="flex justify-between">
-        <Link
-          to={`/?session=${user.username}`}
-          className="text-white bg-gray-500 p-2"
-        >
-          Home
-        </Link>
+        <div className="flex gap-2">
+          <Link to={`/?session=${user.username}`} className="btn">
+            Home
+          </Link>
+          <button
+            className="btn p-2"
+            onClick={() => dashboardRef?.current?.showModal()}
+          >
+            Dashboard
+          </button>
+        </div>
+        <dialog id="my_modal_3" ref={dashboardRef} className="modal">
+          <form method="dialog" className="modal-box w-11/12 max-w-5xl">
+            <button className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2">
+              ✕
+            </button>
+            <iframe
+              src="https://metabase.pecha.tools/public/dashboard/4e6afb12-9c15-48cc-afd4-61e52887ad80"
+              style={{ border: 0, width: "100%", height: "80vh" }}
+              allowTransparency
+            ></iframe>
+          </form>
+        </dialog>
+
         <div className="flex items-center gap-2">
           {colorScheme?.map((data) => {
             return (
@@ -184,7 +202,6 @@ function Users({ user }: { user: User }) {
             </>
           ) : (
             <>
-              {" "}
               <input
                 type="text"
                 defaultValue={user.nickname!}
