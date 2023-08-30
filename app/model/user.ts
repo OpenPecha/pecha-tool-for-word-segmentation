@@ -186,3 +186,11 @@ export async function remainingTextToApproved(userId: string) {
 
   return { remaining_count, not_reviewed_count };
 }
+
+export async function getUserById(id: string | null) {
+  if (id === null) return null;
+  let item = await db.user.findUnique({
+    where: { id },
+  });
+  return item;
+}

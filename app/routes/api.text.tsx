@@ -10,6 +10,7 @@ import {
 } from "~/model/text";
 import {
   getUser,
+  getUserById,
   remainingTextToApproved,
   updateUserAssign,
 } from "~/model/user";
@@ -21,7 +22,6 @@ export const action: ActionFunction = async ({ request }) => {
   let session = url.searchParams.get("session") as string;
   let history = url.searchParams.get("history");
   let text = null;
-  let user = await getUser(session);
   let admin_id = formData.get("adminId") as string;
 
   if (request.method === "POST") {
@@ -30,7 +30,8 @@ export const action: ActionFunction = async ({ request }) => {
     const id = formData.get("id") as string;
     await removeRejectText(parseInt(id), userId, "APPROVED");
     text = await saveText(parseInt(id), modified_text, userId, admin_id);
-
+    let user = await getUserById(userId);
+    let admin = await getUserById(admin_id);
     let { remaining_count, not_reviewed_count } = await remainingTextToApproved(
       userId
     );
@@ -41,10 +42,10 @@ export const action: ActionFunction = async ({ request }) => {
         "success"
       );
     }
-    if (not_reviewed_count === 0 && admin_id) {
+    if (not_reviewed_count === 0 && !!admin_id) {
       sendNotification(
-        user?.username,
-        "batch is reviewed, user will get new batch now",
+        admin?.username,
+        `batch reviewed, ${user?.nickname} will get new batch now`,
         "success"
       );
     }
