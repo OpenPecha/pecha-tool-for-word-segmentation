@@ -118,6 +118,17 @@ export function getTextToDisplayByUser(userid: string) {
   });
   return allTextByUser;
 }
+export async function getProgress() {
+  try {
+    let total = await db.text.findMany();
+    let reviewed = await db.text.findMany({
+      where: { reviewed: true },
+    });
+    return { total: total.length, reviewed: reviewed.length };
+  } catch (e) {
+    throw new Error(e);
+  }
+}
 
 export async function rejectText(id: number, userId: string) {
   let text = await db.text.update({

@@ -7,7 +7,7 @@ import {
   useRevalidator,
 } from "@remix-run/react";
 import { useRef, useState, useEffect } from "react";
-import { getAprovedBatch } from "~/model/text";
+import { getAprovedBatch, getProgress } from "~/model/text";
 import { getUser, getUsers, removeBatchFromUser } from "~/model/user";
 import { FiEdit2 } from "react-icons/fi";
 import { TiTick } from "react-icons/ti";
@@ -20,7 +20,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   let user: User | null = await getUser(session);
   let users: User[] = await getUsers();
   let groups = await getAprovedBatch();
-  return { user, users, groups };
+  let progress = await getProgress();
+  return { user, users, groups, progress };
 };
 
 export const action: ActionFunction = async ({ request }) => {
@@ -33,22 +34,22 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 function admin() {
-  let { user, users } = useLoaderData();
+  let { user, users, progress } = useLoaderData();
   let [search, setSearch] = useState("");
   let dashboardRef = useRef<HTMLDialogElement>(null);
   users = users.sort(
     (a, b) => b.assigned_batch.length - a.assigned_batch.length
   );
   let colorScheme = [
-    { color: "bg-blue-300", text: "ready" },
-    { color: "bg-red-300", text: "some rejected" },
-    { color: "bg-green-300", text: "all accepted" },
+    { color: "bg-blue-300", text: "Ready" },
+    { color: "bg-red-300", text: "Some Rejected" },
+    { color: "bg-green-300", text: "All Accepted" },
   ];
   let list = users.filter((data) => data.username.includes(search));
 
   return (
     <div className="p-3">
-      <div className="flex justify-between">
+      <div className="flex flex-col justify-between md:flex-row gap-4">
         <div className="flex gap-2">
           <Link to={`/?session=${user.username}`} className="btn">
             Home
@@ -59,6 +60,18 @@ function admin() {
           >
             Dashboard
           </button>
+        </div>
+        <div
+          className="tooltip tooltip-bottom"
+          data-tip={`${progress.reviewed} / ${progress.total}`}
+        >
+          <div className="md:text-center">Progress</div>
+
+          <progress
+            className="progress progress-success w-56"
+            max={progress.total}
+            value={progress.reviewed}
+          ></progress>
         </div>
         <dialog id="my_modal_3" ref={dashboardRef} className="modal">
           <form method="dialog" className="modal-box w-11/12 max-w-5xl">
