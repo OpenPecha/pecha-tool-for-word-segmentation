@@ -20,7 +20,8 @@ import { createUserIfNotExists } from "~/model/user";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
-import { connect, useSocket } from "~/components/contexts/SocketContext";
+import { useSocket } from "~/components/contexts/SocketContext";
+import { sendNotification } from "~/lib/server.sendDiscordNotification";
 export const loader: LoaderFunction = async ({ request }) => {
   let { NODE_ENV } = process.env;
   let url = new URL(request.url);
@@ -34,7 +35,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (user.allow_assign) {
       text = await getTextToDisplay(user?.id, history);
     }
-
     return { text, user, NODE_ENV, history };
   }
 };

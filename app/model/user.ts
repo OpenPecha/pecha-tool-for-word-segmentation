@@ -1,6 +1,5 @@
 import { Role } from "@prisma/client";
 import { db } from "~/service/db.server";
-import { ignoreText } from "./text";
 
 export const createUserIfNotExists = async (username: string) => {
   const existingUser = await db.user.findUnique({
@@ -168,4 +167,22 @@ async function areAllTextsIgnoredOrReviewed(userId: string, batchId: number) {
   });
 
   return allIgnoredOrReviewed;
+}
+
+export async function remainingTextToApproved(userId: string) {
+  let remains = await db.user.findUnique({
+    where: { id: userId },
+    select: { assigned_batch: true },
+  });
+  let lastbatch = remains?.assigned_batch.at(-1);
+  let text = await db.text.findMany({
+    where: {
+      batch: lastbatch,
+    },
+    select: { id: true, status: true, reviewed: true },
+  });
+  let remaining_count = text.filter((t) => t.status !== "APPROVED").length;
+  let not_reviewed_count = text.filter((t) => t.reviewed === false).length;
+
+  return { remaining_count, not_reviewed_count };
 }

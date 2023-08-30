@@ -1,6 +1,7 @@
 import { Status, User } from "@prisma/client";
 import { db } from "~/service/db.server";
 import { getUnassignedBatch } from "./group";
+import { sendNotification } from "~/lib/server.sendDiscordNotification";
 
 export async function checkAndAssignBatch(userId: string) {
   try {
@@ -9,6 +10,7 @@ export async function checkAndAssignBatch(userId: string) {
     const user = await db.user.findUnique({
       where: { id: userId },
       select: {
+        username: true,
         assigned_batch: true,
         ignored_list: true,
       },
@@ -21,6 +23,12 @@ export async function checkAndAssignBatch(userId: string) {
       let textsInBatch = await db.text.findMany({
         where: {
           batch: { in: user.assigned_batch },
+        },
+        select: {
+          status: true,
+          modified_text: true,
+          batch: true,
+          reviewed: true,
         },
       });
       for (const batch of user.assigned_batch) {
@@ -39,6 +47,7 @@ export async function checkAndAssignBatch(userId: string) {
       }
       //check if all assigned batch is reviewed
       const allReviewed = textsInBatch.every((item) => item.reviewed);
+
       if (!batchToAssign && allReviewed) {
         batchToAssign = await getUnassignedBatch(userId);
       }
