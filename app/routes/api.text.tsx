@@ -39,14 +39,14 @@ export const action: ActionFunction = async ({ request }) => {
       sendNotification(
         user?.username,
         `A batch is ready to review by ${user?.nickname}`,
-        "success"
+        "info"
       );
     }
     if (not_reviewed_count === 0 && !!admin_id) {
       sendNotification(
         admin?.username,
         `batch reviewed, ${user?.nickname} will get new batch now`,
-        "info"
+        "success"
       );
     }
   }
