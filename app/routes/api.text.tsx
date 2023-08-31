@@ -46,7 +46,7 @@ export const action: ActionFunction = async ({ request }) => {
       sendNotification(
         admin?.username,
         `batch reviewed, ${user?.nickname} will get new batch now`,
-        "success"
+        "info"
       );
     }
   }
