@@ -5,6 +5,7 @@ import {
   updateUserNickname,
   updateUserAssign,
   updateUserCategory,
+  updateUserReviewer,
 } from "~/model/server.user";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -29,6 +30,10 @@ export const action: ActionFunction = async ({ request }) => {
     let updated = await updateUserAssign(id, allow === "true");
     return updated;
   }
-
+  if (action === "change_reviewer") {
+    let reviewer_name = formdata.get("reviewer") as string;
+    let updated = await updateUserReviewer(id, reviewer_name);
+    return updated;
+  }
   return null;
 };

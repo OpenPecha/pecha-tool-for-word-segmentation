@@ -10,12 +10,14 @@ import {
 import React, { useEffect, useState } from "react";
 import tailwindStyle from "./styles/tailwind.css";
 import globalStyle from "./styles/global.css";
+import drawwerStyle from "react-modern-drawer/dist/index.css";
 import { SocketProvider, connect } from "./components/contexts/SocketContext";
-import { io } from "socket.io-client";
 import type { Socket } from "socket.io-client";
+
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStyle },
   { rel: "stylesheet", href: globalStyle },
+  { rel: "stylesheet", href: drawwerStyle },
 ];
 export default function App() {
   const [socket, setSocket] = useState<Socket>();

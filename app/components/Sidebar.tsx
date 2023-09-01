@@ -39,7 +39,7 @@ function Sidebar({ user, text }: userType) {
               to={`/admin?session=${user?.username}`}
               className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 rounded-sm"
             >
-              {user.role}
+              {user.role} DASHBOARD
             </Link>
           )}
           <TextInfo>User : {user?.username.split("@")[0]}</TextInfo>
@@ -54,7 +54,7 @@ function Sidebar({ user, text }: userType) {
         </div>
         <div className="flex-1">
           <div className="text-sm mb-2 font-bold">History</div>
-          <div className="flex flex-col gap-2 max-h-[30vh] overflow-y-auto">
+          <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
             {user &&
               user?.rejected_list?.length > 0 &&
               (user?.rejected_list || [])

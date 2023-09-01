@@ -12,7 +12,7 @@ function AssignCategory({ user, editable }: AssignCategoryProps) {
   const { categories } = useLoaderData();
   let modalref = useRef<HTMLDialogElement>(null);
   return (
-    <div className="flex">
+    <div className="flex gap-2">
       {user.categories.length > 0 && (
         <>
           {user.categories.map((c) => (
@@ -23,11 +23,8 @@ function AssignCategory({ user, editable }: AssignCategoryProps) {
         </>
       )}
       {true && (
-        <button
-          onClick={() => modalref.current?.showModal()}
-          className="mx-2  "
-        >
-          <FiEdit2 size={10} />
+        <button onClick={() => modalref.current?.showModal()}>
+          <FiEdit2 />
         </button>
       )}
 

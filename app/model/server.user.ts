@@ -105,7 +105,25 @@ export const updateUserAssign = async (id: string, allow: boolean) => {
     throw new Error(e);
   }
 };
-
+export const updateUserReviewer = async (
+  id: string,
+  reviewer_name: string | null
+) => {
+  try {
+    if (!reviewer_name) throw new Error("reviewer name not provided");
+    let updatedUser = await db.user.update({
+      where: { id },
+      data: {
+        reviewer: {
+          connect: { username: reviewer_name },
+        },
+      },
+    });
+    return updatedUser;
+  } catch (e) {
+    throw new Error(e);
+  }
+};
 export const removeBatchFromUser = async (batch: number, id: string) => {
   //check if all text inside batch is either ignored by user or reviewed;
 

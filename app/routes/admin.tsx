@@ -16,17 +16,19 @@ import { useRef, useState, useEffect } from "react";
 import { getAprovedBatch, getProgress } from "~/model/server.text";
 import { getUser, getUsers, removeBatchFromUser } from "~/model/server.user";
 import { FiEdit2 } from "react-icons/fi";
-import { TiTick } from "react-icons/ti";
-import { ImCross } from "react-icons/im";
 import { useSocket } from "~/components/contexts/SocketContext";
 import AssignCategory from "~/components/AssignCategory";
 import { getCategories } from "~/model/utils/server.category";
+import AssignNickName from "~/components/AssignNickName";
+import AssignReviewer from "~/components/AssignReviewer";
+import Drawer from "react-modern-drawer";
+
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   if (!session) return redirect("/error");
   let admin = await getUser(session);
-  let users: User[] = await getUsers();
+  let users = await getUsers();
   let groups = await getAprovedBatch();
   let progress = await getProgress();
   let reviewers = users.filter((user) => user.role === "REVIEWER");
@@ -53,6 +55,9 @@ export function meta() {
     },
   ];
 }
+
+type UserType = User & { reviewer: User[]; nickname: string };
+
 function admin() {
   let { admin, users, progress, reviewers } = useLoaderData();
   let [search, setSearch] = useState("");
@@ -66,7 +71,9 @@ function admin() {
     { color: "bg-red-300", text: "Some Rejected" },
     { color: "bg-green-300", text: "All Accepted" },
   ];
+  let isReviewer = admin.role === "REVIEWER";
   let list = users.filter((user: User) => user.username.includes(search));
+
   if (selectedReviewer !== "All") {
     list = list.filter(
       (user: User & { reviewer: User }) =>
@@ -75,6 +82,9 @@ function admin() {
     );
   }
   let isAdmin = admin.role === "ADMIN";
+  if (isReviewer) {
+    list = list.filter((user: User) => user.reviewer_id === admin.id);
+  }
   function handleReviewerChange(e) {
     let selectedReviewer = e.target.value;
     setSelectedReviewer(selectedReviewer);
@@ -141,9 +151,9 @@ function admin() {
             className="input input-bordered w-full max-w-xs"
           />
         </div>
-        <div className="flex gap-2  items-center flex-1">
-          <label htmlFor="reviewer-select">Select Reviewer: </label>
-          {isAdmin && (
+        {isAdmin && (
+          <div className="flex gap-2  items-center flex-1">
+            <label htmlFor="reviewer-select">Select Reviewer: </label>
             <select
               id="reviewer-select"
               className="select select-bordered w-full max-w-xs"
@@ -160,8 +170,8 @@ function admin() {
                 </option>
               ))}
             </select>
-          )}
-        </div>
+          </div>
+        )}
       </div>
       {users.length > 0 && (
         <div className="overflow-x-auto max-h-[80dvh] overflow-y-scroll">
@@ -171,13 +181,12 @@ function admin() {
                 <th>User</th>
                 <th>Role</th>
                 <th>Active</th>
-                <th>Category</th>
                 <th>Approved/Reviewed</th>
                 <th>Assigned Jobs</th>
               </tr>
             </thead>
             <tbody>
-              {list.map((user: User) => (
+              {list.map((user: UserType) => (
                 <Users user={user} key={user.id} admin={admin} />
               ))}
             </tbody>
@@ -190,17 +199,21 @@ function admin() {
 
 export default admin;
 
-function Users({ user, admin }: { user: User; admin: User }) {
+function Users({ user, admin }: { user: UserType; admin: User }) {
   let { groups } = useLoaderData();
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleDrawer = () => {
+    setIsOpen((prevState) => !prevState);
+  };
+  const dialogRef = useRef<HTMLDialogElement>(null);
   const socket = useSocket();
-  const [openEdit, setOpenEdit] = useState(false);
-  const inputRef = useRef(null);
   let url = `/admin/${user.username}?session=${admin.username}`;
   const fetcher = useFetcher();
   const userfetcher = useFetcher();
   const reviewed_count = user?.text.filter((item) => item.reviewed).length;
   const approved_count = user.text.length;
   const reval = useRevalidator();
+  const className = "";
   useEffect(() => {
     if (!socket) return;
     socket.on("text-status-changed", (data) => {
@@ -208,22 +221,6 @@ function Users({ user, admin }: { user: User; admin: User }) {
     });
   }, [socket]);
 
-  function handleSubmit() {
-    let value = inputRef.current?.value;
-    if (!value) return;
-    fetcher.submit(
-      {
-        id: user.id,
-        nickname: value,
-        action: "change_nickname",
-      },
-      {
-        action: "/api/user",
-        method: "POST",
-      }
-    );
-    setOpenEdit(false);
-  }
   function handleChangeAllow() {
     fetcher.submit(
       {
@@ -260,40 +257,56 @@ function Users({ user, admin }: { user: User; admin: User }) {
   let removing =
     userfetcher.formData?.get("id") === user.id &&
     fetcher.formMethod === "DELETE";
+
+  function Info({ children }) {
+    return (
+      <div className="flex justify-between items-center px-2 text-lg">
+        {children}
+      </div>
+    );
+  }
+
   return (
     <tr>
       <td className="flex gap-2">
         <div className="flex gap-2">
-          {!openEdit ? (
-            <>
-              {fetcher?.formData?.get("nickname") || user.nickname}
-              <button onClick={() => setOpenEdit(true)}>
-                <FiEdit2 />
-              </button>
-            </>
-          ) : (
-            <>
-              <input
-                type="text"
-                defaultValue={user.nickname!}
-                name="nickname"
-                ref={inputRef}
-                className="input input-xs input-bordered w-full max-w-xs"
+          <Link to={url} className="text-inherit">
+            {fetcher?.formData?.get("nickname") || user.nickname}
+          </Link>
+
+          <button onClick={toggleDrawer}>
+            <FiEdit2 />
+          </button>
+
+          <Drawer
+            open={isOpen}
+            onClose={toggleDrawer}
+            direction="left"
+            style={{ width: "40vw" }}
+            className="min-w-fit p-3"
+          >
+            <div className="text-xl ">User Information</div>
+            <br />
+            <Info>
+              Name:
+              <AssignNickName user={user} />
+            </Info>
+            <Info>
+              Email: <div>{user.username}</div>
+            </Info>
+            <Info>
+              Reviewer:
+              <AssignReviewer user={user} />
+            </Info>
+            <Info>
+              Category:
+              <AssignCategory
+                user={user}
+                editable={user.role === "REVIEWER" || user.role === "ADMIN"}
               />
-              <button type="button" onClick={handleSubmit}>
-                <TiTick color="green" size={24} />
-              </button>
-              <button type="button" onClick={() => setOpenEdit(false)}>
-                <ImCross color="red" size={20} />
-              </button>
-            </>
-          )}
+            </Info>
+          </Drawer>
         </div>
-        (
-        <Link to={url} style={{ textDecoration: "none", color: "inherit" }}>
-          {user.username}
-        </Link>
-        )
       </td>
       <td>{user.role}</td>
       <td>
@@ -306,12 +319,6 @@ function Users({ user, admin }: { user: User; admin: User }) {
           checked={user?.allow_assign!}
           onChange={handleChangeAllow}
           aria-label="Toggle_role"
-        />
-      </td>
-      <td>
-        <AssignCategory
-          user={user}
-          editable={user.role === "REVIEWER" || user.role === "ADMIN"}
         />
       </td>
       <td>
