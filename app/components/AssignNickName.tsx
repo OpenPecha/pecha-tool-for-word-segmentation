@@ -36,7 +36,7 @@ function AssignNickName({ user }: { user: any }) {
           </button>
         </div>
       ) : (
-        <div className="join">
+        <div className="join ">
           <input
             type="text"
             defaultValue={user.nickname!}
