@@ -42,19 +42,19 @@ function AssignNickName({ user }: { user: any }) {
             defaultValue={user.nickname!}
             name="nickname"
             ref={inputRef}
-            className="input input-xs input-bordered w-full max-w-xs"
+            className="input input-bordered join-item"
           />
           <button
             type="button"
+            className="btn join-item"
             onClick={handleSubmit}
-            className="btn min-h-0 h-fit py-1"
           >
             <TiTick color="green" />
           </button>
           <button
             type="button"
+            className="btn join-item"
             onClick={() => setOpenEdit(false)}
-            className="btn min-h-0 h-fit py-1"
           >
             <ImCross color="red" />
           </button>

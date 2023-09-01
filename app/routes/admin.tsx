@@ -27,8 +27,8 @@ export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   if (!session) return redirect("/error");
-  let admin = await getUser(session);
-  let users = await getUsers();
+  let admin: User | null = await getUser(session, true);
+  let users: User[] = await getUsers();
   let groups = await getAprovedBatch();
   let progress = await getProgress();
   let reviewers = users.filter((user) => user.role === "REVIEWER");
@@ -258,12 +258,15 @@ function Users({ user, admin }: { user: UserType; admin: User }) {
     userfetcher.formData?.get("id") === user.id &&
     fetcher.formMethod === "DELETE";
 
-  function Info({ children }) {
+  function Info({ children }: { children: React.ReactNode }) {
     return (
-      <div className="flex justify-between items-center px-2 text-lg">
+      <div className="flex flex-col items-start px-2 text-lg mt-2">
         {children}
       </div>
     );
+  }
+  function Title({ children }: { children: React.ReactNode }) {
+    return <div className="text-lg font-bold">{children}</div>;
   }
 
   return (
@@ -282,24 +285,25 @@ function Users({ user, admin }: { user: UserType; admin: User }) {
             open={isOpen}
             onClose={toggleDrawer}
             direction="left"
-            style={{ width: "40vw" }}
+            style={{ width: "30vw" }}
             className="min-w-fit p-3"
           >
             <div className="text-xl ">User Information</div>
-            <br />
+            <div className="divider"></div>
             <Info>
-              Name:
+              <Title>Name:</Title>
               <AssignNickName user={user} />
             </Info>
             <Info>
-              Email: <div>{user.username}</div>
+              <Title>Email:</Title>
+              <div>{user.username}</div>
             </Info>
             <Info>
-              Reviewer:
+              <Title>Reviewer:</Title>
               <AssignReviewer user={user} />
             </Info>
             <Info>
-              Category:
+              <Title>Category:</Title>
               <AssignCategory
                 user={user}
                 editable={user.role === "REVIEWER" || user.role === "ADMIN"}

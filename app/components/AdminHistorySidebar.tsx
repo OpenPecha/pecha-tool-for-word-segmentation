@@ -76,7 +76,7 @@ function AdminHistorySidebar({
         </div>
         <div className="flex-1">
           <div className="text-sm mb-2 font-bold">History</div>
-          <div className="flex flex-col gap-2 max-h-[30vh] overflow-y-auto">
+          <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
             {user &&
               user.text &&
               [...(user?.text || [])]
