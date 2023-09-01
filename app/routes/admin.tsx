@@ -17,7 +17,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   if (!session) return redirect("/error");
-  let user: User | null = await getUser(session);
+  let user: User | null = await getUser(session, true);
   let users: User[] = await getUsers();
   let groups = await getAprovedBatch();
   let progress = await getProgress();

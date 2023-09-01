@@ -34,7 +34,7 @@ export const getUsers = async () => {
   try {
     let users = await db.user.findMany({
       include: {
-        text: true,
+        text: { select: { id: true, reviewed: true } },
         rejected_list: true,
         ignored_list: true,
       },
@@ -45,17 +45,20 @@ export const getUsers = async () => {
   }
 };
 
-export const getUser = async (username: string) => {
+export const getUser = async (username: string, min: boolean) => {
+  let include = min
+    ? {
+        text: { select: { id: true, reviewed: true } },
+        rejected_list: { select: { id: true } },
+      }
+    : { text: true, rejected_list: true };
+
   try {
     let user = db.user.findUnique({
       where: {
         username,
       },
-      include: {
-        text: true,
-        rejected_list: true,
-        ignored_list: true,
-      },
+      include: include,
     });
     return user;
   } catch (e) {

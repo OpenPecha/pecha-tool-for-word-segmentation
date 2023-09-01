@@ -22,8 +22,8 @@ import { useSocket } from "~/components/contexts/SocketContext";
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
-  let admin = await getUser(session!);
-  let user = await getUser(params.slug!);
+  let admin = await getUser(session!, true);
+  let user = await getUser(params.slug!, false);
   let text_data = await db.text.findMany({
     where: { modified_by_id: user?.id, status: "APPROVED", reviewed: false },
     orderBy: { updatedAt: "desc" },
