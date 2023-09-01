@@ -11,12 +11,12 @@ import StarterKit from "@tiptap/starter-kit";
 import Button from "~/components/Button";
 import Editor from "~/components/Editor.client";
 import Sidebar from "~/components/Sidebar";
-import { getTextToDisplay, getTextToDisplayByUser } from "~/model/text";
+import { getTextToDisplay, getTextToDisplayByUser } from "~/model/server.text";
 import { Space } from "~/tiptapProps/extension/space";
 import { Character } from "~/tiptapProps/extension/character";
 import { editorProps } from "~/tiptapProps/events";
 import checkUnknown from "~/lib/checkUnknown";
-import { createUserIfNotExists } from "~/model/user";
+import { createUserIfNotExists } from "~/model/server.user";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
@@ -28,7 +28,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   let session = url.searchParams.get("session");
   let history = url.searchParams.get("history") || null;
   if (!session) {
-    return redirect("/error");
+    return redirect("https://pecha.tools");
   } else {
     let user = await createUserIfNotExists(session);
     let text = null;
@@ -43,6 +43,10 @@ export const meta: V2_MetaFunction = () => {
   return [
     { title: "Pecha Tools" },
     { name: "description", content: "Word segmentation" },
+    {
+      keywords:
+        "pecha,tools,word,segmentation,pecha tools,pecha tools word segmentation",
+    },
   ];
 };
 export default function Index() {

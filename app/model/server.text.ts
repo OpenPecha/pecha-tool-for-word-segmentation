@@ -1,6 +1,6 @@
 import { Status, User } from "@prisma/client";
 import { db } from "~/service/db.server";
-import { getUnassignedBatch } from "./group";
+import { getUnassignedBatch } from "./server.group";
 import { sendNotification } from "~/lib/server.sendDiscordNotification";
 
 export async function checkAndAssignBatch(userId: string) {

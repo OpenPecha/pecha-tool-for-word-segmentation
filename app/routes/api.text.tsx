@@ -7,13 +7,13 @@ import {
   removeRejectText,
   saveText,
   updateTextRejectCount,
-} from "~/model/text";
+} from "~/model/server.text";
 import {
   getUser,
   getUserById,
   remainingTextToApproved,
   updateUserAssign,
-} from "~/model/user";
+} from "~/model/server.user";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();

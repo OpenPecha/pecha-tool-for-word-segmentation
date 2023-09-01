@@ -1,6 +1,11 @@
 import { Role } from "@prisma/client";
 import { ActionFunction, LoaderFunction } from "@remix-run/node";
-import { getUsers, updateUserNickname, updateUserAssign } from "~/model/user";
+import {
+  getUsers,
+  updateUserNickname,
+  updateUserAssign,
+  updateUserCategory,
+} from "~/model/server.user";
 
 export const loader: LoaderFunction = async ({ request }) => {
   return { users: await getUsers() };
@@ -13,6 +18,11 @@ export const action: ActionFunction = async ({ request }) => {
   let action = formdata.get("action") as string;
   if (action === "change_nickname") {
     let updated = await updateUserNickname(id, nickname);
+    return updated;
+  }
+  if (action === "change_categories") {
+    let categories = formdata.get("categories") as string;
+    let updated = await updateUserCategory(id, categories);
     return updated;
   }
   if (action === "change_allow_assign") {

@@ -39,14 +39,6 @@ function Sidebar({ user, text, setHistory }) {
       >
         <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
           <SidebarHeader />
-          {user.role === "ADMIN" && (
-            <Link
-              to={`/admin?session=${user?.username}`}
-              className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 rounded-sm"
-            >
-              ADMIN
-            </Link>
-          )}
           <TextInfo>User : {user?.username}</TextInfo>
           <TextInfo>text id :{text?.id}</TextInfo>
           <TextInfo>Batch : {text?.batch}</TextInfo>

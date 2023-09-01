@@ -11,18 +11,22 @@ datasource db {
 }
 
 model User {
-  id            String   @id @default(uuid())
-  username      String   @unique
-  nickname         String?   @unique 
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
-  text          Text[]   @relation("UserModifiedText")
-  rejected_list Text[]   @relation("UserRejectedText")
-  ignored_list  Text[]   @relation("UserIgnoredText")
-  reviewed_list Text[]  @relation("UserReviewedText")
+  id             String   @id @default(uuid())
+  username       String   @unique
+  nickname       String?   @unique 
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  text           Text[]   @relation("UserModifiedText")
+  rejected_list  Text[]   @relation("UserRejectedText")
+  ignored_list   Text[]   @relation("UserIgnoredText")
+  reviewed_list  Text[]  @relation("UserReviewedText")
+  annotator_list User[]  @relation("UserReviewer")
   assigned_batch Int[]    @default([])
-  role          Role     @default(ANNOTATOR)
-  allow_assign  Boolean? @default(false)
+  role           Role     @default(ANNOTATOR)
+  reviewer       User?   @relation("UserReviewer", fields: [reviewer_id ], references: [id] )
+  reviewer_id    String?
+  allow_assign   Boolean? @default(false)
+  categories     String[]   @default([])
 }
 
 model Text {
@@ -42,6 +46,7 @@ model Text {
   reviewed_by    User?  @relation("UserReviewedText",fields: [reviewed_by_id],references: [id])
   reviewed_by_id  String?   
   reject_count   Int?     @default(0)
+  category       String?  @default("GEN")
 }
 
 enum Status {
@@ -54,4 +59,5 @@ enum Role {
   USER
   ANNOTATOR
   ADMIN
+  REVIEWER
 }

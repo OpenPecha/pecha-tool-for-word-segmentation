@@ -2,9 +2,7 @@
 module.exports = {
   ignoredRouteFiles: ["**/.*"],
   // appDirectory: "app",
-  // assetsBuildDirectory: "public/build",
   serverBuildPath: "server/build/index.js",
-  // publicPath: "/build/",
   serverModuleFormat: "cjs",
   future: {
     v2_dev: true,

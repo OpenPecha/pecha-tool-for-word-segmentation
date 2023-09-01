@@ -12,31 +12,31 @@ export const createUserIfNotExists = async (username: string) => {
       rejected_list: true,
     },
   });
-
   if (existingUser) {
     return existingUser;
-  } else {
-    const newUser = await db.user.create({
-      data: {
-        username: username,
-        nickname: username.split("@")[0],
-      },
-      include: {
-        text: true,
-      },
-    });
-
-    return newUser;
   }
+  const newUser = await db.user.create({
+    data: {
+      username: username,
+      nickname: username.split("@")[0],
+      role: "USER",
+    },
+    include: {
+      text: true,
+    },
+  });
+
+  return newUser;
 };
 
 export const getUsers = async () => {
   try {
     let users = await db.user.findMany({
       include: {
-        text: true,
+        text: { select: { id: true, status: true, reviewed: true } },
         rejected_list: true,
         ignored_list: true,
+        reviewer: true,
       },
     });
     return users;
@@ -52,9 +52,10 @@ export const getUser = async (username: string) => {
         username,
       },
       include: {
-        text: true,
+        text: { select: { id: true, status: true, reviewed: true } },
         rejected_list: true,
         ignored_list: true,
+        reviewer: true,
       },
     });
     return user;
@@ -78,6 +79,17 @@ export const updateUserNickname = async (id: string, name: string) => {
     throw new Error(e);
   }
 };
+
+export function updateUserCategory(id: string, categories: string) {
+  let data = JSON.parse(categories);
+  return db.user.update({
+    where: { id },
+    data: {
+      categories: data,
+    },
+  });
+}
+
 export const updateUserAssign = async (id: string, allow: boolean) => {
   try {
     let user = await db.user.update({

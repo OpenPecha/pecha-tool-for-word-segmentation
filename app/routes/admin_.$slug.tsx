@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { LoaderFunction, useLoaderData } from "react-router";
 import checkUnknown from "~/lib/checkUnknown";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
-import { getUser } from "~/model/user";
+import { getUser } from "~/model/server.user";
 import { Character } from "~/tiptapProps/extension/character";
 import { editorProps } from "~/tiptapProps/events";
 import AdminHistorySidebar from "~/components/AdminHistorySidebar";
