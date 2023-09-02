@@ -4,6 +4,7 @@ import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { Cross, Hamburger, Tick } from "../svgs";
 import TextInfo from "../TextInfo";
 import { DemoHistoryItem } from "../History";
+import { toolname } from "~/const";
 
 export type historyText = {
   id: number;
@@ -30,7 +31,7 @@ function Sidebar({ user, text, setHistory }) {
         onClick={() => setOpenMenu(true)}
       >
         <Hamburger />
-        Word Segmentation
+        {toolname}
       </div>
       <div
         className={`flex flex-col text-white bg-[#54606e] overflow-y-auto overflow-x-hidden max-h-[100vh] transition-all -translate-x-full z-30 ${

@@ -6,6 +6,7 @@ import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { Cross, Crossburger, Hamburger, Tick } from "./svgs";
 import { useOnlineCount } from "./hooks/useOnlineCount";
 import type { User, Text } from "@prisma/client";
+import { toolname } from "~/const";
 
 export type historyText = {
   id: number;
@@ -26,7 +27,7 @@ function Sidebar({ user, text }: userType) {
         <div onClick={() => setOpenMenu((p) => !p)}>
           {!openMenu ? <Hamburger /> : <Crossburger />}
         </div>
-        Word Segmentation
+        {toolname}
       </div>
       <div
         className={`flex flex-col text-white bg-[#54606e] overflow-y-auto overflow-x-hidden max-h-[100vh] transition-all -translate-x-full z-30 ${

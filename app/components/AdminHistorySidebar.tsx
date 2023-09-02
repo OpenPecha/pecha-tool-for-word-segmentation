@@ -6,6 +6,7 @@ import { AdminHistoryItem } from "./History";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { Hamburger, Tick } from "./svgs";
 import { useSocket } from "./contexts/SocketContext";
+import { toolname } from "~/const";
 
 interface SidebarProps {
   user: any;
@@ -32,7 +33,7 @@ function AdminHistorySidebar({
   const SidebarHeader = () => (
     <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden">
       <Link to={`/admin?session=${data.admin.username}`}>
-        <div className="cursor-pointer">Word segmentation</div>
+        <div className="cursor-pointer">{toolname}</div>
       </Link>
       <div className="close" onClick={() => setOpenMenu(false)}>
         x
@@ -50,7 +51,7 @@ function AdminHistorySidebar({
           to={`/admin?session=${data.admin.username}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
-          Word segmentation
+          {toolname}
         </Link>
       </div>
       <div

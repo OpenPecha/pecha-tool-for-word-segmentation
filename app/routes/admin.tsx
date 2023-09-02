@@ -1,5 +1,11 @@
 import { User } from "@prisma/client";
-import { ActionFunction, LoaderFunction, redirect } from "@remix-run/node";
+import {
+  ActionFunction,
+  LoaderFunction,
+  MetaFunction,
+  V2_MetaFunction,
+  redirect,
+} from "@remix-run/node";
 import {
   Link,
   useFetcher,
@@ -14,6 +20,7 @@ import { TiTick } from "react-icons/ti";
 import { ImCross } from "react-icons/im";
 import { useSocket } from "~/components/contexts/SocketContext";
 import AssignedBatchList from "~/components/AssignedBatchList";
+import { toolname } from "~/const";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -34,6 +41,16 @@ export const action: ActionFunction = async ({ request }) => {
     return removed;
   }
 };
+export const meta: V2_MetaFunction = () => {
+  return [
+    { title: `Admin page | ${toolname}` },
+    {
+      name: "description",
+      content: `admin page for ${toolname}`,
+    },
+  ];
+};
+
 function admin() {
   let { user, users, progress } = useLoaderData();
   let [search, setSearch] = useState("");
