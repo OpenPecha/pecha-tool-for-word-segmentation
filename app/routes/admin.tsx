@@ -2,8 +2,8 @@ import { User } from "@prisma/client";
 import {
   ActionFunction,
   LoaderFunction,
-  MetaFunction,
   defer,
+  V2_MetaFunction,
   redirect,
 } from "@remix-run/node";
 import {
@@ -23,6 +23,8 @@ import AssignNickName from "~/components/AssignNickName";
 import AssignReviewer from "~/components/AssignReviewer";
 import Drawer from "react-modern-drawer";
 
+import AssignedBatchList from "~/components/AssignedBatchList";
+import { toolname } from "~/const";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -46,17 +48,16 @@ export const action: ActionFunction = async ({ request }) => {
   }
 };
 
-export function meta() {
+type UserType = User & { reviewer: User[]; nickname: string };
+export const meta: V2_MetaFunction = () => {
   return [
-    { title: "Admin Dashboard" },
+    { title: `Admin page | ${toolname}` },
     {
       name: "description",
-      content: "admin dashboard for word segmentation , pecha tools",
+      content: `admin page for ${toolname}`,
     },
   ];
-}
-
-type UserType = User & { reviewer: User[]; nickname: string };
+};
 
 function admin() {
   let { admin, users, progress, reviewers } = useLoaderData();
@@ -174,15 +175,15 @@ function admin() {
         )}
       </div>
       {users.length > 0 && (
-        <div className="overflow-x-auto max-h-[80dvh] overflow-y-scroll">
-          <table className="table">
-            <thead className="sticky top-0 bg-white shadow-md">
+        <div className="overflow-scroll max-h-[77dvh] max-w-[100dvw]  mt-3">
+          <table className="table ">
+            <thead>
               <tr>
                 <th>User</th>
                 <th>Role</th>
                 <th>Active</th>
                 <th>Approved/Reviewed</th>
-                <th>Assigned Jobs</th>
+                <th className="max-w-[500px]">Assigned Jobs</th>
               </tr>
             </thead>
             <tbody>
@@ -200,20 +201,18 @@ function admin() {
 export default admin;
 
 function Users({ user, admin }: { user: UserType; admin: User }) {
-  let { groups } = useLoaderData();
   const [isOpen, setIsOpen] = useState(false);
   const toggleDrawer = () => {
     setIsOpen((prevState) => !prevState);
   };
   const dialogRef = useRef<HTMLDialogElement>(null);
+
   const socket = useSocket();
   let url = `/admin/${user.username}?session=${admin.username}`;
   const fetcher = useFetcher();
-  const userfetcher = useFetcher();
   const reviewed_count = user?.text.filter((item) => item.reviewed).length;
   const approved_count = user.text.length;
   const reval = useRevalidator();
-  const className = "";
   useEffect(() => {
     if (!socket) return;
     socket.on("text-status-changed", (data) => {
@@ -235,28 +234,6 @@ function Users({ user, admin }: { user: UserType; admin: User }) {
     );
     socket?.emit("change-allow", { user });
   }
-
-  let removeBatch = (e) => {
-    if (groups[e].rejected) {
-      alert(
-        "group contain rejected data, contact the annotator to either ignore or accept!"
-      );
-      return null;
-    }
-    let c = confirm("Are you sure you want to remove this group from user?");
-
-    if (c)
-      userfetcher.submit(
-        { batch: e, id: user.id },
-        {
-          method: "DELETE",
-        }
-      );
-  };
-
-  let removing =
-    userfetcher.formData?.get("id") === user.id &&
-    fetcher.formMethod === "DELETE";
 
   function Info({ children }: { children: React.ReactNode }) {
     return (
@@ -328,28 +305,9 @@ function Users({ user, admin }: { user: UserType; admin: User }) {
       <td>
         {approved_count}/{reviewed_count}
       </td>
-      <td className="flex gap-2 ">
-        {user.assigned_batch.map((item) => {
-          return (
-            <span
-              className=" text-black  mr-1 cursor-pointer p-1 border-2 rounded border-gray-300"
-              onClick={() => removeBatch(item)}
-              key={item}
-              style={{
-                background: groups[item].rejected
-                  ? "pink"
-                  : groups[item].reviewed
-                  ? "lightgreen"
-                  : groups[item]?.approved
-                  ? "lightblue"
-                  : "white",
-              }}
-            >
-              {item}
-            </span>
-          );
-        })}
-        {removing && <div>wait</div>}
+
+      <td className="flex gap-2 max-w-[500px] ">
+        <AssignedBatchList user={user} />
       </td>
     </tr>
   );
