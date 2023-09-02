@@ -13,6 +13,7 @@ import { FiEdit2 } from "react-icons/fi";
 import { TiTick } from "react-icons/ti";
 import { ImCross } from "react-icons/im";
 import { useSocket } from "~/components/contexts/SocketContext";
+import AssignedBatchList from "~/components/AssignedBatchList";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -107,15 +108,15 @@ function admin() {
         className="input input-bordered w-full max-w-xs"
       />
       {users.length > 0 && (
-        <div className="overflow-x-auto max-h-[80dvh] overflow-y-scroll">
-          <table className="table">
+        <div className="overflow-scroll max-h-[77dvh] max-w-[100dvw]  mt-3">
+          <table className="table ">
             <thead>
               <tr>
                 <th>User</th>
                 <th>Role</th>
                 <th>Active</th>
                 <th>Approved/Reviewed</th>
-                <th>Assigned Jobs</th>
+                <th className="max-w-[500px]">Assigned Jobs</th>
               </tr>
             </thead>
             <tbody>
@@ -133,13 +134,12 @@ function admin() {
 export default admin;
 
 function Users({ user }: { user: User }) {
-  let { groups, user: Admin } = useLoaderData();
+  let { user: Admin } = useLoaderData();
   const socket = useSocket();
   const [openEdit, setOpenEdit] = useState(false);
   const inputRef = useRef(null);
   let url = `/admin/${user.username}?session=${Admin.username}`;
   const fetcher = useFetcher();
-  const userfetcher = useFetcher();
   const reviewed_count = user?.text.filter((item) => item.reviewed).length;
   const approved_count = user.text.length;
   const reval = useRevalidator();
@@ -181,27 +181,6 @@ function Users({ user }: { user: User }) {
     socket?.emit("change-allow", { user });
   }
 
-  let removeBatch = (e) => {
-    if (groups[e].rejected) {
-      alert(
-        "group contain rejected data, contact the annotator to either ignore or accept!"
-      );
-      return null;
-    }
-    let c = confirm("Are you sure you want to remove this group from user?");
-
-    if (c)
-      userfetcher.submit(
-        { batch: e, id: user.id },
-        {
-          method: "DELETE",
-        }
-      );
-  };
-
-  let removing =
-    userfetcher.formData?.get("id") === user.id &&
-    fetcher.formMethod === "DELETE";
   return (
     <tr>
       <td className="flex gap-2">
@@ -253,28 +232,8 @@ function Users({ user }: { user: User }) {
       <td>
         {approved_count}/{reviewed_count}
       </td>
-      <td className="flex gap-2 ">
-        {user.assigned_batch.map((item) => {
-          return (
-            <span
-              className=" text-black  mr-1 cursor-pointer p-1 border-2 rounded border-gray-300"
-              onClick={() => removeBatch(item)}
-              key={item}
-              style={{
-                background: groups[item]?.reviewed
-                  ? "lightgreen"
-                  : groups[item]?.approved
-                  ? "lightblue"
-                  : groups[item]?.rejected
-                  ? "pink"
-                  : "white",
-              }}
-            >
-              {item}
-            </span>
-          );
-        })}
-        {removing && <div>wait</div>}
+      <td className="flex gap-2 max-w-[500px] ">
+        <AssignedBatchList user={user} />
       </td>
     </tr>
   );

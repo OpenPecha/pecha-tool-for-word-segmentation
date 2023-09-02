@@ -7,6 +7,7 @@
   --cancel-btn: #f74c4a;
   --space-height: 16px;
 }
+
 .space {
   background-color: hsla(39, 100%, 68%, 1);
   word-spacing: 0.5ch;
