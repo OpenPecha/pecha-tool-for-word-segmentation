@@ -261,11 +261,11 @@ function Users({ user }: { user: User }) {
               onClick={() => removeBatch(item)}
               key={item}
               style={{
-                background: groups[item].reviewed
+                background: groups[item]?.reviewed
                   ? "lightgreen"
-                  : groups[item].approved
+                  : groups[item]?.approved
                   ? "lightblue"
-                  : groups[item].rejected
+                  : groups[item]?.rejected
                   ? "pink"
                   : "white",
               }}
