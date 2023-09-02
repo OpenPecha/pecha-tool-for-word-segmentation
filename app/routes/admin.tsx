@@ -340,7 +340,7 @@ function Users({ user, admin }: { user: UserType; admin: User }) {
                   ? "pink"
                   : groups[item].reviewed
                   ? "lightgreen"
-                  : groups[item].approved
+                  : groups[item]?.approved
                   ? "lightblue"
                   : "white",
               }}
