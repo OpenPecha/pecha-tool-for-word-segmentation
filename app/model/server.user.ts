@@ -83,12 +83,28 @@ export const updateUserNickname = async (id: string, name: string) => {
   }
 };
 
-export function updateUserCategory(id: string, categories: string) {
-  let data = JSON.parse(categories);
+export async function updateUserCategory(id: string, category: string) {
+  const user = await db.user.findUnique({
+    where: { id },
+    select: {
+      categories: true,
+    },
+  });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  const currentCategories = user.categories || [];
+
+  const updatedCategories = currentCategories.includes(category)
+    ? currentCategories.filter((c) => c !== category) // Remove the category
+    : [...currentCategories, category]; // Add the category
+
   return db.user.update({
     where: { id },
     data: {
-      categories: data,
+      categories: updatedCategories,
     },
   });
 }
@@ -112,8 +128,14 @@ export const updateUserReviewer = async (
   id: string,
   reviewer_name: string | null
 ) => {
+  if (reviewer_name === null || reviewer_name === "") {
+    let updatedUser = await db.user.update({
+      where: { id },
+      data: { reviewer_id: null },
+    });
+    return updatedUser;
+  }
   try {
-    if (!reviewer_name) throw new Error("reviewer name not provided");
     let updatedUser = await db.user.update({
       where: { id },
       data: {

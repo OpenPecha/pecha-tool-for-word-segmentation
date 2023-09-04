@@ -6,22 +6,17 @@ import {
 } from "@remix-run/node";
 import { useEffect, useRef } from "react";
 import { useFetcher, useLoaderData, useRevalidator } from "@remix-run/react";
-import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import Button from "~/components/Button";
 import Editor from "~/components/Editor.client";
 import Sidebar from "~/components/Sidebar";
-import { getTextToDisplay, getTextToDisplayByUser } from "~/model/server.text";
-import { Space } from "~/tiptapProps/extension/space";
-import { Character } from "~/tiptapProps/extension/character";
-import { editorProps } from "~/tiptapProps/events";
+import { getTextToDisplay } from "~/model/server.text";
 import checkUnknown from "~/lib/checkUnknown";
 import { createUserIfNotExists } from "~/model/server.user";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
-import { sendNotification } from "~/lib/server.sendDiscordNotification";
+import useModal from "~/components/hooks/useModal";
 export const loader: LoaderFunction = async ({ request }) => {
   let { NODE_ENV } = process.env;
   let url = new URL(request.url);
@@ -53,6 +48,7 @@ export default function Index() {
   let fetcher = useFetcher();
   const data = useLoaderData();
   const text = data?.text?.original_text.trim() || "";
+  const { Modal, Toggle_Modal } = useModal();
   let dialogref = useRef(null);
   let user = data.user;
   let insertHTML = insertHTMLonText(text);
@@ -122,23 +118,13 @@ export default function Index() {
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
               <div>transcript</div>
 
-              <div
-                onClick={() => dialogref.current?.showModal()}
-                className="cursor-pointer"
-              >
-                reference
-              </div>
-              <dialog ref={dialogref} className="modal">
-                <form method="dialog" className="modal-box p-0">
-                  <iframe
-                    className="w-full h-[80vh]"
-                    src="https://docs.google.com/spreadsheets/d/1ZdkguvvvWiqZoEh4LLbceYsnHubBDpAAdi4DToFN9I0/edit?usp=sharing"
-                  ></iframe>
-                </form>
-                <form method="dialog" className="modal-backdrop">
-                  <button>close</button>
-                </form>
-              </dialog>
+              <Toggle_Modal className="cursor-pointer">reference</Toggle_Modal>
+              <Modal>
+                <iframe
+                  className="w-full h-[80vh]"
+                  src="https://docs.google.com/spreadsheets/d/1ZdkguvvvWiqZoEh4LLbceYsnHubBDpAAdi4DToFN9I0/edit?usp=sharing"
+                ></iframe>
+              </Modal>
             </div>
             <ClientOnly fallback={null}>
               {() => <Editor editor={editor!} />}

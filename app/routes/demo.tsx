@@ -11,6 +11,7 @@ import { LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/service/db.server";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
+import useModal from "~/components/hooks/useModal";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
@@ -109,6 +110,7 @@ function DemoPage() {
     let text = insertHTMLonText(content.original_text);
     editor?.commands.setContent(text);
   };
+  const { Modal, Toggle_Modal } = useModal();
   return (
     <div className="flex flex-col md:flex-row">
       <Sidebar user={user} text={text} setHistory={setHistory} />
@@ -121,23 +123,13 @@ function DemoPage() {
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
               <div>transcript</div>
 
-              <div
-                onClick={() => dialogref.current?.showModal()}
-                className="cursor-pointer"
-              >
-                reference
-              </div>
-              <dialog ref={dialogref} className="modal">
-                <form method="dialog" className="modal-box p-0">
-                  <iframe
-                    className="w-full h-[80vh]"
-                    src="https://docs.google.com/spreadsheets/d/1ZdkguvvvWiqZoEh4LLbceYsnHubBDpAAdi4DToFN9I0/edit?usp=sharing"
-                  ></iframe>
-                </form>
-                <form method="dialog" className="modal-backdrop">
-                  <button>close</button>
-                </form>
-              </dialog>
+              <Toggle_Modal className="cursor-pointer">reference</Toggle_Modal>
+              <Modal>
+                <iframe
+                  className="w-full h-[80vh]"
+                  src="https://docs.google.com/spreadsheets/d/1ZdkguvvvWiqZoEh4LLbceYsnHubBDpAAdi4DToFN9I0/edit?usp=sharing"
+                ></iframe>
+              </Modal>
             </div>
             {!editor ? (
               <div>loading...</div>

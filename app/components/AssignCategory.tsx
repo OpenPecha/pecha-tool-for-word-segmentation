@@ -1,46 +1,39 @@
 import { User } from "@prisma/client";
-import { useLoaderData } from "@remix-run/react";
-import { FiEdit2 } from "react-icons/fi";
-import MultiSelect from "./MultiSelect";
-import { useRef } from "react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 interface AssignCategoryProps {
   user: User;
-  editable?: boolean;
 }
 
-function AssignCategory({ user, editable }: AssignCategoryProps) {
+function AssignCategory({ user }: AssignCategoryProps) {
   const { categories } = useLoaderData();
-  let modalref = useRef<HTMLDialogElement>(null);
+  let fetcher = useFetcher();
+  let id = user.id;
+  function handleClick(category: any) {
+    fetcher.submit(
+      {
+        id,
+        category,
+        action: "change_categories",
+      },
+      {
+        method: "POST",
+        action: "/api/user",
+      }
+    );
+  }
   return (
-    <div className="flex gap-2">
-      {user.categories.length > 0 && (
-        <>
-          {user.categories.map((c) => (
-            <span className="badge bg-green-300" key={c}>
-              {c}
-            </span>
-          ))}
-        </>
-      )}
-      {true && (
-        <button onClick={() => modalref.current?.showModal()}>
-          <FiEdit2 />
-        </button>
-      )}
-
-      <dialog ref={modalref} className="modal">
-        <form method="dialog" className="modal-box h-[40vh]">
-          <button className="bg-gray-400 btn-sm btn-circle  btn-ghost absolute right-2 top-2">
-            ✕
-          </button>
-          <h3 className="font-bold text-lg">Select Categories</h3>
-          <MultiSelect
-            optionsData={categories}
-            values={user.categories}
-            user={user}
-          />
-        </form>
-      </dialog>
+    <div className="w-40 flex gap-2">
+      {categories.map((c) => (
+        <span
+          key={c + "-options"}
+          onClick={() => handleClick(c)}
+          className={`bg-gray-200 shadow-sm px-2 rounded  cursor-pointer ${
+            user?.categories?.includes(c) && "bg-green-200"
+          }`}
+        >
+          {c}
+        </span>
+      ))}
     </div>
   );
 }

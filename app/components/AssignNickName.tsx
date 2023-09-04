@@ -4,7 +4,7 @@ import React from "react";
 import { FiEdit2 } from "react-icons/fi";
 import { TiTick } from "react-icons/ti";
 import { ImCross } from "react-icons/im";
-
+import { memo } from "react";
 function AssignNickName({ user }: { user: any }) {
   const fetcher = useFetcher();
   const inputRef = React.useRef<HTMLInputElement>(null);
@@ -64,4 +64,4 @@ function AssignNickName({ user }: { user: any }) {
   );
 }
 
-export default AssignNickName;
+export default memo(AssignNickName);

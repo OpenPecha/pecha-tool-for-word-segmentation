@@ -35,12 +35,12 @@ function Sidebar({ user, text }: userType) {
         } min-h-[100vh] w-[260px] md:translate-x-0`}
       >
         <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
-          {(user.role === "ADMIN" || user.role === "REVIEWER") && (
+          {(user?.role === "ADMIN" || user?.role === "REVIEWER") && (
             <Link
               to={`/admin?session=${user?.username}`}
               className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 rounded-sm"
             >
-              {user.role} DASHBOARD
+              {user?.role} DASHBOARD
             </Link>
           )}
           <TextInfo>User : {user?.username.split("@")[0]}</TextInfo>

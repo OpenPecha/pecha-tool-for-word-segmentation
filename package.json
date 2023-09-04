@@ -15,7 +15,7 @@
     "@remix-run/css-bundle": "^1.18.1",
     "@remix-run/node": "^1.18.1",
     "@remix-run/react": "^1.18.1",
-    "@remix-run/serve": "^1.18.1",
+    "@remix-run/serve": "1.19.3",
     "@tiptap/extension-bubble-menu": "^2.0.3",
     "@tiptap/extension-highlight": "^2.0.3",
     "@tiptap/pm": "^2.0.3",

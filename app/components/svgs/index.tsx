@@ -1,7 +1,7 @@
 export function Hamburger() {
   return (
     <svg
-      className="inline-block mr-2 cursor-pointer md:hidden "
+      className="inline-block mr-2 cursor-pointer "
       aria-hidden="true"
       fill="gray"
       width="20"

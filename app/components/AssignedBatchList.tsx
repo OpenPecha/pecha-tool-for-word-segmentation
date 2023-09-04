@@ -34,7 +34,7 @@ function AssignedBatchList({ user }: any) {
   } batches:{ ${reviewedBatch.join(" , ")} }`;
 
   return (
-    <>
+    <div className="mt-2 flex gap-2">
       {reviewedBatch.length > 0 && (
         <div
           title={title}
@@ -63,9 +63,7 @@ function AssignedBatchList({ user }: any) {
           </span>
         );
       })}
-
-      {removing && <div>wait</div>}
-    </>
+    </div>
   );
 }
 

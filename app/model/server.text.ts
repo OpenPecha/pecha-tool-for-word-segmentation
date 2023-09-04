@@ -1,7 +1,6 @@
-import { Status, User } from "@prisma/client";
+import { Status } from "@prisma/client";
 import { db } from "~/service/db.server";
 import { getUnassignedBatch } from "./server.group";
-import { sendNotification } from "~/lib/server.sendDiscordNotification";
 
 export async function checkAndAssignBatch(userId: string) {
   try {
@@ -114,26 +113,13 @@ export async function getTextToDisplay(userId: string, history: any) {
   return text;
 }
 
-export function getTextToDisplayByUser(userid: string) {
-  let allTextByUser = db.text.findMany({
-    where: {
-      modified_by_id: userid,
-    },
-    select: {
-      id: true,
-      status: true,
-      modified_text: true,
-    },
-  });
-  return allTextByUser;
-}
 export async function getProgress() {
   try {
-    let total = await db.text.findMany();
-    let reviewed = await db.text.findMany({
+    let total_count = await db.text.count();
+    let reviewed_count = await db.text.count({
       where: { reviewed: true },
     });
-    return { total: total.length, reviewed: reviewed.length };
+    return { total: total_count, reviewed: reviewed_count };
   } catch (e) {
     throw new Error(e);
   }
@@ -268,6 +254,19 @@ export async function updateTextRejectCount(id: number) {
       },
     });
     return text?.reject_count || 0;
+  } catch (e) {
+    throw new Error(e);
+  }
+}
+export async function changeCategory(version: string, category: string) {
+  try {
+    let text = await db.text.updateMany({
+      where: { version },
+      data: {
+        category,
+      },
+    });
+    return text.count;
   } catch (e) {
     throw new Error(e);
   }

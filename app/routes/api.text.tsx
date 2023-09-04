@@ -1,6 +1,7 @@
 import { ActionFunction, redirect } from "@remix-run/node";
 import { sendNotification } from "~/lib/server.sendDiscordNotification";
 import {
+  changeCategory,
   getNumberOfReject,
   ignoreText,
   rejectText,
@@ -23,6 +24,7 @@ export const action: ActionFunction = async ({ request }) => {
   let history = url.searchParams.get("history");
   let text = null;
   let admin_id = formData.get("adminId") as string;
+  const action = formData.get("_action") as string;
 
   if (request.method === "POST") {
     const modified_text = formData.get("modified_text") as string;
@@ -50,11 +52,9 @@ export const action: ActionFunction = async ({ request }) => {
       );
     }
   }
-
   if (request.method === "PATCH") {
     const id = formData.get("id") as string;
     const userId = formData.get("userId") as string;
-    const action = formData.get("_action") as string;
     if (action === "reject") {
       await updateTextRejectCount(parseInt(id));
       let numberOfReject = await getNumberOfReject(parseInt(id));
@@ -66,6 +66,13 @@ export const action: ActionFunction = async ({ request }) => {
     if (action === "ignore") {
       await removeRejectText(parseInt(id), userId, "PENDING");
       text = await ignoreText(parseInt(id), userId);
+    }
+    if (action === "change_category") {
+      const category = formData.get("category") as string;
+      const version = formData.get("version") as string;
+      console.log(category, version);
+      text = await changeCategory(version, category);
+      return text;
     }
   }
   if (history) {

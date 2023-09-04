@@ -82,3 +82,34 @@ export const getUnassignedBatch = async (userId: string) => {
     throw error;
   }
 };
+
+export const getUniqueTextsGroup = async () => {
+  const textRecords = await db.text.findMany({
+    select: {
+      version: true,
+    },
+  });
+  const uniqueVersions = Array.from(
+    new Set(textRecords.map((record) => record.version))
+  );
+
+  const uniqueVersionCategories = [];
+  for (const version of uniqueVersions) {
+    const recordsWithVersion = await db.text.findMany({
+      where: {
+        version: version,
+      },
+      select: {
+        category: true,
+      },
+    });
+
+    // Assuming each version has the same category in all its records,
+    // you can pick the category from the first record
+    if (recordsWithVersion.length > 0) {
+      const category = recordsWithVersion[0].category;
+      uniqueVersionCategories.push({ version, category });
+    }
+  }
+  return uniqueVersionCategories;
+};

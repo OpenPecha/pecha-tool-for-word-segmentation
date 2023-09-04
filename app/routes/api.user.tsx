@@ -22,8 +22,8 @@ export const action: ActionFunction = async ({ request }) => {
     return updated;
   }
   if (action === "change_categories") {
-    let categories = formdata.get("categories") as string;
-    let updated = await updateUserCategory(id, categories);
+    let category = formdata.get("category") as string;
+    let updated = await updateUserCategory(id, category);
     return updated;
   }
   if (action === "change_allow_assign") {

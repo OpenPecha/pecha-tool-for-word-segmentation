@@ -1,9 +1,8 @@
-import React, { useId } from "react";
-import { FiEdit2 } from "react-icons/fi";
+import React from "react";
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import Select from "react-tailwindcss-select";
 import { User } from "@prisma/client";
-
+import { AiFillDelete } from "react-icons/ai";
 interface Option {
   value: string;
   label: string;
@@ -11,7 +10,6 @@ interface Option {
 
 function AssignReviewer({ user }: { user: any }) {
   const { reviewers } = useLoaderData();
-  const modalref = React.useRef<HTMLDialogElement>(null);
   let options: Option[] = reviewers.map((c: User) => ({
     value: c.username,
     label: c.username,
@@ -48,34 +46,37 @@ function AssignReviewer({ user }: { user: any }) {
     value: user.reviewer?.username,
     label: user.reviewer?.username,
   };
-  let input_id = useId();
+  function handleDelete() {
+    let i = confirm(
+      "do you want to remove " + user.reviewer?.username + " as reviewer?"
+    );
+    if (i) {
+      fetcher.submit(
+        {
+          id: user.id,
+          reviewer: "",
+          action: "change_reviewer",
+        },
+        {
+          method: "POST",
+          action: "/api/user",
+        }
+      );
+    }
+  }
   return (
-    <div className="flex gap-2">
-      {user?.reviewer?.username}
-      {true && (
-        <label htmlFor={input_id} className="cursor-pointer">
-          <FiEdit2 />
-        </label>
-      )}
-      <input type="checkbox" id={input_id} className="modal-toggle" />
-      <div className="modal">
-        <div className="modal-box w-11/12 max-w-5xl h-[200px]">
-          <h3 className="font-bold text-lg">Select Categories</h3>
-          <Select
-            isMultiple={false}
-            value={value}
-            primaryColor="green"
-            onChange={handleChange}
-            options={options}
-            isSearchable
-            loading={fetcher.state !== "idle"}
-          />
-          <div className="modal-action">
-            <label htmlFor={input_id} className="btn">
-              Close!
-            </label>
-          </div>
-        </div>
+    <div className="flex gap-2 w-[200px]">
+      <Select
+        isMultiple={false}
+        value={value}
+        primaryColor="green"
+        onChange={handleChange}
+        options={options}
+        isSearchable
+        loading={fetcher.state !== "idle"}
+      />
+      <div className="flex items-center cursor-pointer" onClick={handleDelete}>
+        <AiFillDelete />
       </div>
     </div>
   );
