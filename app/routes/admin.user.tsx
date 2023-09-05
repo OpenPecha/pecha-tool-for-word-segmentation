@@ -1,15 +1,21 @@
 import { User } from "@prisma/client";
-import { LoaderFunction, defer, redirect } from "@remix-run/node";
+import {
+  ActionFunction,
+  LoaderFunction,
+  V2_MetaFunction,
+  defer,
+  redirect,
+} from "@remix-run/node";
 import AboutUser from "~/components/admin/AboutUser";
 import UserListCard from "~/components/admin/UserListCard";
-import UserTab from "~/components/admin/UserTab";
 import { useEffect, useState } from "react";
 import { getUniqueTextsGroup } from "~/model/server.group";
 import { getAprovedBatch } from "~/model/server.text";
-import { getUser, getUsers } from "~/model/server.user";
+import { getUser, getUsers, removeBatchFromUser } from "~/model/server.user";
 import { getCategories } from "~/model/utils/server.category";
-import { useLoaderData, useRevalidator } from "@remix-run/react";
+import { useRevalidator } from "@remix-run/react";
 import { useSocket } from "~/components/contexts/SocketContext";
+import { toolname } from "~/const";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
@@ -33,9 +39,28 @@ export const loader: LoaderFunction = async ({ request }) => {
   });
 };
 
+export const action: ActionFunction = async ({ request }) => {
+  let formdata = await request.formData();
+  if (request.method === "DELETE") {
+    let batch = formdata.get("batch") as string;
+    let userId = formdata.get("id") as string;
+    let removed = await removeBatchFromUser(parseInt(batch), userId);
+    return removed;
+  }
+};
+
+export const meta: V2_MetaFunction = () => {
+  return [
+    { title: `Admin page | ${toolname}` },
+    {
+      name: "description",
+      content: `admin page for ${toolname}`,
+    },
+  ];
+};
+
 function Index() {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
-
   const socket = useSocket();
   const reval = useRevalidator();
 
@@ -46,8 +71,8 @@ function Index() {
     });
   }, [socket]);
   return (
-    <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5">
-      <div className="col-span-12 xl:col-span-8">
+    <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5 ">
+      <div className="col-span-12 xl:col-span-8 ">
         <AboutUser selectedUser={selectedUser} />
       </div>
       <UserListCard

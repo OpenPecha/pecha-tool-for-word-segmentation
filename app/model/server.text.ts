@@ -12,12 +12,13 @@ export async function checkAndAssignBatch(userId: string) {
         username: true,
         assigned_batch: true,
         ignored_list: true,
+        categories: true,
       },
     });
     let assigned_batch = user?.assigned_batch;
     if (!user) return null;
     if (assigned_batch?.length === 0) {
-      batchToAssign = await getUnassignedBatch(userId);
+      batchToAssign = await getUnassignedBatch(user.categories);
     } else {
       let textsInBatch = await db.text.findMany({
         where: {
@@ -48,7 +49,7 @@ export async function checkAndAssignBatch(userId: string) {
       const allReviewed = textsInBatch.every((item) => item.reviewed);
 
       if (!batchToAssign && allReviewed) {
-        batchToAssign = await getUnassignedBatch(userId);
+        batchToAssign = await getUnassignedBatch(user.categories);
       }
     }
     // 3. Assign the batch to the user

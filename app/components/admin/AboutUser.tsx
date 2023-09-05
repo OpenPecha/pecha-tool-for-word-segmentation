@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import AssignNickName from "../AssignNickName";
 import AssignReviewer from "../AssignReviewer";
 import AssignCategory from "../AssignCategory";
@@ -22,7 +22,7 @@ function Title({ children }: { children: React.ReactNode }) {
 }
 
 const AboutUser = ({ selectedUser }: { selectedUser: string | null }) => {
-  const { users } = useLoaderData();
+  const { users, user } = useLoaderData();
   const annotator = users.find((user: User) => user?.username === selectedUser);
   const socket = useSocket();
 
@@ -44,15 +44,18 @@ const AboutUser = ({ selectedUser }: { selectedUser: string | null }) => {
   if (!annotator) return null;
   const reviewed_count = annotator?.text.filter((item) => item.reviewed).length;
   const approved_count = annotator?.text.length;
+  let url = `/admin/user/review/${selectedUser}?session=` + user.username;
+
   return (
-    <div className="sticky top-[80px] rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1">
-      <div className="flex justify-between px-1">
+    <div className="sticky top-[80px]  rounded-sm border border-stroke bg-white px-5 pt-6 pb-10 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-10 ">
+      <div className="flex flex-col md:flex-row justify-between px-1">
         <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
           {annotator?.username}
           <span className="font-light text-sm ml-2">{annotator.role}</span>
         </h4>
         <div>
           <input
+            title="active/inactive"
             type="checkbox"
             className={`toggle toggle-success ${
               fetcher.state !== "idle" &&
@@ -89,6 +92,14 @@ const AboutUser = ({ selectedUser }: { selectedUser: string | null }) => {
         </Title>
         <AssignedBatchList user={annotator} />
       </Info>
+
+      <Link
+        title="visit"
+        className="bg-purple-300 py-1 px-3 w-full  text-center hover:opacity-90 absolute bottom-0 left-0 right-0 "
+        to={url}
+      >
+        Visit
+      </Link>
     </div>
   );
 };

@@ -155,7 +155,7 @@ __export(root_exports, {
 var import_react3 = require("@remix-run/react"), import_react4 = require("react");
 
 // app/styles/tailwind.css
-var tailwind_default = "/build/_assets/tailwind-RDZGRHBW.css";
+var tailwind_default = "/build/_assets/tailwind-YQQSGNUM.css";
 
 // app/styles/global.css
 var global_default = "/build/_assets/global-MFYCH2CU.css";
@@ -303,7 +303,7 @@ __export(admin_user_review_slug_exports, {
   default: () => admin_user_review_slug_default,
   loader: () => loader
 });
-var import_react10 = require("@remix-run/react"), import_react11 = require("react"), import_react_router = require("react-router");
+var import_node2 = require("@remix-run/node"), import_react10 = require("@remix-run/react"), import_react11 = require("react"), import_react_router = require("react-router");
 
 // app/lib/checkUnknown.ts
 function checkUnknown(text) {
@@ -458,7 +458,63 @@ var updateUserAssign = async (id, allow) => {
   } catch (e) {
     throw new Error(e);
   }
+}, removeBatchFromUser = async (batch, id) => {
+  try {
+    let user = await db.user.findUnique({
+      where: { id },
+      include: { ignored_list: !0 }
+    }), isAllIgnored = await areAllTextsIgnoredOrReviewed(id, batch);
+    if (!user)
+      throw new Error("user not found");
+    if (isAllIgnored) {
+      let updatedAssignedBatchs = user.assigned_batch.filter(
+        (number) => number !== batch
+      );
+      return await db.user.update({
+        where: {
+          id
+        },
+        data: {
+          assigned_batch: updatedAssignedBatchs
+        }
+      });
+    }
+    return null;
+  } catch (e) {
+    throw new Error("cannot add group" + e);
+  }
 };
+async function areAllTextsIgnoredOrReviewed(userId, batchId) {
+  let user = await db.user.findUnique({
+    where: { id: userId },
+    include: {
+      ignored_list: { where: { batch: batchId } },
+      text: { where: { batch: batchId } }
+    }
+  });
+  if (!user)
+    throw new Error("User not found");
+  let approved_count = user.text.length, reviewed_count = user.text.filter((l) => l.reviewed).length;
+  if (approved_count === reviewed_count)
+    return !0;
+  let ignoredTextIds = (await db.text.findMany({
+    where: {
+      batch: batchId,
+      ignored_by: { some: { username: { equals: user.username } } }
+    },
+    include: {
+      ignored_by: !0
+    }
+  })).map((text) => text.id);
+  return (await db.text.findMany({
+    where: {
+      batch: batchId,
+      NOT: {
+        id: { in: ignoredTextIds }
+      }
+    }
+  })).every((text) => text.reviewed === !0);
+}
 async function remainingTextToApproved(userId) {
   let remains = await db.user.findUnique({
     where: { id: userId },
@@ -814,7 +870,7 @@ function AdminHistorySidebar({
     });
   }, [socket]);
   let SidebarHeader = () => /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)("div", { className: "flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden", children: [
-    /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)(import_react6.Link, { to: `/admin?session=${data.admin.username}`, children: /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)("div", { className: "cursor-pointer", children: toolname }, void 0, !1, {
+    /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)(import_react6.Link, { to: `/admin?session=${data.user.username}`, children: /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)("div", { className: "cursor-pointer", children: toolname }, void 0, !1, {
       fileName: "app/components/AdminHistorySidebar.tsx",
       lineNumber: 36,
       columnNumber: 9
@@ -848,7 +904,7 @@ function AdminHistorySidebar({
           /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)(
             import_react6.Link,
             {
-              to: `/admin?session=${data.admin.username}`,
+              to: `/admin/metabase?session=${data.user.username}`,
               style: { textDecoration: "none", color: "inherit" },
               children: toolname
             },
@@ -886,7 +942,7 @@ function AdminHistorySidebar({
             /* @__PURE__ */ (0, import_jsx_dev_runtime7.jsxDEV)(
               import_react6.Link,
               {
-                to: `/admin?session=${data == null ? void 0 : data.admin.username}`,
+                to: `/admin?session=${data == null ? void 0 : data.user.username}`,
                 className: "decoration-0 text-white bg-gray-500 h-fit px-2 py-1 ",
                 children: "ADMIN"
               },
@@ -1013,9 +1069,10 @@ function Button({
   value,
   disabled,
   title,
-  shortCut
+  shortCut,
+  className
 }) {
-  let classbtn = "h-[100px] w-[100px]  cursor-pointer", innerValue = value, btnRef = (0, import_react8.useRef)(null);
+  let classbtn = "h-[100px] w-[100px]  cursor-pointer hover:opacity-80", innerValue = value, btnRef = (0, import_react8.useRef)(null);
   switch ((0, import_react8.useEffect)(() => {
     function handlekeyDown(e) {
       e.key === shortCut && btnRef.current.click();
@@ -1027,28 +1084,28 @@ function Button({
     case "CONFIRM":
       innerValue = /* @__PURE__ */ (0, import_jsx_dev_runtime8.jsxDEV)(Right, {}, void 0, !1, {
         fileName: "app/components/Button.tsx",
-        lineNumber: 34,
+        lineNumber: 36,
         columnNumber: 20
       }, this), classbtn += " bg-[--success-btn]";
       break;
     case "REJECT":
       innerValue = /* @__PURE__ */ (0, import_jsx_dev_runtime8.jsxDEV)(Wrong, {}, void 0, !1, {
         fileName: "app/components/Button.tsx",
-        lineNumber: 38,
+        lineNumber: 40,
         columnNumber: 20
       }, this), classbtn += " bg-[--cancel-btn]";
       break;
     case "IGNORE":
       innerValue = /* @__PURE__ */ (0, import_jsx_dev_runtime8.jsxDEV)(Ignore, {}, void 0, !1, {
         fileName: "app/components/Button.tsx",
-        lineNumber: 42,
+        lineNumber: 44,
         columnNumber: 20
       }, this), classbtn += " bg-[--normal-btn]";
       break;
     case "UNDO":
       innerValue = /* @__PURE__ */ (0, import_jsx_dev_runtime8.jsxDEV)(Undo, {}, void 0, !1, {
         fileName: "app/components/Button.tsx",
-        lineNumber: 46,
+        lineNumber: 48,
         columnNumber: 20
       }, this), classbtn += " bg-[--normal-btn]";
       break;
@@ -1058,7 +1115,7 @@ function Button({
     {
       disabled,
       title,
-      className: classbtn + " hover:opacity-80",
+      className: className || classbtn,
       onClick: handleClick,
       ref: btnRef,
       children: innerValue
@@ -1067,7 +1124,7 @@ function Button({
     !1,
     {
       fileName: "app/components/Button.tsx",
-      lineNumber: 51,
+      lineNumber: 53,
       columnNumber: 5
     },
     this
@@ -1266,26 +1323,29 @@ var useEditorTiptap = (newText) => {
 
 // app/routes/admin_.user.review.$slug.tsx
 var import_jsx_dev_runtime9 = require("react/jsx-dev-runtime"), loader = async ({ request, params }) => {
-  let session = new URL(request.url).searchParams.get("session"), admin = await getUser(session, !0), user = await getUser(params.slug, !1), text_data = await db.text.findMany({
+  let session = new URL(request.url).searchParams.get("session"), user = await getUser(session, !0), annotator = await getUser(params.slug, !1);
+  if ((annotator == null ? void 0 : annotator.reviewer_id) !== (user == null ? void 0 : user.id))
+    return (0, import_node2.redirect)("/?session=" + session);
+  let text_data = await db.text.findMany({
     where: { modified_by_id: user == null ? void 0 : user.id, status: "APPROVED", reviewed: !1 },
     orderBy: { updatedAt: "desc" }
   }), currentText = await db.text.findFirst({
     where: { reviewed: !1, modified_by_id: user == null ? void 0 : user.id, status: "APPROVED" },
     orderBy: { id: "asc" }
   });
-  return { user, admin, text_data, id_now: currentText == null ? void 0 : currentText.id };
+  return { user, annotator, text_data, id_now: currentText == null ? void 0 : currentText.id };
 };
 function UserDetail() {
-  let fetcher = (0, import_react10.useFetcher)(), data = (0, import_react_router.useLoaderData)(), { user, text_data, admin, id_now } = data, text = text_data == null ? void 0 : text_data.sort(
+  let fetcher = (0, import_react10.useFetcher)(), { annotator, text_data, user, id_now } = (0, import_react_router.useLoaderData)(), text = text_data == null ? void 0 : text_data.sort(
     (a, b) => a.reviewed === b.reviewed ? 0 : a.reviewed ? -1 : 1
   ), socket = useSocket(), [content, setContent] = (0, import_react11.useState)(""), [selectedId, setSelectedId] = (0, import_react11.useState)(id_now);
   (0, import_react11.useEffect)(() => {
     setSelectedId(id_now);
   }, [id_now]), (0, import_react11.useEffect)(() => {
     var _a;
-    if (!user)
+    if (!annotator)
       return;
-    let display = selectedId ? user.text.find((d) => d.id === selectedId) : user.text.sort(sortUpdate_reviewed).find((d) => d.id === text.id);
+    let display = selectedId ? annotator.text.find((d) => d.id === selectedId) : annotator.text.sort(sortUpdate_reviewed).find((d) => d.id === (text == null ? void 0 : text.id));
     if (display) {
       let show = ((_a = JSON.parse(display == null ? void 0 : display.modified_text)) == null ? void 0 : _a.join(" ")) || (display == null ? void 0 : display.original_text);
       setContent(show);
@@ -1299,7 +1359,7 @@ function UserDetail() {
     return null;
   function text_reviewed() {
     setTimeout(() => {
-      socket == null || socket.emit("reviewed", { user });
+      socket == null || socket.emit("reviewed", { annotator });
     }, 1e3);
   }
   let saveText2 = async () => {
@@ -1307,14 +1367,14 @@ function UserDetail() {
       {
         id: selectedId,
         modified_text: editor == null ? void 0 : editor.getText(),
-        userId: user.id,
-        adminId: admin == null ? void 0 : admin.id
+        userId: annotator.id,
+        adminId: user == null ? void 0 : user.id
       },
       { method: "POST", action: "/api/text" }
     ), text_reviewed();
   }, rejectTask = async () => {
     fetcher.submit(
-      { id: selectedId, userId: user.id, _action: "reject", admin: !0 },
+      { id: selectedId, userId: annotator.id, _action: "reject", admin: !0 },
       { method: "PATCH", action: "/api/text" }
     ), text_reviewed();
   }, isButtonDisabled = text.length < 1;
@@ -1322,7 +1382,7 @@ function UserDetail() {
     /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)(
       AdminHistorySidebar_default,
       {
-        user,
+        user: annotator,
         selectedId,
         setSelectedId
       },
@@ -1330,7 +1390,7 @@ function UserDetail() {
       !1,
       {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 102,
+        lineNumber: 100,
         columnNumber: 7
       },
       this
@@ -1338,31 +1398,31 @@ function UserDetail() {
     /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)("div", { className: "flex-1 flex items-center flex-col md:mt-[10vh]", children: [
       !text || !selectedId || !editor ? /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)("div", { className: "fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]", children: "Thank you . your work is complete ! \u{1F60A}\u{1F60A}\u{1F60A}" }, void 0, !1, {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 110,
+        lineNumber: 108,
         columnNumber: 11
       }, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)("div", { className: "fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]", children: [
         /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)("div", { className: "flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ", children: "transcript" }, void 0, !1, {
           fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 115,
+          lineNumber: 113,
           columnNumber: 13
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)(import_remix_utils.ClientOnly, { fallback: null, children: () => /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)(import_Editor.default, { editor }, void 0, !1, {
           fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 119,
+          lineNumber: 117,
           columnNumber: 22
         }, this) }, void 0, !1, {
           fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 118,
+          lineNumber: 116,
           columnNumber: 13
         }, this),
         !editor && /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)("div", { children: "loading..." }, void 0, !1, {
           fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 121,
+          lineNumber: 119,
           columnNumber: 25
         }, this)
       ] }, void 0, !0, {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 114,
+        lineNumber: 112,
         columnNumber: 11
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)(import_remix_utils.ClientOnly, { fallback: null, children: () => /* @__PURE__ */ (0, import_jsx_dev_runtime9.jsxDEV)("div", { className: "flex gap-2 fixed bottom-0 justify-center", children: [
@@ -1379,7 +1439,7 @@ function UserDetail() {
           !1,
           {
             fileName: "app/routes/admin_.user.review.$slug.tsx",
-            lineNumber: 127,
+            lineNumber: 125,
             columnNumber: 15
           },
           this
@@ -1397,28 +1457,28 @@ function UserDetail() {
           !1,
           {
             fileName: "app/routes/admin_.user.review.$slug.tsx",
-            lineNumber: 134,
+            lineNumber: 132,
             columnNumber: 15
           },
           this
         )
       ] }, void 0, !0, {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 126,
+        lineNumber: 124,
         columnNumber: 13
       }, this) }, void 0, !1, {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 124,
+        lineNumber: 122,
         columnNumber: 9
       }, this)
     ] }, void 0, !0, {
       fileName: "app/routes/admin_.user.review.$slug.tsx",
-      lineNumber: 108,
+      lineNumber: 106,
       columnNumber: 7
     }, this)
   ] }, void 0, !0, {
     fileName: "app/routes/admin_.user.review.$slug.tsx",
-    lineNumber: 101,
+    lineNumber: 99,
     columnNumber: 5
   }, this);
 }
@@ -1432,6 +1492,28 @@ __export(api_user_username_exports, {
 var loader2 = async ({ request, params }) => {
   let username = params.username;
   return { users: await getUser(username, !1) };
+};
+
+// app/routes/api.text.$version.tsx
+var api_text_version_exports = {};
+__export(api_text_version_exports, {
+  loader: () => loader3
+});
+var loader3 = async ({ request, params }) => {
+  let version = params.version;
+  return (await db.text.findMany({
+    where: {
+      version,
+      modified_text: { not: null },
+      reviewed: !0
+    },
+    orderBy: {
+      id: "asc"
+    },
+    select: {
+      modified_text: !0
+    }
+  })).map((item) => JSON.parse(item == null ? void 0 : item.modified_text));
 };
 
 // app/routes/admin.metabase.tsx
@@ -1463,36 +1545,94 @@ var admin_metabase_default = metabase;
 var admin_text_exports = {};
 __export(admin_text_exports, {
   default: () => admin_text_default,
-  loader: () => loader3
+  loader: () => loader4
 });
-var import_node2 = require("@remix-run/node");
+var import_node3 = require("@remix-run/node");
 
 // app/components/admin/AboutText.tsx
-var import_react12 = require("@remix-run/react"), import_react13 = __toESM(require("react")), import_jsx_dev_runtime11 = require("react/jsx-dev-runtime");
+var import_react12 = require("@remix-run/react"), import_react13 = __toESM(require("react")), import_bi = require("react-icons/bi");
+
+// app/lib/downloadfile.ts
+var downloadJsonlFile = (data, title) => {
+  let jsonContent = JSON.stringify(data, null, 2), element = document.createElement("a"), file = new Blob([jsonContent], { type: "application/json" });
+  element.href = URL.createObjectURL(file), element.download = title.replace(".txt", "") + ".json", document.body.appendChild(element), element.click();
+};
+
+// app/components/admin/AboutText.tsx
+var import_jsx_dev_runtime11 = require("react/jsx-dev-runtime");
 function AboutText() {
-  let { texts } = (0, import_react12.useLoaderData)(), categoryFetcher = (0, import_react12.useFetcher)();
+  let { texts } = (0, import_react12.useLoaderData)();
   return /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)(import_jsx_dev_runtime11.Fragment, { children: [
-    /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("h2", { children: "Category" }, void 0, !1, {
+    /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("div", { className: "collapse collapse-plus bg-base-200", children: [
+      /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("input", { type: "radio", name: "my-accordion-3" }, void 0, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 15,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("div", { className: "collapse-title text-xl font-medium bg-gray-300", children: /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("h2", { children: "Category" }, void 0, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 17,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 16,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("div", { className: "collapse-content", children: texts.map((text) => /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)(Text_Category, { text }, text.version, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 21,
+        columnNumber: 20
+      }, this)) }, void 0, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 19,
+        columnNumber: 9
+      }, this)
+    ] }, void 0, !0, {
       fileName: "app/components/admin/AboutText.tsx",
-      lineNumber: 15,
+      lineNumber: 14,
       columnNumber: 7
     }, this),
-    texts.map((text) => /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)(Text, { text, fetcher: categoryFetcher }, text.version, !1, {
+    /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("div", { className: "collapse collapse-plus bg-base-200 mt-3", children: [
+      /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("input", { type: "radio", name: "my-accordion-3" }, void 0, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 26,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("div", { className: "collapse-title text-xl font-medium bg-gray-300", children: /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("h2", { children: "Downloads" }, void 0, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 28,
+        columnNumber: 11
+      }, this) }, void 0, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 27,
+        columnNumber: 9
+      }, this),
+      /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("div", { className: "collapse-content", children: texts.map((text) => /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)(DownloadText, { text }, text.version, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 32,
+        columnNumber: 20
+      }, this)) }, void 0, !1, {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 30,
+        columnNumber: 9
+      }, this)
+    ] }, void 0, !0, {
       fileName: "app/components/admin/AboutText.tsx",
-      lineNumber: 18,
-      columnNumber: 11
-    }, this))
+      lineNumber: 25,
+      columnNumber: 7
+    }, this)
   ] }, void 0, !0, {
     fileName: "app/components/admin/AboutText.tsx",
-    lineNumber: 14,
+    lineNumber: 13,
     columnNumber: 5
   }, this);
 }
-function Text({ text }) {
-  let [hasChanges, setHasChanges] = import_react13.default.useState(!1), [value, setValue] = import_react13.default.useState(null), inputRef = import_react13.default.useRef(null), fetcher = (0, import_react12.useFetcher)();
+function Text_Category({ text }) {
+  let [hasChanges, setHasChanges] = import_react13.default.useState(!1), [value, setValue] = import_react13.default.useState(null), inputRef = import_react13.default.useRef(null), { user } = (0, import_react12.useLoaderData)(), isAdmin = (user == null ? void 0 : user.role) === "ADMIN", fetcher = (0, import_react12.useFetcher)();
   function handleSubmit(e) {
     var _a;
-    e.preventDefault();
+    if (e.preventDefault(), !isAdmin)
+      return null;
     let category = (_a = inputRef.current) == null ? void 0 : _a.value;
     fetcher.submit(
       {
@@ -1514,12 +1654,12 @@ function Text({ text }) {
       children: [
         /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("h4", { className: "text-lg font-bold", children: text.version }, void 0, !1, {
           fileName: "app/components/admin/AboutText.tsx",
-          lineNumber: 51,
+          lineNumber: 69,
           columnNumber: 7
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("input", { hidden: !0, name: "_action", readOnly: !0, value: "change_category" }, void 0, !1, {
           fileName: "app/components/admin/AboutText.tsx",
-          lineNumber: 52,
+          lineNumber: 70,
           columnNumber: 7
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("div", { className: "flex gap-2", children: [
@@ -1533,26 +1673,38 @@ function Text({ text }) {
               className: "input input-bordered input-primary w-full max-w-xs",
               value: value ?? text.category,
               onChange: (e) => {
-                setHasChanges(!0), setValue(e.target.value);
+                setHasChanges(e.target.value !== text.category), setValue(e.target.value);
               }
             },
             void 0,
             !1,
             {
               fileName: "app/components/admin/AboutText.tsx",
-              lineNumber: 54,
+              lineNumber: 72,
               columnNumber: 9
             },
             this
           ),
-          hasChanges && /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("button", { onClick: handleSubmit, className: "cursor-pointer", children: "Save" }, void 0, !1, {
-            fileName: "app/components/admin/AboutText.tsx",
-            lineNumber: 67,
-            columnNumber: 11
-          }, this)
+          hasChanges && /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)(
+            "button",
+            {
+              onClick: handleSubmit,
+              className: "cursor-pointer",
+              disabled: !isAdmin,
+              children: "Save"
+            },
+            void 0,
+            !1,
+            {
+              fileName: "app/components/admin/AboutText.tsx",
+              lineNumber: 85,
+              columnNumber: 11
+            },
+            this
+          )
         ] }, void 0, !0, {
           fileName: "app/components/admin/AboutText.tsx",
-          lineNumber: 53,
+          lineNumber: 71,
           columnNumber: 7
         }, this)
       ]
@@ -1561,18 +1713,67 @@ function Text({ text }) {
     !0,
     {
       fileName: "app/components/admin/AboutText.tsx",
-      lineNumber: 47,
+      lineNumber: 65,
       columnNumber: 5
     },
     this
   );
 }
+function DownloadText({ text }) {
+  let fetcher = (0, import_react12.useFetcher)();
+  function handleDownload() {
+    fetcher.load(`/api/text/${text.version}`);
+  }
+  return (0, import_react13.useEffect)(() => {
+    fetcher.data && downloadJsonlFile(fetcher.data, text.version);
+  }, [fetcher.data]), /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("div", { className: "text-center flex w-full px-2 justify-between mt-2", children: [
+    /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("h4", { className: "text-lg font-bold", children: text.version }, void 0, !1, {
+      fileName: "app/components/admin/AboutText.tsx",
+      lineNumber: 110,
+      columnNumber: 7
+    }, this),
+    /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)("div", { className: "flex gap-2", children: /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)(
+      "button",
+      {
+        onClick: handleDownload,
+        className: "flex gap-2 items-center cursor-pointer hover:bg-green-300 px-2 rounded",
+        children: [
+          /* @__PURE__ */ (0, import_jsx_dev_runtime11.jsxDEV)(import_bi.BiSolidCloudDownload, {}, void 0, !1, {
+            fileName: "app/components/admin/AboutText.tsx",
+            lineNumber: 116,
+            columnNumber: 11
+          }, this),
+          "Download"
+        ]
+      },
+      void 0,
+      !0,
+      {
+        fileName: "app/components/admin/AboutText.tsx",
+        lineNumber: 112,
+        columnNumber: 9
+      },
+      this
+    ) }, void 0, !1, {
+      fileName: "app/components/admin/AboutText.tsx",
+      lineNumber: 111,
+      columnNumber: 7
+    }, this)
+  ] }, void 0, !0, {
+    fileName: "app/components/admin/AboutText.tsx",
+    lineNumber: 109,
+    columnNumber: 5
+  }, this);
+}
 var AboutText_default = AboutText;
 
 // app/model/server.group.ts
-var getAllUniqueBatches = async () => {
+var getAllUniqueBatches = async (category) => {
   try {
     let batches = (await db.text.findMany({
+      where: {
+        category: { in: category }
+      },
       select: {
         batch: !0
       },
@@ -1595,23 +1796,10 @@ var getAllUniqueBatches = async () => {
   } catch (error2) {
     throw console.error("An error occurred while fetching assigned batches:", error2), error2;
   }
-}, getUnassignedBatch = async (userId) => {
+}, getUnassignedBatch = async (category) => {
   try {
-    let allBatches = await getAllUniqueBatches(), assignedBatches = await getAllAssignedBatches(), ignoredTextbatches = (await db.user.findMany({
-      where: {
-        NOT: { id: userId }
-      },
-      select: { ignored_list: !0 }
-    })).flatMap(
-      (user) => user.ignored_list.map((item) => parseInt(item.batch + ""))
-    ) || [], filtered = (await db.text.findMany({
-      where: {
-        batch: { in: ignoredTextbatches }
-      }
-    })).find(
-      (item) => !item.reviewed
-    );
-    return filtered ? filtered == null ? void 0 : filtered.batch : allBatches.filter((batch) => !assignedBatches.includes(batch)).sort((a, b) => parseInt(a) - parseInt(b))[0];
+    let allBatches = await getAllUniqueBatches(category), assignedBatches = await getAllAssignedBatches();
+    return allBatches.filter((batch) => !assignedBatches.includes(batch)).sort((a, b) => parseInt(a) - parseInt(b))[0];
   } catch (error2) {
     throw console.error(
       "An error occurred while fetching unassigned batches:",
@@ -1644,18 +1832,20 @@ var getAllUniqueBatches = async () => {
 };
 
 // app/routes/admin.text.tsx
-var import_jsx_dev_runtime12 = require("react/jsx-dev-runtime"), loader3 = async ({ request }) => {
-  if (!new URL(request.url).searchParams.get("session"))
-    return (0, import_node2.redirect)("/error");
-  let texts = await getUniqueTextsGroup();
-  return (0, import_node2.defer)({
+var import_jsx_dev_runtime12 = require("react/jsx-dev-runtime"), loader4 = async ({ request }) => {
+  let session = new URL(request.url).searchParams.get("session");
+  if (!session)
+    return (0, import_node3.redirect)("/error");
+  let texts = await getUniqueTextsGroup(), user = await getUser(session, !0);
+  return (0, import_node3.defer)({
+    user,
     texts
   });
 };
 function Admin_Text() {
   return /* @__PURE__ */ (0, import_jsx_dev_runtime12.jsxDEV)(AboutText_default, {}, void 0, !1, {
     fileName: "app/routes/admin.text.tsx",
-    lineNumber: 17,
+    lineNumber: 20,
     columnNumber: 10
   }, this);
 }
@@ -1664,10 +1854,12 @@ var admin_text_default = Admin_Text;
 // app/routes/admin.user.tsx
 var admin_user_exports = {};
 __export(admin_user_exports, {
+  action: () => action,
   default: () => admin_user_default,
-  loader: () => loader4
+  loader: () => loader5,
+  meta: () => meta
 });
-var import_node3 = require("@remix-run/node");
+var import_node4 = require("@remix-run/node");
 
 // app/components/admin/AboutUser.tsx
 var import_react20 = require("@remix-run/react");
@@ -1998,7 +2190,7 @@ function Title({ children }) {
   }, this);
 }
 var AboutUser = ({ selectedUser }) => {
-  let { users } = (0, import_react20.useLoaderData)(), annotator = users.find((user) => (user == null ? void 0 : user.username) === selectedUser), socket = useSocket(), fetcher = (0, import_react20.useFetcher)();
+  let { users, user } = (0, import_react20.useLoaderData)(), annotator = users.find((user2) => (user2 == null ? void 0 : user2.username) === selectedUser), socket = useSocket(), fetcher = (0, import_react20.useFetcher)();
   function handleChangeAllow() {
     fetcher.submit(
       {
@@ -2014,24 +2206,25 @@ var AboutUser = ({ selectedUser }) => {
   }
   if (!annotator)
     return null;
-  let reviewed_count = annotator == null ? void 0 : annotator.text.filter((item) => item.reviewed).length, approved_count = annotator == null ? void 0 : annotator.text.length;
-  return /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)("div", { className: "sticky top-[80px] rounded-sm border border-stroke bg-white px-5 pt-6 pb-2.5 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-1", children: [
-    /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)("div", { className: "flex justify-between px-1", children: [
+  let reviewed_count = annotator == null ? void 0 : annotator.text.filter((item) => item.reviewed).length, approved_count = annotator == null ? void 0 : annotator.text.length, url = `/admin/user/review/${selectedUser}?session=` + user.username;
+  return /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)("div", { className: "sticky top-[80px]  rounded-sm border border-stroke bg-white px-5 pt-6 pb-10 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-10 ", children: [
+    /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)("div", { className: "flex flex-col md:flex-row justify-between px-1", children: [
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)("h4", { className: "mb-6 text-xl font-semibold text-black dark:text-white", children: [
         annotator == null ? void 0 : annotator.username,
         /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)("span", { className: "font-light text-sm ml-2", children: annotator.role }, void 0, !1, {
           fileName: "app/components/admin/AboutUser.tsx",
-          lineNumber: 52,
+          lineNumber: 54,
           columnNumber: 11
         }, this)
       ] }, void 0, !0, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 50,
+        lineNumber: 52,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)("div", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(
         "input",
         {
+          title: "active/inactive",
           type: "checkbox",
           className: `toggle toggle-success ${fetcher.state !== "idle" && "cursor-not-allowed opacity-50 pointer-events-non"}`,
           checked: annotator == null ? void 0 : annotator.allow_assign,
@@ -2042,82 +2235,82 @@ var AboutUser = ({ selectedUser }) => {
         !1,
         {
           fileName: "app/components/admin/AboutUser.tsx",
-          lineNumber: 55,
+          lineNumber: 57,
           columnNumber: 11
         },
         this
       ) }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 54,
+        lineNumber: 56,
         columnNumber: 9
       }, this)
     ] }, void 0, !0, {
       fileName: "app/components/admin/AboutUser.tsx",
-      lineNumber: 49,
+      lineNumber: 51,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(Info, { children: [
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(Title, { children: "Name:" }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 68,
+        lineNumber: 71,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(AssignNickName_default, { user: annotator }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 69,
+        lineNumber: 72,
         columnNumber: 9
       }, this)
     ] }, void 0, !0, {
       fileName: "app/components/admin/AboutUser.tsx",
-      lineNumber: 67,
+      lineNumber: 70,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(Info, { children: [
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(Title, { children: "Email:" }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 72,
+        lineNumber: 75,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)("div", { children: annotator == null ? void 0 : annotator.username }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 73,
+        lineNumber: 76,
         columnNumber: 9
       }, this)
     ] }, void 0, !0, {
       fileName: "app/components/admin/AboutUser.tsx",
-      lineNumber: 71,
+      lineNumber: 74,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(Info, { children: [
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(Title, { children: "Reviewer:" }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 76,
+        lineNumber: 79,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(AssignReviewer_default, { user: annotator }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 77,
+        lineNumber: 80,
         columnNumber: 9
       }, this)
     ] }, void 0, !0, {
       fileName: "app/components/admin/AboutUser.tsx",
-      lineNumber: 75,
+      lineNumber: 78,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(Info, { children: [
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(Title, { children: "Category:" }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 80,
+        lineNumber: 83,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(AssignCategory_default, { user: annotator }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 81,
+        lineNumber: 84,
         columnNumber: 9
       }, this)
     ] }, void 0, !0, {
       fileName: "app/components/admin/AboutUser.tsx",
-      lineNumber: 79,
+      lineNumber: 82,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(Info, { children: [
@@ -2129,27 +2322,44 @@ var AboutUser = ({ selectedUser }) => {
           approved_count
         ] }, void 0, !0, {
           fileName: "app/components/admin/AboutUser.tsx",
-          lineNumber: 86,
+          lineNumber: 89,
           columnNumber: 11
         }, this)
       ] }, void 0, !0, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 84,
+        lineNumber: 87,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(AssignedBatchList_default, { user: annotator }, void 0, !1, {
         fileName: "app/components/admin/AboutUser.tsx",
-        lineNumber: 90,
+        lineNumber: 93,
         columnNumber: 9
       }, this)
     ] }, void 0, !0, {
       fileName: "app/components/admin/AboutUser.tsx",
-      lineNumber: 83,
+      lineNumber: 86,
       columnNumber: 7
-    }, this)
+    }, this),
+    /* @__PURE__ */ (0, import_jsx_dev_runtime17.jsxDEV)(
+      import_react20.Link,
+      {
+        title: "visit",
+        className: "bg-purple-300 py-1 px-3 w-full  text-center hover:opacity-90 absolute bottom-0 left-0 right-0 ",
+        to: url,
+        children: "Visit"
+      },
+      void 0,
+      !1,
+      {
+        fileName: "app/components/admin/AboutUser.tsx",
+        lineNumber: 96,
+        columnNumber: 7
+      },
+      this
+    )
   ] }, void 0, !0, {
     fileName: "app/components/admin/AboutUser.tsx",
-    lineNumber: 48,
+    lineNumber: 50,
     columnNumber: 5
   }, this);
 }, AboutUser_default = AboutUser;
@@ -2337,13 +2547,14 @@ async function checkAndAssignBatch(userId) {
       select: {
         username: !0,
         assigned_batch: !0,
-        ignored_list: !0
+        ignored_list: !0,
+        categories: !0
       }
     }), assigned_batch = user == null ? void 0 : user.assigned_batch;
     if (!user)
       return null;
     if ((assigned_batch == null ? void 0 : assigned_batch.length) === 0)
-      batchToAssign = await getUnassignedBatch(userId);
+      batchToAssign = await getUnassignedBatch(user.categories);
     else {
       let textsInBatch = await db.text.findMany({
         where: {
@@ -2364,7 +2575,7 @@ async function checkAndAssignBatch(userId) {
           return batch;
       }
       let allReviewed = textsInBatch.every((item) => item.reviewed);
-      !batchToAssign && allReviewed && (batchToAssign = await getUnassignedBatch(userId));
+      !batchToAssign && allReviewed && (batchToAssign = await getUnassignedBatch(user.categories));
     }
     if (!batchToAssign)
       return null;
@@ -2569,12 +2780,12 @@ async function getCategories() {
 
 // app/routes/admin.user.tsx
 var import_react24 = require("@remix-run/react");
-var import_jsx_dev_runtime19 = require("react/jsx-dev-runtime"), loader4 = async ({ request }) => {
+var import_jsx_dev_runtime19 = require("react/jsx-dev-runtime"), loader5 = async ({ request }) => {
   let session = new URL(request.url).searchParams.get("session");
   if (!session)
-    return (0, import_node3.redirect)("/error");
+    return (0, import_node4.redirect)("/error");
   let user = await getUser(session, !0), users = await getUsers(), groups = await getAprovedBatch(), reviewers = users.filter((user2) => user2.role === "REVIEWER"), categories = await getCategories(), texts = await getUniqueTextsGroup();
-  return (0, import_node3.defer)({
+  return (0, import_node4.defer)({
     user,
     texts,
     users: users.sort(
@@ -2584,21 +2795,33 @@ var import_jsx_dev_runtime19 = require("react/jsx-dev-runtime"), loader4 = async
     reviewers,
     categories
   });
-};
+}, action = async ({ request }) => {
+  let formdata = await request.formData();
+  if (request.method === "DELETE") {
+    let batch = formdata.get("batch"), userId = formdata.get("id");
+    return await removeBatchFromUser(parseInt(batch), userId);
+  }
+}, meta = () => [
+  { title: `Admin page | ${toolname}` },
+  {
+    name: "description",
+    content: `admin page for ${toolname}`
+  }
+];
 function Index() {
   let [selectedUser, setSelectedUser] = (0, import_react23.useState)(null), socket = useSocket(), reval = (0, import_react24.useRevalidator)();
   return (0, import_react23.useEffect)(() => {
     socket && socket.on("text-status-changed", (data) => {
       data && reval.revalidate();
     });
-  }, [socket]), /* @__PURE__ */ (0, import_jsx_dev_runtime19.jsxDEV)("div", { className: "mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5", children: [
-    /* @__PURE__ */ (0, import_jsx_dev_runtime19.jsxDEV)("div", { className: "col-span-12 xl:col-span-8", children: /* @__PURE__ */ (0, import_jsx_dev_runtime19.jsxDEV)(AboutUser_default, { selectedUser }, void 0, !1, {
+  }, [socket]), /* @__PURE__ */ (0, import_jsx_dev_runtime19.jsxDEV)("div", { className: "mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5 ", children: [
+    /* @__PURE__ */ (0, import_jsx_dev_runtime19.jsxDEV)("div", { className: "col-span-12 xl:col-span-8 ", children: /* @__PURE__ */ (0, import_jsx_dev_runtime19.jsxDEV)(AboutUser_default, { selectedUser }, void 0, !1, {
       fileName: "app/routes/admin.user.tsx",
-      lineNumber: 51,
+      lineNumber: 76,
       columnNumber: 9
     }, this) }, void 0, !1, {
       fileName: "app/routes/admin.user.tsx",
-      lineNumber: 50,
+      lineNumber: 75,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime19.jsxDEV)(
@@ -2611,14 +2834,14 @@ function Index() {
       !1,
       {
         fileName: "app/routes/admin.user.tsx",
-        lineNumber: 53,
+        lineNumber: 78,
         columnNumber: 7
       },
       this
     )
   ] }, void 0, !0, {
     fileName: "app/routes/admin.user.tsx",
-    lineNumber: 49,
+    lineNumber: 74,
     columnNumber: 5
   }, this);
 }
@@ -2627,9 +2850,9 @@ var admin_user_default = Index;
 // app/routes/api.text.tsx
 var api_text_exports = {};
 __export(api_text_exports, {
-  action: () => action
+  action: () => action2
 });
-var import_node4 = require("@remix-run/node");
+var import_node5 = require("@remix-run/node");
 
 // app/lib/server.sendDiscordNotification.ts
 var import_webhook_discord = __toESM(require("webhook-discord")), userLastCallTimestamps = /* @__PURE__ */ new Map();
@@ -2646,8 +2869,8 @@ async function sendNotification(username, message, type) {
 }
 
 // app/routes/api.text.tsx
-var action = async ({ request }) => {
-  let formData = await request.formData(), headerUrl = request.headers.get("referer"), url = new URL(headerUrl), session = url.searchParams.get("session"), history = url.searchParams.get("history"), text = null, admin_id = formData.get("adminId"), action3 = formData.get("_action");
+var action2 = async ({ request }) => {
+  let formData = await request.formData(), headerUrl = request.headers.get("referer"), url = new URL(headerUrl), session = url.searchParams.get("session"), history = url.searchParams.get("history"), text = null, admin_id = formData.get("adminId"), action4 = formData.get("_action");
   if (request.method === "POST") {
     let modified_text = formData.get("modified_text"), userId = formData.get("userId"), id = formData.get("id");
     await removeRejectText(parseInt(id), userId, "APPROVED"), text = await saveText(parseInt(id), modified_text, userId, admin_id);
@@ -2666,36 +2889,49 @@ var action = async ({ request }) => {
   }
   if (request.method === "PATCH") {
     let id = formData.get("id"), userId = formData.get("userId");
-    if (action3 === "reject") {
+    if (action4 === "reject") {
       await updateTextRejectCount(parseInt(id));
       let numberOfReject = await getNumberOfReject(parseInt(id));
       numberOfReject !== 0 && numberOfReject % 3 === 0 && await updateUserAssign(userId, !1), text = await rejectText(parseInt(id), userId);
     }
-    if (action3 === "ignore" && (await removeRejectText(parseInt(id), userId, "PENDING"), text = await ignoreText(parseInt(id), userId)), action3 === "change_category") {
+    if (action4 === "ignore" && (await removeRejectText(parseInt(id), userId, "PENDING"), text = await ignoreText(parseInt(id), userId)), action4 === "change_category") {
       let category = formData.get("category"), version = formData.get("version");
-      return console.log(category, version), text = await changeCategory(version, category), text;
+      return console.log(...oo_oo("f5ac78df_0", category, version)), text = await changeCategory(version, category), text;
     }
   }
-  return history ? (0, import_node4.redirect)(`/?session=${session}`) : text;
+  return history ? (0, import_node5.redirect)(`/?session=${session}`) : text;
 };
+function oo_cm() {
+  try {
+    return (0, eval)("globalThis._console_ninja") || (0, eval)(`/* https://github.com/wallabyjs/console-ninja#how-does-it-work */'use strict';function _0x5a94(_0x1f863a,_0x87b64f){var _0x596df8=_0x596d();return _0x5a94=function(_0x5a944d,_0x134ce9){_0x5a944d=_0x5a944d-0x118;var _0x448733=_0x596df8[_0x5a944d];return _0x448733;},_0x5a94(_0x1f863a,_0x87b64f);}var _0x29ec16=_0x5a94;(function(_0x378825,_0x3b432b){var _0x433c19=_0x5a94,_0x7cdf7d=_0x378825();while(!![]){try{var _0x1251ec=-parseInt(_0x433c19(0x1d1))/0x1+parseInt(_0x433c19(0x1fd))/0x2*(-parseInt(_0x433c19(0x15a))/0x3)+-parseInt(_0x433c19(0x178))/0x4+-parseInt(_0x433c19(0x1f3))/0x5*(-parseInt(_0x433c19(0x197))/0x6)+parseInt(_0x433c19(0x1d9))/0x7+parseInt(_0x433c19(0x1da))/0x8*(parseInt(_0x433c19(0x1cf))/0x9)+parseInt(_0x433c19(0x11e))/0xa*(parseInt(_0x433c19(0x123))/0xb);if(_0x1251ec===_0x3b432b)break;else _0x7cdf7d['push'](_0x7cdf7d['shift']());}catch(_0x4aecb1){_0x7cdf7d['push'](_0x7cdf7d['shift']());}}}(_0x596d,0xea2e0));var j=Object[_0x29ec16(0x1ed)],X=Object[_0x29ec16(0x17b)],G=Object[_0x29ec16(0x1d5)],ee=Object[_0x29ec16(0x1bd)],te=Object[_0x29ec16(0x125)],ne=Object['prototype'][_0x29ec16(0x1b5)],re=(_0x2e0320,_0x53f850,_0x525f29,_0x86fdb9)=>{var _0x58053e=_0x29ec16;if(_0x53f850&&typeof _0x53f850==_0x58053e(0x18a)||typeof _0x53f850=='function'){for(let _0x20edc7 of ee(_0x53f850))!ne[_0x58053e(0x1bc)](_0x2e0320,_0x20edc7)&&_0x20edc7!==_0x525f29&&X(_0x2e0320,_0x20edc7,{'get':()=>_0x53f850[_0x20edc7],'enumerable':!(_0x86fdb9=G(_0x53f850,_0x20edc7))||_0x86fdb9[_0x58053e(0x198)]});}return _0x2e0320;},x=(_0x4f5bfb,_0x15b032,_0x32bbfb)=>(_0x32bbfb=_0x4f5bfb!=null?j(te(_0x4f5bfb)):{},re(_0x15b032||!_0x4f5bfb||!_0x4f5bfb['__es'+'Module']?X(_0x32bbfb,'default',{'value':_0x4f5bfb,'enumerable':!0x0}):_0x32bbfb,_0x4f5bfb)),q=class{constructor(_0x2f16f2,_0x2a8fac,_0x334b71,_0x87f763){var _0x2ab6b8=_0x29ec16;this[_0x2ab6b8(0x12e)]=_0x2f16f2,this[_0x2ab6b8(0x1e1)]=_0x2a8fac,this[_0x2ab6b8(0x1af)]=_0x334b71,this[_0x2ab6b8(0x162)]=_0x87f763,this['_allowedToSend']=!0x0,this[_0x2ab6b8(0x17a)]=!0x0,this['_connected']=!0x1,this[_0x2ab6b8(0x13f)]=!0x1,this[_0x2ab6b8(0x1b4)]=!!this[_0x2ab6b8(0x12e)][_0x2ab6b8(0x167)],this[_0x2ab6b8(0x184)]=null,this[_0x2ab6b8(0x165)]=0x0,this[_0x2ab6b8(0x15c)]=0x14,this[_0x2ab6b8(0x1d3)]=_0x2ab6b8(0x119),this[_0x2ab6b8(0x1c3)]=(this['_inBrowser']?_0x2ab6b8(0x1c5):_0x2ab6b8(0x1e9))+this[_0x2ab6b8(0x1d3)];}async[_0x29ec16(0x1e3)](){var _0x3e453a=_0x29ec16;if(this[_0x3e453a(0x184)])return this[_0x3e453a(0x184)];let _0x1ff4f0;if(this[_0x3e453a(0x1b4)])_0x1ff4f0=this[_0x3e453a(0x12e)][_0x3e453a(0x167)];else{if(this['global'][_0x3e453a(0x1b8)]?.[_0x3e453a(0x1c1)])_0x1ff4f0=this['global']['process']?.[_0x3e453a(0x1c1)];else try{let _0x1a1af9=await import(_0x3e453a(0x15b));_0x1ff4f0=(await import((await import(_0x3e453a(0x1f6)))['pathToFileURL'](_0x1a1af9[_0x3e453a(0x1ac)](this[_0x3e453a(0x162)],'ws/index.js'))[_0x3e453a(0x18c)]()))[_0x3e453a(0x1de)];}catch{try{_0x1ff4f0=require(require(_0x3e453a(0x15b))[_0x3e453a(0x1ac)](this[_0x3e453a(0x162)],'ws'));}catch{throw new Error(_0x3e453a(0x132));}}}return this[_0x3e453a(0x184)]=_0x1ff4f0,_0x1ff4f0;}[_0x29ec16(0x152)](){var _0x3671c4=_0x29ec16;this['_connecting']||this[_0x3671c4(0x1ab)]||this[_0x3671c4(0x165)]>=this[_0x3671c4(0x15c)]||(this[_0x3671c4(0x17a)]=!0x1,this['_connecting']=!0x0,this[_0x3671c4(0x165)]++,this[_0x3671c4(0x1d0)]=new Promise((_0x41351b,_0x5297aa)=>{var _0xf6ddde=_0x3671c4;this[_0xf6ddde(0x1e3)]()[_0xf6ddde(0x156)](_0x31d597=>{var _0x337e8d=_0xf6ddde;let _0x2c9ae6=new _0x31d597('ws://'+this[_0x337e8d(0x1e1)]+':'+this[_0x337e8d(0x1af)]);_0x2c9ae6['onerror']=()=>{var _0x3fbb26=_0x337e8d;this[_0x3fbb26(0x14a)]=!0x1,this['_disposeWebsocket'](_0x2c9ae6),this['_attemptToReconnectShortly'](),_0x5297aa(new Error('logger\\x20websocket\\x20error'));},_0x2c9ae6[_0x337e8d(0x1be)]=()=>{var _0xb85a6d=_0x337e8d;this[_0xb85a6d(0x1b4)]||_0x2c9ae6['_socket']&&_0x2c9ae6[_0xb85a6d(0x193)][_0xb85a6d(0x1df)]&&_0x2c9ae6['_socket'][_0xb85a6d(0x1df)](),_0x41351b(_0x2c9ae6);},_0x2c9ae6[_0x337e8d(0x11a)]=()=>{var _0x22c12f=_0x337e8d;this[_0x22c12f(0x17a)]=!0x0,this[_0x22c12f(0x16f)](_0x2c9ae6),this[_0x22c12f(0x142)]();},_0x2c9ae6[_0x337e8d(0x1e8)]=_0x2989ca=>{var _0x597085=_0x337e8d;try{_0x2989ca&&_0x2989ca[_0x597085(0x19a)]&&this[_0x597085(0x1b4)]&&JSON[_0x597085(0x1a9)](_0x2989ca[_0x597085(0x19a)])[_0x597085(0x137)]===_0x597085(0x138)&&this[_0x597085(0x12e)]['location'][_0x597085(0x138)]();}catch{}};})[_0xf6ddde(0x156)](_0xb45d22=>(this['_connected']=!0x0,this[_0xf6ddde(0x13f)]=!0x1,this['_allowedToConnectOnSend']=!0x1,this[_0xf6ddde(0x14a)]=!0x0,this['_connectAttemptCount']=0x0,_0xb45d22))[_0xf6ddde(0x15d)](_0x49c288=>(this[_0xf6ddde(0x1ab)]=!0x1,this[_0xf6ddde(0x13f)]=!0x1,console[_0xf6ddde(0x1e4)](_0xf6ddde(0x1d4)+this[_0xf6ddde(0x1d3)]),_0x5297aa(new Error(_0xf6ddde(0x16a)+(_0x49c288&&_0x49c288[_0xf6ddde(0x176)])))));}));}[_0x29ec16(0x16f)](_0x384b2e){var _0x268a60=_0x29ec16;this[_0x268a60(0x1ab)]=!0x1,this[_0x268a60(0x13f)]=!0x1;try{_0x384b2e[_0x268a60(0x11a)]=null,_0x384b2e[_0x268a60(0x131)]=null,_0x384b2e[_0x268a60(0x1be)]=null;}catch{}try{_0x384b2e[_0x268a60(0x141)]<0x2&&_0x384b2e[_0x268a60(0x14d)]();}catch{}}[_0x29ec16(0x142)](){var _0x8fe5e3=_0x29ec16;clearTimeout(this['_reconnectTimeout']),!(this[_0x8fe5e3(0x165)]>=this['_maxConnectAttemptCount'])&&(this['_reconnectTimeout']=setTimeout(()=>{var _0x4e9eca=_0x8fe5e3;this[_0x4e9eca(0x1ab)]||this['_connecting']||(this[_0x4e9eca(0x152)](),this[_0x4e9eca(0x1d0)]?.[_0x4e9eca(0x15d)](()=>this[_0x4e9eca(0x142)]()));},0x1f4),this[_0x8fe5e3(0x168)][_0x8fe5e3(0x1df)]&&this[_0x8fe5e3(0x168)][_0x8fe5e3(0x1df)]());}async['send'](_0x1323cf){var _0x590dec=_0x29ec16;try{if(!this[_0x590dec(0x14a)])return;this['_allowedToConnectOnSend']&&this['_connectToHostNow'](),(await this[_0x590dec(0x1d0)])[_0x590dec(0x1c9)](JSON[_0x590dec(0x118)](_0x1323cf));}catch(_0x5cec51){console[_0x590dec(0x1e4)](this['_sendErrorMessage']+':\\x20'+(_0x5cec51&&_0x5cec51['message'])),this[_0x590dec(0x14a)]=!0x1,this['_attemptToReconnectShortly']();}}};function J(_0x9c005f,_0x118da5,_0x272c53,_0x4e0018,_0x263482){var _0x4696a0=_0x29ec16;let _0x31d919=_0x272c53['split'](',')[_0x4696a0(0x191)](_0x52aa3b=>{var _0x4d38c3=_0x4696a0;try{_0x9c005f[_0x4d38c3(0x12b)]||((_0x263482===_0x4d38c3(0x16b)||_0x263482===_0x4d38c3(0x154)||_0x263482===_0x4d38c3(0x1a5))&&(_0x263482+=_0x9c005f[_0x4d38c3(0x1b8)]?.[_0x4d38c3(0x146)]?.[_0x4d38c3(0x1d8)]?_0x4d38c3(0x135):_0x4d38c3(0x12d)),_0x9c005f['_console_ninja_session']={'id':+new Date(),'tool':_0x263482});let _0x3ec116=new q(_0x9c005f,_0x118da5,_0x52aa3b,_0x4e0018);return _0x3ec116[_0x4d38c3(0x1c9)][_0x4d38c3(0x158)](_0x3ec116);}catch(_0x228885){return console['warn']('logger\\x20failed\\x20to\\x20connect\\x20to\\x20host',_0x228885&&_0x228885[_0x4d38c3(0x176)]),()=>{};}});return _0x5af9bc=>_0x31d919[_0x4696a0(0x11d)](_0x30cf42=>_0x30cf42(_0x5af9bc));}function R(_0x2b0724){var _0x13cdc5=_0x29ec16;let _0x4e1d39=function(_0x29dbff,_0x351635){return _0x351635-_0x29dbff;},_0x47ea32;if(_0x2b0724[_0x13cdc5(0x1c0)])_0x47ea32=function(){var _0x41a38f=_0x13cdc5;return _0x2b0724[_0x41a38f(0x1c0)]['now']();};else{if(_0x2b0724[_0x13cdc5(0x1b8)]&&_0x2b0724[_0x13cdc5(0x1b8)][_0x13cdc5(0x149)])_0x47ea32=function(){return _0x2b0724['process']['hrtime']();},_0x4e1d39=function(_0x555844,_0xf983dd){return 0x3e8*(_0xf983dd[0x0]-_0x555844[0x0])+(_0xf983dd[0x1]-_0x555844[0x1])/0xf4240;};else try{let {performance:_0x27cbe4}=require(_0x13cdc5(0x1d6));_0x47ea32=function(){var _0x328ff6=_0x13cdc5;return _0x27cbe4[_0x328ff6(0x1bb)]();};}catch{_0x47ea32=function(){return+new Date();};}}return{'elapsed':_0x4e1d39,'timeStamp':_0x47ea32,'now':()=>Date['now']()};}function Y(_0x497fa6,_0x1de612,_0x52b12a){var _0x4197a6=_0x29ec16;if(_0x497fa6['_consoleNinjaAllowedToStart']!==void 0x0)return _0x497fa6[_0x4197a6(0x18b)];let _0x55886f=_0x497fa6[_0x4197a6(0x1b8)]?.[_0x4197a6(0x146)]?.['node'];return _0x55886f&&_0x52b12a===_0x4197a6(0x187)?_0x497fa6[_0x4197a6(0x18b)]=!0x1:_0x497fa6[_0x4197a6(0x18b)]=_0x55886f||!_0x1de612||_0x497fa6['location']?.[_0x4197a6(0x186)]&&_0x1de612[_0x4197a6(0x1f5)](_0x497fa6[_0x4197a6(0x134)]['hostname']),_0x497fa6[_0x4197a6(0x18b)];}function _0x596d(){var _0x39d0fc=['_isArray','parent','boolean','push','String','_isMap','_processTreeNodeResult','[object\\x20Array]','depth','1693892758570','astro','index','root_exp_id','set','parse','get','_connected','join','length','cappedElements','port','positiveInfinity','NEGATIVE_INFINITY','negativeInfinity','prototype','_inBrowser','hasOwnProperty','date','sort','process','_keyStrRegExp','number','now','call','getOwnPropertyNames','onopen','[object\\x20Set]','performance','_WebSocket','unknown','_sendErrorMessage','_isNegativeZero','Console\\x20Ninja\\x20failed\\x20to\\x20send\\x20logs,\\x20refreshing\\x20the\\x20page\\x20may\\x20help;\\x20also\\x20see\\x20','autoExpandPropertyCount','negativeZero','toLowerCase','send','_objectToString',"c:\\\\Users\\\\tenku\\\\.vscode\\\\extensions\\\\wallabyjs.console-ninja-0.0.215\\\\node_modules",'constructor','function','array','197649oanYyr','_ws','1148752rVCfrp','strLength','_webSocketErrorDocsLink','logger\\x20failed\\x20to\\x20connect\\x20to\\x20host,\\x20see\\x20','getOwnPropertyDescriptor','perf_hooks','props','node','4534642xtZfPH','496pYYPXv','disabledTrace','_setNodeLabel','Boolean','default','unref','expressionsToEvaluate','host','_addObjectProperty','getWebSocketClass','warn','_console_ninja','bigint','level','onmessage','Console\\x20Ninja\\x20failed\\x20to\\x20send\\x20logs,\\x20restarting\\x20the\\x20process\\x20may\\x20help;\\x20also\\x20see\\x20','concat','allStrLength','timeEnd','create','_hasSetOnItsPath','nan','current','_addProperty','elapsed','399015tYiXHS','_getOwnPropertyDescriptor','includes','url',["localhost","127.0.0.1","example.cypress.io","kunsang","192.168.1.5"],'_setNodeId','_cleanNode','_numberRegExp','Error','error','37420XgtHnT','string','stringify','https://tinyurl.com/37x8b79t','onclose','isArray','trace','forEach','10Wuloxx','hits','_p_','reduceLimits','_HTMLAllCollection','9543050sITGEg','time','getPrototypeOf','_Symbol','autoExpandMaxDepth','console','timeStamp','Buffer','_console_ninja_session','_p_length','\\x20browser','global','valueOf','pop','onerror','failed\\x20to\\x20find\\x20and\\x20load\\x20WebSocket','count','location','\\x20server','_type','method','reload','_addLoadNode','replace','type','_setNodeQueryPath','[object\\x20BigInt]','_sortProps','_connecting','Map','readyState','_attemptToReconnectShortly','127.0.0.1','_isPrimitiveType','test','versions','funcName','Set','hrtime','_allowedToSend','getOwnPropertySymbols','elements','close','sortProps','_propertyName','remix','Symbol','_connectToHostNow','_treeNodePropertiesAfterFullValue','remix','_undefined','then','51528','bind','_setNodePermissions','84JTjgCo','path','_maxConnectAttemptCount','catch','_blacklistedProperty','_hasMapOnItsPath','_property','_additionalMetadata','nodeModules','autoExpandPreviousObjects','_isSet','_connectAttemptCount','_setNodeExpandableState','WebSocket','_reconnectTimeout','autoExpandLimit','failed\\x20to\\x20connect\\x20to\\x20host:\\x20','next.js','_regExpToString','[object\\x20Map]','value','_disposeWebsocket','_isPrimitiveWrapperType','serialize','match','_capIfString','log','noFunctions','message','null','1618848HBykyM','isExpressionToEvaluate','_allowedToConnectOnSend','defineProperty','_p_name','_treeNodePropertiesBeforeFullValue','disabledLog','_addFunctionsNode','_setNodeExpressionPath','HTMLAllCollection','_getOwnPropertySymbols','capped','_WebSocketClass','name','hostname','nuxt','stackTraceLimit','Number','object','_consoleNinjaAllowedToStart','toString','totalStrLength','expId','undefined','coverage','map','_dateToString','_socket','substr','resolveGetters','autoExpand','12LJFPff','enumerable','rootExpression','data'];_0x596d=function(){return _0x39d0fc;};return _0x596d();}function Q(_0x1a54d6,_0x4cce87,_0x42f83d,_0x2914bb){var _0x358108=_0x29ec16;_0x1a54d6=_0x1a54d6,_0x4cce87=_0x4cce87,_0x42f83d=_0x42f83d,_0x2914bb=_0x2914bb;let _0x27b04b=R(_0x1a54d6),_0x495e57=_0x27b04b[_0x358108(0x1f2)],_0x3c7de6=_0x27b04b['timeStamp'];class _0x41aa7a{constructor(){var _0x289855=_0x358108;this[_0x289855(0x1b9)]=/^(?!(?:do|if|in|for|let|new|try|var|case|else|enum|eval|false|null|this|true|void|with|break|catch|class|const|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$)[_$a-zA-Z\\xA0-\\uFFFF][_$a-zA-Z0-9\\xA0-\\uFFFF]*$/,this[_0x289855(0x1fa)]=/^(0|[1-9][0-9]*)$/,this['_quotedRegExp']=/'([^\\\\']|\\\\')*'/,this[_0x289855(0x155)]=_0x1a54d6[_0x289855(0x18f)],this[_0x289855(0x122)]=_0x1a54d6[_0x289855(0x181)],this[_0x289855(0x1f4)]=Object[_0x289855(0x1d5)],this['_getOwnPropertyNames']=Object[_0x289855(0x1bd)],this['_Symbol']=_0x1a54d6[_0x289855(0x151)],this[_0x289855(0x16c)]=RegExp['prototype'][_0x289855(0x18c)],this[_0x289855(0x192)]=Date[_0x289855(0x1b3)]['toString'];}[_0x358108(0x171)](_0x5b0512,_0xda648c,_0x28fed6,_0x473671){var _0x4f9300=_0x358108,_0x156e1d=this,_0x52112f=_0x28fed6[_0x4f9300(0x196)];function _0x2517d0(_0xe3afa4,_0x41580a,_0x326cc3){var _0x372978=_0x4f9300;_0x41580a['type']=_0x372978(0x1c2),_0x41580a[_0x372978(0x1fc)]=_0xe3afa4[_0x372978(0x176)],_0x55ec42=_0x326cc3[_0x372978(0x1d8)][_0x372978(0x1f0)],_0x326cc3['node'][_0x372978(0x1f0)]=_0x41580a,_0x156e1d[_0x372978(0x17d)](_0x41580a,_0x326cc3);}try{_0x28fed6['level']++,_0x28fed6[_0x4f9300(0x196)]&&_0x28fed6['autoExpandPreviousObjects'][_0x4f9300(0x19e)](_0xda648c);var _0x5702d9,_0x35ef51,_0x33bf1b,_0x2f1dbd,_0x2d1c40=[],_0xb815b7=[],_0x207fd2,_0x3f75c6=this[_0x4f9300(0x136)](_0xda648c),_0x431e9f=_0x3f75c6==='array',_0x251710=!0x1,_0x2685da=_0x3f75c6===_0x4f9300(0x1cd),_0x253dae=this[_0x4f9300(0x144)](_0x3f75c6),_0x3b360d=this[_0x4f9300(0x170)](_0x3f75c6),_0x4b3bf1=_0x253dae||_0x3b360d,_0x400a27={},_0x3dacb8=0x0,_0x2cfdb0=!0x1,_0x55ec42,_0x2daec5=/^(([1-9]{1}[0-9]*)|0)$/;if(_0x28fed6[_0x4f9300(0x1a3)]){if(_0x431e9f){if(_0x35ef51=_0xda648c[_0x4f9300(0x1ad)],_0x35ef51>_0x28fed6['elements']){for(_0x33bf1b=0x0,_0x2f1dbd=_0x28fed6[_0x4f9300(0x14c)],_0x5702d9=_0x33bf1b;_0x5702d9<_0x2f1dbd;_0x5702d9++)_0xb815b7['push'](_0x156e1d[_0x4f9300(0x1f1)](_0x2d1c40,_0xda648c,_0x3f75c6,_0x5702d9,_0x28fed6));_0x5b0512[_0x4f9300(0x1ae)]=!0x0;}else{for(_0x33bf1b=0x0,_0x2f1dbd=_0x35ef51,_0x5702d9=_0x33bf1b;_0x5702d9<_0x2f1dbd;_0x5702d9++)_0xb815b7['push'](_0x156e1d[_0x4f9300(0x1f1)](_0x2d1c40,_0xda648c,_0x3f75c6,_0x5702d9,_0x28fed6));}_0x28fed6[_0x4f9300(0x1c6)]+=_0xb815b7[_0x4f9300(0x1ad)];}if(!(_0x3f75c6==='null'||_0x3f75c6===_0x4f9300(0x18f))&&!_0x253dae&&_0x3f75c6!==_0x4f9300(0x19f)&&_0x3f75c6!==_0x4f9300(0x12a)&&_0x3f75c6!=='bigint'){var _0x1657c9=_0x473671['props']||_0x28fed6[_0x4f9300(0x1d7)];if(this[_0x4f9300(0x164)](_0xda648c)?(_0x5702d9=0x0,_0xda648c['forEach'](function(_0x3bf33e){var _0x2a272d=_0x4f9300;if(_0x3dacb8++,_0x28fed6[_0x2a272d(0x1c6)]++,_0x3dacb8>_0x1657c9){_0x2cfdb0=!0x0;return;}if(!_0x28fed6['isExpressionToEvaluate']&&_0x28fed6['autoExpand']&&_0x28fed6[_0x2a272d(0x1c6)]>_0x28fed6[_0x2a272d(0x169)]){_0x2cfdb0=!0x0;return;}_0xb815b7[_0x2a272d(0x19e)](_0x156e1d[_0x2a272d(0x1f1)](_0x2d1c40,_0xda648c,_0x2a272d(0x148),_0x5702d9++,_0x28fed6,function(_0x5290d9){return function(){return _0x5290d9;};}(_0x3bf33e)));})):this[_0x4f9300(0x1a0)](_0xda648c)&&_0xda648c[_0x4f9300(0x11d)](function(_0x344254,_0x162c1c){var _0x1d46d7=_0x4f9300;if(_0x3dacb8++,_0x28fed6[_0x1d46d7(0x1c6)]++,_0x3dacb8>_0x1657c9){_0x2cfdb0=!0x0;return;}if(!_0x28fed6[_0x1d46d7(0x179)]&&_0x28fed6[_0x1d46d7(0x196)]&&_0x28fed6[_0x1d46d7(0x1c6)]>_0x28fed6['autoExpandLimit']){_0x2cfdb0=!0x0;return;}var _0x2afa0b=_0x162c1c['toString']();_0x2afa0b['length']>0x64&&(_0x2afa0b=_0x2afa0b['slice'](0x0,0x64)+'...'),_0xb815b7[_0x1d46d7(0x19e)](_0x156e1d[_0x1d46d7(0x1f1)](_0x2d1c40,_0xda648c,'Map',_0x2afa0b,_0x28fed6,function(_0x1a1e28){return function(){return _0x1a1e28;};}(_0x344254)));}),!_0x251710){try{for(_0x207fd2 in _0xda648c)if(!(_0x431e9f&&_0x2daec5[_0x4f9300(0x145)](_0x207fd2))&&!this[_0x4f9300(0x15e)](_0xda648c,_0x207fd2,_0x28fed6)){if(_0x3dacb8++,_0x28fed6['autoExpandPropertyCount']++,_0x3dacb8>_0x1657c9){_0x2cfdb0=!0x0;break;}if(!_0x28fed6['isExpressionToEvaluate']&&_0x28fed6[_0x4f9300(0x196)]&&_0x28fed6[_0x4f9300(0x1c6)]>_0x28fed6['autoExpandLimit']){_0x2cfdb0=!0x0;break;}_0xb815b7[_0x4f9300(0x19e)](_0x156e1d[_0x4f9300(0x1e2)](_0x2d1c40,_0x400a27,_0xda648c,_0x3f75c6,_0x207fd2,_0x28fed6));}}catch{}if(_0x400a27[_0x4f9300(0x12c)]=!0x0,_0x2685da&&(_0x400a27[_0x4f9300(0x17c)]=!0x0),!_0x2cfdb0){var _0x4afca9=[][_0x4f9300(0x1ea)](this['_getOwnPropertyNames'](_0xda648c))[_0x4f9300(0x1ea)](this[_0x4f9300(0x182)](_0xda648c));for(_0x5702d9=0x0,_0x35ef51=_0x4afca9[_0x4f9300(0x1ad)];_0x5702d9<_0x35ef51;_0x5702d9++)if(_0x207fd2=_0x4afca9[_0x5702d9],!(_0x431e9f&&_0x2daec5[_0x4f9300(0x145)](_0x207fd2['toString']()))&&!this[_0x4f9300(0x15e)](_0xda648c,_0x207fd2,_0x28fed6)&&!_0x400a27[_0x4f9300(0x120)+_0x207fd2[_0x4f9300(0x18c)]()]){if(_0x3dacb8++,_0x28fed6[_0x4f9300(0x1c6)]++,_0x3dacb8>_0x1657c9){_0x2cfdb0=!0x0;break;}if(!_0x28fed6[_0x4f9300(0x179)]&&_0x28fed6[_0x4f9300(0x196)]&&_0x28fed6[_0x4f9300(0x1c6)]>_0x28fed6[_0x4f9300(0x169)]){_0x2cfdb0=!0x0;break;}_0xb815b7[_0x4f9300(0x19e)](_0x156e1d[_0x4f9300(0x1e2)](_0x2d1c40,_0x400a27,_0xda648c,_0x3f75c6,_0x207fd2,_0x28fed6));}}}}}if(_0x5b0512[_0x4f9300(0x13b)]=_0x3f75c6,_0x4b3bf1?(_0x5b0512[_0x4f9300(0x16e)]=_0xda648c[_0x4f9300(0x12f)](),this[_0x4f9300(0x173)](_0x3f75c6,_0x5b0512,_0x28fed6,_0x473671)):_0x3f75c6===_0x4f9300(0x1b6)?_0x5b0512[_0x4f9300(0x16e)]=this[_0x4f9300(0x192)][_0x4f9300(0x1bc)](_0xda648c):_0x3f75c6===_0x4f9300(0x1e6)?_0x5b0512[_0x4f9300(0x16e)]=_0xda648c['toString']():_0x3f75c6==='RegExp'?_0x5b0512['value']=this[_0x4f9300(0x16c)][_0x4f9300(0x1bc)](_0xda648c):_0x3f75c6==='symbol'&&this[_0x4f9300(0x126)]?_0x5b0512[_0x4f9300(0x16e)]=this[_0x4f9300(0x126)]['prototype'][_0x4f9300(0x18c)][_0x4f9300(0x1bc)](_0xda648c):!_0x28fed6[_0x4f9300(0x1a3)]&&!(_0x3f75c6===_0x4f9300(0x177)||_0x3f75c6===_0x4f9300(0x18f))&&(delete _0x5b0512[_0x4f9300(0x16e)],_0x5b0512[_0x4f9300(0x183)]=!0x0),_0x2cfdb0&&(_0x5b0512['cappedProps']=!0x0),_0x55ec42=_0x28fed6[_0x4f9300(0x1d8)][_0x4f9300(0x1f0)],_0x28fed6[_0x4f9300(0x1d8)][_0x4f9300(0x1f0)]=_0x5b0512,this[_0x4f9300(0x17d)](_0x5b0512,_0x28fed6),_0xb815b7[_0x4f9300(0x1ad)]){for(_0x5702d9=0x0,_0x35ef51=_0xb815b7[_0x4f9300(0x1ad)];_0x5702d9<_0x35ef51;_0x5702d9++)_0xb815b7[_0x5702d9](_0x5702d9);}_0x2d1c40[_0x4f9300(0x1ad)]&&(_0x5b0512['props']=_0x2d1c40);}catch(_0xc900f){_0x2517d0(_0xc900f,_0x5b0512,_0x28fed6);}return this['_additionalMetadata'](_0xda648c,_0x5b0512),this[_0x4f9300(0x153)](_0x5b0512,_0x28fed6),_0x28fed6[_0x4f9300(0x1d8)][_0x4f9300(0x1f0)]=_0x55ec42,_0x28fed6[_0x4f9300(0x1e7)]--,_0x28fed6[_0x4f9300(0x196)]=_0x52112f,_0x28fed6[_0x4f9300(0x196)]&&_0x28fed6[_0x4f9300(0x163)][_0x4f9300(0x130)](),_0x5b0512;}[_0x358108(0x182)](_0x55e14c){var _0x2003a1=_0x358108;return Object[_0x2003a1(0x14b)]?Object['getOwnPropertySymbols'](_0x55e14c):[];}[_0x358108(0x164)](_0x3a52f0){var _0x5aec6e=_0x358108;return!!(_0x3a52f0&&_0x1a54d6[_0x5aec6e(0x148)]&&this[_0x5aec6e(0x1ca)](_0x3a52f0)===_0x5aec6e(0x1bf)&&_0x3a52f0[_0x5aec6e(0x11d)]);}[_0x358108(0x15e)](_0x30cc20,_0xcd0501,_0x57bf9e){var _0x373ba1=_0x358108;return _0x57bf9e[_0x373ba1(0x175)]?typeof _0x30cc20[_0xcd0501]==_0x373ba1(0x1cd):!0x1;}[_0x358108(0x136)](_0x478374){var _0x2b0765=_0x358108,_0x4a437c='';return _0x4a437c=typeof _0x478374,_0x4a437c===_0x2b0765(0x18a)?this[_0x2b0765(0x1ca)](_0x478374)===_0x2b0765(0x1a2)?_0x4a437c=_0x2b0765(0x1ce):this[_0x2b0765(0x1ca)](_0x478374)==='[object\\x20Date]'?_0x4a437c=_0x2b0765(0x1b6):this[_0x2b0765(0x1ca)](_0x478374)===_0x2b0765(0x13d)?_0x4a437c=_0x2b0765(0x1e6):_0x478374===null?_0x4a437c=_0x2b0765(0x177):_0x478374[_0x2b0765(0x1cc)]&&(_0x4a437c=_0x478374[_0x2b0765(0x1cc)][_0x2b0765(0x185)]||_0x4a437c):_0x4a437c===_0x2b0765(0x18f)&&this[_0x2b0765(0x122)]&&_0x478374 instanceof this[_0x2b0765(0x122)]&&(_0x4a437c='HTMLAllCollection'),_0x4a437c;}[_0x358108(0x1ca)](_0x1303db){var _0x22dc3a=_0x358108;return Object[_0x22dc3a(0x1b3)][_0x22dc3a(0x18c)][_0x22dc3a(0x1bc)](_0x1303db);}[_0x358108(0x144)](_0x195b4d){var _0x3c5437=_0x358108;return _0x195b4d===_0x3c5437(0x19d)||_0x195b4d==='string'||_0x195b4d==='number';}[_0x358108(0x170)](_0xda5716){var _0x354faf=_0x358108;return _0xda5716===_0x354faf(0x1dd)||_0xda5716===_0x354faf(0x19f)||_0xda5716===_0x354faf(0x189);}[_0x358108(0x1f1)](_0x16de80,_0xd05385,_0x1ff61d,_0x57cf61,_0x1e5dac,_0x195b5c){var _0xde7cf8=this;return function(_0x3b3bbb){var _0x398309=_0x5a94,_0x290cf4=_0x1e5dac[_0x398309(0x1d8)][_0x398309(0x1f0)],_0x4251dd=_0x1e5dac[_0x398309(0x1d8)][_0x398309(0x1a6)],_0x1eeeec=_0x1e5dac[_0x398309(0x1d8)][_0x398309(0x19c)];_0x1e5dac['node'][_0x398309(0x19c)]=_0x290cf4,_0x1e5dac['node'][_0x398309(0x1a6)]=typeof _0x57cf61==_0x398309(0x1ba)?_0x57cf61:_0x3b3bbb,_0x16de80[_0x398309(0x19e)](_0xde7cf8[_0x398309(0x160)](_0xd05385,_0x1ff61d,_0x57cf61,_0x1e5dac,_0x195b5c)),_0x1e5dac['node']['parent']=_0x1eeeec,_0x1e5dac[_0x398309(0x1d8)][_0x398309(0x1a6)]=_0x4251dd;};}['_addObjectProperty'](_0x4e0828,_0x3842cb,_0x3c9236,_0x1775e0,_0x989363,_0x3d590c,_0x4209ed){var _0x287957=_0x358108,_0x5d9c0d=this;return _0x3842cb[_0x287957(0x120)+_0x989363[_0x287957(0x18c)]()]=!0x0,function(_0x2e888e){var _0x1fa1ff=_0x287957,_0x5d29f4=_0x3d590c['node'][_0x1fa1ff(0x1f0)],_0x3b3483=_0x3d590c['node'][_0x1fa1ff(0x1a6)],_0x2483aa=_0x3d590c['node']['parent'];_0x3d590c[_0x1fa1ff(0x1d8)][_0x1fa1ff(0x19c)]=_0x5d29f4,_0x3d590c[_0x1fa1ff(0x1d8)][_0x1fa1ff(0x1a6)]=_0x2e888e,_0x4e0828[_0x1fa1ff(0x19e)](_0x5d9c0d[_0x1fa1ff(0x160)](_0x3c9236,_0x1775e0,_0x989363,_0x3d590c,_0x4209ed)),_0x3d590c['node'][_0x1fa1ff(0x19c)]=_0x2483aa,_0x3d590c[_0x1fa1ff(0x1d8)][_0x1fa1ff(0x1a6)]=_0x3b3483;};}[_0x358108(0x160)](_0x35e90c,_0x59ef1c,_0x38254b,_0x1d16c7,_0x3a340e){var _0x39443c=_0x358108,_0x3319d8=this;_0x3a340e||(_0x3a340e=function(_0x118e91,_0x39f1ee){return _0x118e91[_0x39f1ee];});var _0x4607ea=_0x38254b[_0x39443c(0x18c)](),_0x10d34e=_0x1d16c7[_0x39443c(0x1e0)]||{},_0x2b6e5c=_0x1d16c7[_0x39443c(0x1a3)],_0x11f6e8=_0x1d16c7['isExpressionToEvaluate'];try{var _0x5720db=this[_0x39443c(0x1a0)](_0x35e90c),_0x56b592=_0x4607ea;_0x5720db&&_0x56b592[0x0]==='\\x27'&&(_0x56b592=_0x56b592[_0x39443c(0x194)](0x1,_0x56b592[_0x39443c(0x1ad)]-0x2));var _0x4315a7=_0x1d16c7[_0x39443c(0x1e0)]=_0x10d34e[_0x39443c(0x120)+_0x56b592];_0x4315a7&&(_0x1d16c7['depth']=_0x1d16c7[_0x39443c(0x1a3)]+0x1),_0x1d16c7[_0x39443c(0x179)]=!!_0x4315a7;var _0x40c9df=typeof _0x38254b=='symbol',_0x183870={'name':_0x40c9df||_0x5720db?_0x4607ea:this[_0x39443c(0x14f)](_0x4607ea)};if(_0x40c9df&&(_0x183870['symbol']=!0x0),!(_0x59ef1c===_0x39443c(0x1ce)||_0x59ef1c===_0x39443c(0x1fb))){var _0x30ac75=this['_getOwnPropertyDescriptor'](_0x35e90c,_0x38254b);if(_0x30ac75&&(_0x30ac75[_0x39443c(0x1a8)]&&(_0x183870['setter']=!0x0),_0x30ac75[_0x39443c(0x1aa)]&&!_0x4315a7&&!_0x1d16c7[_0x39443c(0x195)]))return _0x183870['getter']=!0x0,this['_processTreeNodeResult'](_0x183870,_0x1d16c7),_0x183870;}var _0x38346c;try{_0x38346c=_0x3a340e(_0x35e90c,_0x38254b);}catch(_0x355517){return _0x183870={'name':_0x4607ea,'type':_0x39443c(0x1c2),'error':_0x355517[_0x39443c(0x176)]},this[_0x39443c(0x1a1)](_0x183870,_0x1d16c7),_0x183870;}var _0x3a0bbf=this[_0x39443c(0x136)](_0x38346c),_0x41329c=this[_0x39443c(0x144)](_0x3a0bbf);if(_0x183870[_0x39443c(0x13b)]=_0x3a0bbf,_0x41329c)this[_0x39443c(0x1a1)](_0x183870,_0x1d16c7,_0x38346c,function(){var _0x964a2e=_0x39443c;_0x183870[_0x964a2e(0x16e)]=_0x38346c[_0x964a2e(0x12f)](),!_0x4315a7&&_0x3319d8[_0x964a2e(0x173)](_0x3a0bbf,_0x183870,_0x1d16c7,{});});else{var _0x5aaf8d=_0x1d16c7['autoExpand']&&_0x1d16c7[_0x39443c(0x1e7)]<_0x1d16c7[_0x39443c(0x127)]&&_0x1d16c7['autoExpandPreviousObjects']['indexOf'](_0x38346c)<0x0&&_0x3a0bbf!==_0x39443c(0x1cd)&&_0x1d16c7['autoExpandPropertyCount']<_0x1d16c7[_0x39443c(0x169)];_0x5aaf8d||_0x1d16c7[_0x39443c(0x1e7)]<_0x2b6e5c||_0x4315a7?(this['serialize'](_0x183870,_0x38346c,_0x1d16c7,_0x4315a7||{}),this['_additionalMetadata'](_0x38346c,_0x183870)):this[_0x39443c(0x1a1)](_0x183870,_0x1d16c7,_0x38346c,function(){var _0x1255c2=_0x39443c;_0x3a0bbf===_0x1255c2(0x177)||_0x3a0bbf===_0x1255c2(0x18f)||(delete _0x183870[_0x1255c2(0x16e)],_0x183870[_0x1255c2(0x183)]=!0x0);});}return _0x183870;}finally{_0x1d16c7['expressionsToEvaluate']=_0x10d34e,_0x1d16c7[_0x39443c(0x1a3)]=_0x2b6e5c,_0x1d16c7[_0x39443c(0x179)]=_0x11f6e8;}}['_capIfString'](_0x41011e,_0x599d8d,_0xb1012b,_0x4d8810){var _0x308104=_0x358108,_0x52a174=_0x4d8810['strLength']||_0xb1012b[_0x308104(0x1d2)];if((_0x41011e===_0x308104(0x1fe)||_0x41011e==='String')&&_0x599d8d[_0x308104(0x16e)]){let _0xac95c4=_0x599d8d[_0x308104(0x16e)][_0x308104(0x1ad)];_0xb1012b[_0x308104(0x1eb)]+=_0xac95c4,_0xb1012b[_0x308104(0x1eb)]>_0xb1012b[_0x308104(0x18d)]?(_0x599d8d['capped']='',delete _0x599d8d[_0x308104(0x16e)]):_0xac95c4>_0x52a174&&(_0x599d8d['capped']=_0x599d8d['value'][_0x308104(0x194)](0x0,_0x52a174),delete _0x599d8d[_0x308104(0x16e)]);}}['_isMap'](_0x288757){var _0x290905=_0x358108;return!!(_0x288757&&_0x1a54d6[_0x290905(0x140)]&&this[_0x290905(0x1ca)](_0x288757)===_0x290905(0x16d)&&_0x288757[_0x290905(0x11d)]);}[_0x358108(0x14f)](_0x202bb5){var _0x4952af=_0x358108;if(_0x202bb5[_0x4952af(0x172)](/^\\d+$/))return _0x202bb5;var _0x26a033;try{_0x26a033=JSON['stringify'](''+_0x202bb5);}catch{_0x26a033='\\x22'+this['_objectToString'](_0x202bb5)+'\\x22';}return _0x26a033[_0x4952af(0x172)](/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)?_0x26a033=_0x26a033[_0x4952af(0x194)](0x1,_0x26a033[_0x4952af(0x1ad)]-0x2):_0x26a033=_0x26a033['replace'](/'/g,'\\x5c\\x27')['replace'](/\\\\"/g,'\\x22')[_0x4952af(0x13a)](/(^"|"$)/g,'\\x27'),_0x26a033;}['_processTreeNodeResult'](_0x3e9e4e,_0x2e5f13,_0xa52125,_0xe9e7e3){var _0x550921=_0x358108;this[_0x550921(0x17d)](_0x3e9e4e,_0x2e5f13),_0xe9e7e3&&_0xe9e7e3(),this[_0x550921(0x161)](_0xa52125,_0x3e9e4e),this[_0x550921(0x153)](_0x3e9e4e,_0x2e5f13);}[_0x358108(0x17d)](_0xc5bdb4,_0x32fdfb){var _0x250ada=_0x358108;this[_0x250ada(0x1f8)](_0xc5bdb4,_0x32fdfb),this[_0x250ada(0x13c)](_0xc5bdb4,_0x32fdfb),this[_0x250ada(0x180)](_0xc5bdb4,_0x32fdfb),this[_0x250ada(0x159)](_0xc5bdb4,_0x32fdfb);}[_0x358108(0x1f8)](_0x1f998d,_0xdceddd){}['_setNodeQueryPath'](_0x48b8f1,_0x492e42){}['_setNodeLabel'](_0x58c626,_0x5cb283){}['_isUndefined'](_0x4e175d){var _0x2a9117=_0x358108;return _0x4e175d===this[_0x2a9117(0x155)];}[_0x358108(0x153)](_0x590864,_0x2af63a){var _0x429ebf=_0x358108;this['_setNodeLabel'](_0x590864,_0x2af63a),this['_setNodeExpandableState'](_0x590864),_0x2af63a[_0x429ebf(0x14e)]&&this[_0x429ebf(0x13e)](_0x590864),this[_0x429ebf(0x17f)](_0x590864,_0x2af63a),this[_0x429ebf(0x139)](_0x590864,_0x2af63a),this['_cleanNode'](_0x590864);}[_0x358108(0x161)](_0x3cea88,_0x246149){var _0x37ebcf=_0x358108;let _0x4a4561;try{_0x1a54d6[_0x37ebcf(0x128)]&&(_0x4a4561=_0x1a54d6[_0x37ebcf(0x128)][_0x37ebcf(0x1fc)],_0x1a54d6[_0x37ebcf(0x128)][_0x37ebcf(0x1fc)]=function(){}),_0x3cea88&&typeof _0x3cea88[_0x37ebcf(0x1ad)]==_0x37ebcf(0x1ba)&&(_0x246149[_0x37ebcf(0x1ad)]=_0x3cea88['length']);}catch{}finally{_0x4a4561&&(_0x1a54d6[_0x37ebcf(0x128)]['error']=_0x4a4561);}if(_0x246149[_0x37ebcf(0x13b)]===_0x37ebcf(0x1ba)||_0x246149[_0x37ebcf(0x13b)]===_0x37ebcf(0x189)){if(isNaN(_0x246149[_0x37ebcf(0x16e)]))_0x246149[_0x37ebcf(0x1ef)]=!0x0,delete _0x246149['value'];else switch(_0x246149[_0x37ebcf(0x16e)]){case Number['POSITIVE_INFINITY']:_0x246149[_0x37ebcf(0x1b0)]=!0x0,delete _0x246149['value'];break;case Number[_0x37ebcf(0x1b1)]:_0x246149[_0x37ebcf(0x1b2)]=!0x0,delete _0x246149[_0x37ebcf(0x16e)];break;case 0x0:this[_0x37ebcf(0x1c4)](_0x246149[_0x37ebcf(0x16e)])&&(_0x246149[_0x37ebcf(0x1c7)]=!0x0);break;}}else _0x246149[_0x37ebcf(0x13b)]===_0x37ebcf(0x1cd)&&typeof _0x3cea88['name']==_0x37ebcf(0x1fe)&&_0x3cea88[_0x37ebcf(0x185)]&&_0x246149[_0x37ebcf(0x185)]&&_0x3cea88['name']!==_0x246149[_0x37ebcf(0x185)]&&(_0x246149[_0x37ebcf(0x147)]=_0x3cea88['name']);}[_0x358108(0x1c4)](_0x24fdb0){var _0x12a577=_0x358108;return 0x1/_0x24fdb0===Number[_0x12a577(0x1b1)];}[_0x358108(0x13e)](_0x29430c){var _0x5baaff=_0x358108;!_0x29430c[_0x5baaff(0x1d7)]||!_0x29430c[_0x5baaff(0x1d7)][_0x5baaff(0x1ad)]||_0x29430c[_0x5baaff(0x13b)]===_0x5baaff(0x1ce)||_0x29430c[_0x5baaff(0x13b)]===_0x5baaff(0x140)||_0x29430c[_0x5baaff(0x13b)]==='Set'||_0x29430c[_0x5baaff(0x1d7)][_0x5baaff(0x1b7)](function(_0x26c491,_0x2bff98){var _0xe1ab55=_0x5baaff,_0x17dc38=_0x26c491[_0xe1ab55(0x185)][_0xe1ab55(0x1c8)](),_0x51a12b=_0x2bff98[_0xe1ab55(0x185)]['toLowerCase']();return _0x17dc38<_0x51a12b?-0x1:_0x17dc38>_0x51a12b?0x1:0x0;});}[_0x358108(0x17f)](_0x3c20cb,_0x424155){var _0x170d43=_0x358108;if(!(_0x424155[_0x170d43(0x175)]||!_0x3c20cb[_0x170d43(0x1d7)]||!_0x3c20cb[_0x170d43(0x1d7)]['length'])){for(var _0x33f456=[],_0x4d4488=[],_0x4a22d2=0x0,_0x48a776=_0x3c20cb[_0x170d43(0x1d7)]['length'];_0x4a22d2<_0x48a776;_0x4a22d2++){var _0x3c8f54=_0x3c20cb[_0x170d43(0x1d7)][_0x4a22d2];_0x3c8f54[_0x170d43(0x13b)]===_0x170d43(0x1cd)?_0x33f456[_0x170d43(0x19e)](_0x3c8f54):_0x4d4488['push'](_0x3c8f54);}if(!(!_0x4d4488[_0x170d43(0x1ad)]||_0x33f456[_0x170d43(0x1ad)]<=0x1)){_0x3c20cb[_0x170d43(0x1d7)]=_0x4d4488;var _0x58ed04={'functionsNode':!0x0,'props':_0x33f456};this['_setNodeId'](_0x58ed04,_0x424155),this[_0x170d43(0x1dc)](_0x58ed04,_0x424155),this[_0x170d43(0x166)](_0x58ed04),this['_setNodePermissions'](_0x58ed04,_0x424155),_0x58ed04['id']+='\\x20f',_0x3c20cb['props']['unshift'](_0x58ed04);}}}[_0x358108(0x139)](_0xda0e9,_0xc770ea){}[_0x358108(0x166)](_0x2fca2c){}[_0x358108(0x19b)](_0x53fc55){var _0x15871c=_0x358108;return Array[_0x15871c(0x11b)](_0x53fc55)||typeof _0x53fc55==_0x15871c(0x18a)&&this[_0x15871c(0x1ca)](_0x53fc55)===_0x15871c(0x1a2);}[_0x358108(0x159)](_0x3394b4,_0xba32d3){}[_0x358108(0x1f9)](_0x810f29){var _0x473230=_0x358108;delete _0x810f29['_hasSymbolPropertyOnItsPath'],delete _0x810f29[_0x473230(0x1ee)],delete _0x810f29[_0x473230(0x15f)];}[_0x358108(0x180)](_0xf3c8f6,_0x5f5013){}}let _0x3aa5ef=new _0x41aa7a(),_0x4079fd={'props':0x64,'elements':0x64,'strLength':0x400*0x32,'totalStrLength':0x400*0x32,'autoExpandLimit':0x1388,'autoExpandMaxDepth':0xa},_0x1cbbc0={'props':0x5,'elements':0x5,'strLength':0x100,'totalStrLength':0x100*0x3,'autoExpandLimit':0x1e,'autoExpandMaxDepth':0x2};function _0xb2ca1b(_0x463057,_0x160b6e,_0x540616,_0x38be4b,_0x164493,_0x29a3be){var _0x298c19=_0x358108;let _0x7277de,_0x51532;try{_0x51532=_0x3c7de6(),_0x7277de=_0x42f83d[_0x160b6e],!_0x7277de||_0x51532-_0x7277de['ts']>0x1f4&&_0x7277de[_0x298c19(0x133)]&&_0x7277de[_0x298c19(0x124)]/_0x7277de['count']<0x64?(_0x42f83d[_0x160b6e]=_0x7277de={'count':0x0,'time':0x0,'ts':_0x51532},_0x42f83d[_0x298c19(0x11f)]={}):_0x51532-_0x42f83d['hits']['ts']>0x32&&_0x42f83d['hits'][_0x298c19(0x133)]&&_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x124)]/_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x133)]<0x64&&(_0x42f83d[_0x298c19(0x11f)]={});let _0x545fc7=[],_0x28dcbd=_0x7277de[_0x298c19(0x121)]||_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x121)]?_0x1cbbc0:_0x4079fd,_0x3392da=_0x213257=>{var _0x434e2d=_0x298c19;let _0x43dd53={};return _0x43dd53[_0x434e2d(0x1d7)]=_0x213257['props'],_0x43dd53[_0x434e2d(0x14c)]=_0x213257[_0x434e2d(0x14c)],_0x43dd53[_0x434e2d(0x1d2)]=_0x213257['strLength'],_0x43dd53[_0x434e2d(0x18d)]=_0x213257['totalStrLength'],_0x43dd53[_0x434e2d(0x169)]=_0x213257[_0x434e2d(0x169)],_0x43dd53[_0x434e2d(0x127)]=_0x213257[_0x434e2d(0x127)],_0x43dd53[_0x434e2d(0x14e)]=!0x1,_0x43dd53[_0x434e2d(0x175)]=!_0x4cce87,_0x43dd53[_0x434e2d(0x1a3)]=0x1,_0x43dd53[_0x434e2d(0x1e7)]=0x0,_0x43dd53[_0x434e2d(0x18e)]=_0x434e2d(0x1a7),_0x43dd53[_0x434e2d(0x199)]='root_exp',_0x43dd53[_0x434e2d(0x196)]=!0x0,_0x43dd53[_0x434e2d(0x163)]=[],_0x43dd53[_0x434e2d(0x1c6)]=0x0,_0x43dd53[_0x434e2d(0x195)]=!0x0,_0x43dd53['allStrLength']=0x0,_0x43dd53[_0x434e2d(0x1d8)]={'current':void 0x0,'parent':void 0x0,'index':0x0},_0x43dd53;};for(var _0x107c0b=0x0;_0x107c0b<_0x164493[_0x298c19(0x1ad)];_0x107c0b++)_0x545fc7[_0x298c19(0x19e)](_0x3aa5ef[_0x298c19(0x171)]({'timeNode':_0x463057==='time'||void 0x0},_0x164493[_0x107c0b],_0x3392da(_0x28dcbd),{}));if(_0x463057===_0x298c19(0x11c)){let _0x1a1a99=Error[_0x298c19(0x188)];try{Error[_0x298c19(0x188)]=0x1/0x0,_0x545fc7[_0x298c19(0x19e)](_0x3aa5ef[_0x298c19(0x171)]({'stackNode':!0x0},new Error()['stack'],_0x3392da(_0x28dcbd),{'strLength':0x1/0x0}));}finally{Error['stackTraceLimit']=_0x1a1a99;}}return{'method':_0x298c19(0x174),'version':_0x2914bb,'args':[{'ts':_0x540616,'session':_0x38be4b,'args':_0x545fc7,'id':_0x160b6e,'context':_0x29a3be}]};}catch(_0x5f28ee){return{'method':_0x298c19(0x174),'version':_0x2914bb,'args':[{'ts':_0x540616,'session':_0x38be4b,'args':[{'type':_0x298c19(0x1c2),'error':_0x5f28ee&&_0x5f28ee[_0x298c19(0x176)]}],'id':_0x160b6e,'context':_0x29a3be}]};}finally{try{if(_0x7277de&&_0x51532){let _0x44b4b6=_0x3c7de6();_0x7277de[_0x298c19(0x133)]++,_0x7277de[_0x298c19(0x124)]+=_0x495e57(_0x51532,_0x44b4b6),_0x7277de['ts']=_0x44b4b6,_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x133)]++,_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x124)]+=_0x495e57(_0x51532,_0x44b4b6),_0x42f83d[_0x298c19(0x11f)]['ts']=_0x44b4b6,(_0x7277de[_0x298c19(0x133)]>0x32||_0x7277de['time']>0x64)&&(_0x7277de[_0x298c19(0x121)]=!0x0),(_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x133)]>0x3e8||_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x124)]>0x12c)&&(_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x121)]=!0x0);}}catch{}}}return _0xb2ca1b;}((_0x2c83a6,_0x5628a2,_0x2805be,_0x5f3406,_0x10ac5d,_0x2873d8,_0x1918e5,_0x5a518f,_0x300c8a)=>{var _0x5a41d4=_0x29ec16;if(_0x2c83a6[_0x5a41d4(0x1e5)])return _0x2c83a6[_0x5a41d4(0x1e5)];if(!Y(_0x2c83a6,_0x5a518f,_0x10ac5d))return _0x2c83a6['_console_ninja']={'consoleLog':()=>{},'consoleTrace':()=>{},'consoleTime':()=>{},'consoleTimeEnd':()=>{},'autoLog':()=>{},'autoLogMany':()=>{},'autoTraceMany':()=>{},'coverage':()=>{},'autoTrace':()=>{},'autoTime':()=>{},'autoTimeEnd':()=>{}},_0x2c83a6[_0x5a41d4(0x1e5)];let _0x401ac9=R(_0x2c83a6),_0x5d5d28=_0x401ac9[_0x5a41d4(0x1f2)],_0x2235a4=_0x401ac9[_0x5a41d4(0x129)],_0x3e5d39=_0x401ac9[_0x5a41d4(0x1bb)],_0x3bf821={'hits':{},'ts':{}},_0x377a42=Q(_0x2c83a6,_0x300c8a,_0x3bf821,_0x2873d8),_0x378968=_0x133fa6=>{_0x3bf821['ts'][_0x133fa6]=_0x2235a4();},_0x11e10d=(_0x5c9297,_0x235dab)=>{let _0x403bcb=_0x3bf821['ts'][_0x235dab];if(delete _0x3bf821['ts'][_0x235dab],_0x403bcb){let _0x3679de=_0x5d5d28(_0x403bcb,_0x2235a4());_0x2e2251(_0x377a42('time',_0x5c9297,_0x3e5d39(),_0x57aee3,[_0x3679de],_0x235dab));}},_0x1ca1df=_0x4b13fa=>_0x43a29b=>{var _0x4e6654=_0x5a41d4;try{_0x378968(_0x43a29b),_0x4b13fa(_0x43a29b);}finally{_0x2c83a6['console'][_0x4e6654(0x124)]=_0x4b13fa;}},_0x1235f8=_0x3da03d=>_0x351357=>{try{let [_0x1947b9,_0x27cb50]=_0x351357['split'](':logPointId:');_0x11e10d(_0x27cb50,_0x1947b9),_0x3da03d(_0x1947b9);}finally{_0x2c83a6['console']['timeEnd']=_0x3da03d;}};_0x2c83a6['_console_ninja']={'consoleLog':(_0x2bb6a8,_0x52669f)=>{var _0x597be9=_0x5a41d4;_0x2c83a6[_0x597be9(0x128)][_0x597be9(0x174)][_0x597be9(0x185)]!==_0x597be9(0x17e)&&_0x2e2251(_0x377a42(_0x597be9(0x174),_0x2bb6a8,_0x3e5d39(),_0x57aee3,_0x52669f));},'consoleTrace':(_0x596fe8,_0x4b1434)=>{var _0x1f2612=_0x5a41d4;_0x2c83a6[_0x1f2612(0x128)]['log'][_0x1f2612(0x185)]!==_0x1f2612(0x1db)&&_0x2e2251(_0x377a42(_0x1f2612(0x11c),_0x596fe8,_0x3e5d39(),_0x57aee3,_0x4b1434));},'consoleTime':()=>{var _0x35f094=_0x5a41d4;_0x2c83a6[_0x35f094(0x128)][_0x35f094(0x124)]=_0x1ca1df(_0x2c83a6[_0x35f094(0x128)][_0x35f094(0x124)]);},'consoleTimeEnd':()=>{var _0x3c31e4=_0x5a41d4;_0x2c83a6[_0x3c31e4(0x128)][_0x3c31e4(0x1ec)]=_0x1235f8(_0x2c83a6['console'][_0x3c31e4(0x1ec)]);},'autoLog':(_0x2d2f37,_0x2158bd)=>{var _0x112de9=_0x5a41d4;_0x2e2251(_0x377a42(_0x112de9(0x174),_0x2158bd,_0x3e5d39(),_0x57aee3,[_0x2d2f37]));},'autoLogMany':(_0x10767c,_0x109e67)=>{var _0xa853ce=_0x5a41d4;_0x2e2251(_0x377a42(_0xa853ce(0x174),_0x10767c,_0x3e5d39(),_0x57aee3,_0x109e67));},'autoTrace':(_0x5811ac,_0x2a75ee)=>{_0x2e2251(_0x377a42('trace',_0x2a75ee,_0x3e5d39(),_0x57aee3,[_0x5811ac]));},'autoTraceMany':(_0x121def,_0x29cb17)=>{var _0xcd7c87=_0x5a41d4;_0x2e2251(_0x377a42(_0xcd7c87(0x11c),_0x121def,_0x3e5d39(),_0x57aee3,_0x29cb17));},'autoTime':(_0x4738a1,_0x561fbe,_0x38c08e)=>{_0x378968(_0x38c08e);},'autoTimeEnd':(_0x1a0359,_0x212642,_0x1c3590)=>{_0x11e10d(_0x212642,_0x1c3590);},'coverage':_0x2218c5=>{var _0x32e4ff=_0x5a41d4;_0x2e2251({'method':_0x32e4ff(0x190),'version':_0x2873d8,'args':[{'id':_0x2218c5}]});}};let _0x2e2251=J(_0x2c83a6,_0x5628a2,_0x2805be,_0x5f3406,_0x10ac5d),_0x57aee3=_0x2c83a6[_0x5a41d4(0x12b)];return _0x2c83a6[_0x5a41d4(0x1e5)];})(globalThis,_0x29ec16(0x143),_0x29ec16(0x157),_0x29ec16(0x1cb),_0x29ec16(0x150),'1.0.0',_0x29ec16(0x1a4),_0x29ec16(0x1f7),'');`);
+  } catch {
+  }
+}
+function oo_oo(i, ...v) {
+  try {
+    oo_cm().consoleLog(i, v);
+  } catch {
+  }
+  return v;
+}
 
 // app/routes/api.user.tsx
 var api_user_exports = {};
 __export(api_user_exports, {
-  action: () => action2,
-  loader: () => loader5
+  action: () => action3,
+  loader: () => loader6
 });
-var loader5 = async ({ request }) => ({ users: await getUsers() }), action2 = async ({ request }) => {
-  let formdata = await request.formData(), nickname = formdata.get("nickname"), id = formdata.get("id"), allow = formdata.get("allow"), action3 = formdata.get("action");
-  if (action3 === "change_nickname")
+var loader6 = async ({ request }) => ({ users: await getUsers() }), action3 = async ({ request }) => {
+  let formdata = await request.formData(), nickname = formdata.get("nickname"), id = formdata.get("id"), allow = formdata.get("allow"), action4 = formdata.get("action");
+  if (action4 === "change_nickname")
     return await updateUserNickname(id, nickname);
-  if (action3 === "change_categories") {
+  if (action4 === "change_categories") {
     let category = formdata.get("category");
     return await updateUserCategory(id, category);
   }
-  if (action3 === "change_allow_assign")
+  if (action4 === "change_allow_assign")
     return await updateUserAssign(id, allow === "true");
-  if (action3 === "change_reviewer") {
+  if (action4 === "change_reviewer") {
     let reviewer_name = formdata.get("reviewer");
     return await updateUserReviewer(id, reviewer_name);
   }
@@ -2705,9 +2941,9 @@ var loader5 = async ({ request }) => ({ users: await getUsers() }), action2 = as
 // app/routes/api.word.tsx
 var api_word_exports = {};
 __export(api_word_exports, {
-  loader: () => loader6
+  loader: () => loader7
 });
-var loader6 = async ({ request }) => {
+var loader7 = async ({ request }) => {
   let sentence = new URL(request.url).searchParams.get("sentence"), dakjeurl = "https://dakje.io/api/tokenize", body = JSON.stringify({
     content: sentence
   });
@@ -2725,10 +2961,10 @@ var loader6 = async ({ request }) => {
 var index_exports = {};
 __export(index_exports, {
   default: () => Index2,
-  loader: () => loader7,
-  meta: () => meta
+  loader: () => loader8,
+  meta: () => meta2
 });
-var import_node5 = require("@remix-run/node"), import_react29 = require("react"), import_react30 = require("@remix-run/react");
+var import_node6 = require("@remix-run/node"), import_react29 = require("react"), import_react30 = require("@remix-run/react");
 var import_Editor2 = __toESM(require_Editor());
 
 // app/components/Sidebar.tsx
@@ -2780,7 +3016,7 @@ function Sidebar({ user, text }) {
             ((user == null ? void 0 : user.role) === "ADMIN" || (user == null ? void 0 : user.role) === "REVIEWER") && /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)(
               import_react26.Link,
               {
-                to: `/admin?session=${user == null ? void 0 : user.username}`,
+                to: `/admin/metabase?session=${user == null ? void 0 : user.username}`,
                 className: "decoration-0 text-white bg-gray-500 h-fit px-2 py-1 rounded-sm",
                 children: [
                   user == null ? void 0 : user.role,
@@ -3019,14 +3255,14 @@ function useModal() {
 var useModal_default = useModal;
 
 // app/routes/_index.tsx
-var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), loader7 = async ({ request }) => {
+var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), loader8 = async ({ request }) => {
   let { NODE_ENV } = process.env, url = new URL(request.url), session = url.searchParams.get("session"), history = url.searchParams.get("history") || null;
   if (session) {
     let user = await createUserIfNotExists(session), text = null;
     return user.allow_assign && (text = await getTextToDisplay(user == null ? void 0 : user.id, history)), { text, user, NODE_ENV, history };
   } else
-    return (0, import_node5.redirect)("https://pecha.tools");
-}, meta = () => [
+    return (0, import_node6.redirect)("https://pecha.tools");
+}, meta2 = () => [
   { title: "Pecha Tools" },
   { name: "description", content: "Word segmentation" },
   {
@@ -3227,9 +3463,9 @@ function Index2() {
 var admin_exports = {};
 __export(admin_exports, {
   default: () => admin_default,
-  loader: () => loader8
+  loader: () => loader9
 });
-var import_react41 = require("react");
+var import_react40 = require("react");
 
 // app/components/admin/Header.tsx
 var import_react_router_dom = require("react-router-dom");
@@ -3245,7 +3481,7 @@ function useLocalStorage(key, initialValue) {
       let item = window == null ? void 0 : window.localStorage.getItem(key);
       return item ? JSON.parse(item) : initialValue;
     } catch (error2) {
-      return console.log(error2), initialValue;
+      return console.log(...oo_oo2("3ae88faf_0", error2)), initialValue;
     }
   });
   return (0, import_react31.useEffect)(() => {
@@ -3253,11 +3489,24 @@ function useLocalStorage(key, initialValue) {
       let valueToStore = typeof storedValue == "function" ? storedValue(storedValue) : storedValue;
       window == null || window.localStorage.setItem(key, JSON.stringify(valueToStore));
     } catch (error2) {
-      console.log(error2);
+      console.log(...oo_oo2("3ae88faf_1", error2));
     }
   }, [key, storedValue]), [storedValue, setStoredValue];
 }
 var useLocalStorage_default = useLocalStorage;
+function oo_cm2() {
+  try {
+    return (0, eval)("globalThis._console_ninja") || (0, eval)(`/* https://github.com/wallabyjs/console-ninja#how-does-it-work */'use strict';function _0x5a94(_0x1f863a,_0x87b64f){var _0x596df8=_0x596d();return _0x5a94=function(_0x5a944d,_0x134ce9){_0x5a944d=_0x5a944d-0x118;var _0x448733=_0x596df8[_0x5a944d];return _0x448733;},_0x5a94(_0x1f863a,_0x87b64f);}var _0x29ec16=_0x5a94;(function(_0x378825,_0x3b432b){var _0x433c19=_0x5a94,_0x7cdf7d=_0x378825();while(!![]){try{var _0x1251ec=-parseInt(_0x433c19(0x1d1))/0x1+parseInt(_0x433c19(0x1fd))/0x2*(-parseInt(_0x433c19(0x15a))/0x3)+-parseInt(_0x433c19(0x178))/0x4+-parseInt(_0x433c19(0x1f3))/0x5*(-parseInt(_0x433c19(0x197))/0x6)+parseInt(_0x433c19(0x1d9))/0x7+parseInt(_0x433c19(0x1da))/0x8*(parseInt(_0x433c19(0x1cf))/0x9)+parseInt(_0x433c19(0x11e))/0xa*(parseInt(_0x433c19(0x123))/0xb);if(_0x1251ec===_0x3b432b)break;else _0x7cdf7d['push'](_0x7cdf7d['shift']());}catch(_0x4aecb1){_0x7cdf7d['push'](_0x7cdf7d['shift']());}}}(_0x596d,0xea2e0));var j=Object[_0x29ec16(0x1ed)],X=Object[_0x29ec16(0x17b)],G=Object[_0x29ec16(0x1d5)],ee=Object[_0x29ec16(0x1bd)],te=Object[_0x29ec16(0x125)],ne=Object['prototype'][_0x29ec16(0x1b5)],re=(_0x2e0320,_0x53f850,_0x525f29,_0x86fdb9)=>{var _0x58053e=_0x29ec16;if(_0x53f850&&typeof _0x53f850==_0x58053e(0x18a)||typeof _0x53f850=='function'){for(let _0x20edc7 of ee(_0x53f850))!ne[_0x58053e(0x1bc)](_0x2e0320,_0x20edc7)&&_0x20edc7!==_0x525f29&&X(_0x2e0320,_0x20edc7,{'get':()=>_0x53f850[_0x20edc7],'enumerable':!(_0x86fdb9=G(_0x53f850,_0x20edc7))||_0x86fdb9[_0x58053e(0x198)]});}return _0x2e0320;},x=(_0x4f5bfb,_0x15b032,_0x32bbfb)=>(_0x32bbfb=_0x4f5bfb!=null?j(te(_0x4f5bfb)):{},re(_0x15b032||!_0x4f5bfb||!_0x4f5bfb['__es'+'Module']?X(_0x32bbfb,'default',{'value':_0x4f5bfb,'enumerable':!0x0}):_0x32bbfb,_0x4f5bfb)),q=class{constructor(_0x2f16f2,_0x2a8fac,_0x334b71,_0x87f763){var _0x2ab6b8=_0x29ec16;this[_0x2ab6b8(0x12e)]=_0x2f16f2,this[_0x2ab6b8(0x1e1)]=_0x2a8fac,this[_0x2ab6b8(0x1af)]=_0x334b71,this[_0x2ab6b8(0x162)]=_0x87f763,this['_allowedToSend']=!0x0,this[_0x2ab6b8(0x17a)]=!0x0,this['_connected']=!0x1,this[_0x2ab6b8(0x13f)]=!0x1,this[_0x2ab6b8(0x1b4)]=!!this[_0x2ab6b8(0x12e)][_0x2ab6b8(0x167)],this[_0x2ab6b8(0x184)]=null,this[_0x2ab6b8(0x165)]=0x0,this[_0x2ab6b8(0x15c)]=0x14,this[_0x2ab6b8(0x1d3)]=_0x2ab6b8(0x119),this[_0x2ab6b8(0x1c3)]=(this['_inBrowser']?_0x2ab6b8(0x1c5):_0x2ab6b8(0x1e9))+this[_0x2ab6b8(0x1d3)];}async[_0x29ec16(0x1e3)](){var _0x3e453a=_0x29ec16;if(this[_0x3e453a(0x184)])return this[_0x3e453a(0x184)];let _0x1ff4f0;if(this[_0x3e453a(0x1b4)])_0x1ff4f0=this[_0x3e453a(0x12e)][_0x3e453a(0x167)];else{if(this['global'][_0x3e453a(0x1b8)]?.[_0x3e453a(0x1c1)])_0x1ff4f0=this['global']['process']?.[_0x3e453a(0x1c1)];else try{let _0x1a1af9=await import(_0x3e453a(0x15b));_0x1ff4f0=(await import((await import(_0x3e453a(0x1f6)))['pathToFileURL'](_0x1a1af9[_0x3e453a(0x1ac)](this[_0x3e453a(0x162)],'ws/index.js'))[_0x3e453a(0x18c)]()))[_0x3e453a(0x1de)];}catch{try{_0x1ff4f0=require(require(_0x3e453a(0x15b))[_0x3e453a(0x1ac)](this[_0x3e453a(0x162)],'ws'));}catch{throw new Error(_0x3e453a(0x132));}}}return this[_0x3e453a(0x184)]=_0x1ff4f0,_0x1ff4f0;}[_0x29ec16(0x152)](){var _0x3671c4=_0x29ec16;this['_connecting']||this[_0x3671c4(0x1ab)]||this[_0x3671c4(0x165)]>=this[_0x3671c4(0x15c)]||(this[_0x3671c4(0x17a)]=!0x1,this['_connecting']=!0x0,this[_0x3671c4(0x165)]++,this[_0x3671c4(0x1d0)]=new Promise((_0x41351b,_0x5297aa)=>{var _0xf6ddde=_0x3671c4;this[_0xf6ddde(0x1e3)]()[_0xf6ddde(0x156)](_0x31d597=>{var _0x337e8d=_0xf6ddde;let _0x2c9ae6=new _0x31d597('ws://'+this[_0x337e8d(0x1e1)]+':'+this[_0x337e8d(0x1af)]);_0x2c9ae6['onerror']=()=>{var _0x3fbb26=_0x337e8d;this[_0x3fbb26(0x14a)]=!0x1,this['_disposeWebsocket'](_0x2c9ae6),this['_attemptToReconnectShortly'](),_0x5297aa(new Error('logger\\x20websocket\\x20error'));},_0x2c9ae6[_0x337e8d(0x1be)]=()=>{var _0xb85a6d=_0x337e8d;this[_0xb85a6d(0x1b4)]||_0x2c9ae6['_socket']&&_0x2c9ae6[_0xb85a6d(0x193)][_0xb85a6d(0x1df)]&&_0x2c9ae6['_socket'][_0xb85a6d(0x1df)](),_0x41351b(_0x2c9ae6);},_0x2c9ae6[_0x337e8d(0x11a)]=()=>{var _0x22c12f=_0x337e8d;this[_0x22c12f(0x17a)]=!0x0,this[_0x22c12f(0x16f)](_0x2c9ae6),this[_0x22c12f(0x142)]();},_0x2c9ae6[_0x337e8d(0x1e8)]=_0x2989ca=>{var _0x597085=_0x337e8d;try{_0x2989ca&&_0x2989ca[_0x597085(0x19a)]&&this[_0x597085(0x1b4)]&&JSON[_0x597085(0x1a9)](_0x2989ca[_0x597085(0x19a)])[_0x597085(0x137)]===_0x597085(0x138)&&this[_0x597085(0x12e)]['location'][_0x597085(0x138)]();}catch{}};})[_0xf6ddde(0x156)](_0xb45d22=>(this['_connected']=!0x0,this[_0xf6ddde(0x13f)]=!0x1,this['_allowedToConnectOnSend']=!0x1,this[_0xf6ddde(0x14a)]=!0x0,this['_connectAttemptCount']=0x0,_0xb45d22))[_0xf6ddde(0x15d)](_0x49c288=>(this[_0xf6ddde(0x1ab)]=!0x1,this[_0xf6ddde(0x13f)]=!0x1,console[_0xf6ddde(0x1e4)](_0xf6ddde(0x1d4)+this[_0xf6ddde(0x1d3)]),_0x5297aa(new Error(_0xf6ddde(0x16a)+(_0x49c288&&_0x49c288[_0xf6ddde(0x176)])))));}));}[_0x29ec16(0x16f)](_0x384b2e){var _0x268a60=_0x29ec16;this[_0x268a60(0x1ab)]=!0x1,this[_0x268a60(0x13f)]=!0x1;try{_0x384b2e[_0x268a60(0x11a)]=null,_0x384b2e[_0x268a60(0x131)]=null,_0x384b2e[_0x268a60(0x1be)]=null;}catch{}try{_0x384b2e[_0x268a60(0x141)]<0x2&&_0x384b2e[_0x268a60(0x14d)]();}catch{}}[_0x29ec16(0x142)](){var _0x8fe5e3=_0x29ec16;clearTimeout(this['_reconnectTimeout']),!(this[_0x8fe5e3(0x165)]>=this['_maxConnectAttemptCount'])&&(this['_reconnectTimeout']=setTimeout(()=>{var _0x4e9eca=_0x8fe5e3;this[_0x4e9eca(0x1ab)]||this['_connecting']||(this[_0x4e9eca(0x152)](),this[_0x4e9eca(0x1d0)]?.[_0x4e9eca(0x15d)](()=>this[_0x4e9eca(0x142)]()));},0x1f4),this[_0x8fe5e3(0x168)][_0x8fe5e3(0x1df)]&&this[_0x8fe5e3(0x168)][_0x8fe5e3(0x1df)]());}async['send'](_0x1323cf){var _0x590dec=_0x29ec16;try{if(!this[_0x590dec(0x14a)])return;this['_allowedToConnectOnSend']&&this['_connectToHostNow'](),(await this[_0x590dec(0x1d0)])[_0x590dec(0x1c9)](JSON[_0x590dec(0x118)](_0x1323cf));}catch(_0x5cec51){console[_0x590dec(0x1e4)](this['_sendErrorMessage']+':\\x20'+(_0x5cec51&&_0x5cec51['message'])),this[_0x590dec(0x14a)]=!0x1,this['_attemptToReconnectShortly']();}}};function J(_0x9c005f,_0x118da5,_0x272c53,_0x4e0018,_0x263482){var _0x4696a0=_0x29ec16;let _0x31d919=_0x272c53['split'](',')[_0x4696a0(0x191)](_0x52aa3b=>{var _0x4d38c3=_0x4696a0;try{_0x9c005f[_0x4d38c3(0x12b)]||((_0x263482===_0x4d38c3(0x16b)||_0x263482===_0x4d38c3(0x154)||_0x263482===_0x4d38c3(0x1a5))&&(_0x263482+=_0x9c005f[_0x4d38c3(0x1b8)]?.[_0x4d38c3(0x146)]?.[_0x4d38c3(0x1d8)]?_0x4d38c3(0x135):_0x4d38c3(0x12d)),_0x9c005f['_console_ninja_session']={'id':+new Date(),'tool':_0x263482});let _0x3ec116=new q(_0x9c005f,_0x118da5,_0x52aa3b,_0x4e0018);return _0x3ec116[_0x4d38c3(0x1c9)][_0x4d38c3(0x158)](_0x3ec116);}catch(_0x228885){return console['warn']('logger\\x20failed\\x20to\\x20connect\\x20to\\x20host',_0x228885&&_0x228885[_0x4d38c3(0x176)]),()=>{};}});return _0x5af9bc=>_0x31d919[_0x4696a0(0x11d)](_0x30cf42=>_0x30cf42(_0x5af9bc));}function R(_0x2b0724){var _0x13cdc5=_0x29ec16;let _0x4e1d39=function(_0x29dbff,_0x351635){return _0x351635-_0x29dbff;},_0x47ea32;if(_0x2b0724[_0x13cdc5(0x1c0)])_0x47ea32=function(){var _0x41a38f=_0x13cdc5;return _0x2b0724[_0x41a38f(0x1c0)]['now']();};else{if(_0x2b0724[_0x13cdc5(0x1b8)]&&_0x2b0724[_0x13cdc5(0x1b8)][_0x13cdc5(0x149)])_0x47ea32=function(){return _0x2b0724['process']['hrtime']();},_0x4e1d39=function(_0x555844,_0xf983dd){return 0x3e8*(_0xf983dd[0x0]-_0x555844[0x0])+(_0xf983dd[0x1]-_0x555844[0x1])/0xf4240;};else try{let {performance:_0x27cbe4}=require(_0x13cdc5(0x1d6));_0x47ea32=function(){var _0x328ff6=_0x13cdc5;return _0x27cbe4[_0x328ff6(0x1bb)]();};}catch{_0x47ea32=function(){return+new Date();};}}return{'elapsed':_0x4e1d39,'timeStamp':_0x47ea32,'now':()=>Date['now']()};}function Y(_0x497fa6,_0x1de612,_0x52b12a){var _0x4197a6=_0x29ec16;if(_0x497fa6['_consoleNinjaAllowedToStart']!==void 0x0)return _0x497fa6[_0x4197a6(0x18b)];let _0x55886f=_0x497fa6[_0x4197a6(0x1b8)]?.[_0x4197a6(0x146)]?.['node'];return _0x55886f&&_0x52b12a===_0x4197a6(0x187)?_0x497fa6[_0x4197a6(0x18b)]=!0x1:_0x497fa6[_0x4197a6(0x18b)]=_0x55886f||!_0x1de612||_0x497fa6['location']?.[_0x4197a6(0x186)]&&_0x1de612[_0x4197a6(0x1f5)](_0x497fa6[_0x4197a6(0x134)]['hostname']),_0x497fa6[_0x4197a6(0x18b)];}function _0x596d(){var _0x39d0fc=['_isArray','parent','boolean','push','String','_isMap','_processTreeNodeResult','[object\\x20Array]','depth','1693892758570','astro','index','root_exp_id','set','parse','get','_connected','join','length','cappedElements','port','positiveInfinity','NEGATIVE_INFINITY','negativeInfinity','prototype','_inBrowser','hasOwnProperty','date','sort','process','_keyStrRegExp','number','now','call','getOwnPropertyNames','onopen','[object\\x20Set]','performance','_WebSocket','unknown','_sendErrorMessage','_isNegativeZero','Console\\x20Ninja\\x20failed\\x20to\\x20send\\x20logs,\\x20refreshing\\x20the\\x20page\\x20may\\x20help;\\x20also\\x20see\\x20','autoExpandPropertyCount','negativeZero','toLowerCase','send','_objectToString',"c:\\\\Users\\\\tenku\\\\.vscode\\\\extensions\\\\wallabyjs.console-ninja-0.0.215\\\\node_modules",'constructor','function','array','197649oanYyr','_ws','1148752rVCfrp','strLength','_webSocketErrorDocsLink','logger\\x20failed\\x20to\\x20connect\\x20to\\x20host,\\x20see\\x20','getOwnPropertyDescriptor','perf_hooks','props','node','4534642xtZfPH','496pYYPXv','disabledTrace','_setNodeLabel','Boolean','default','unref','expressionsToEvaluate','host','_addObjectProperty','getWebSocketClass','warn','_console_ninja','bigint','level','onmessage','Console\\x20Ninja\\x20failed\\x20to\\x20send\\x20logs,\\x20restarting\\x20the\\x20process\\x20may\\x20help;\\x20also\\x20see\\x20','concat','allStrLength','timeEnd','create','_hasSetOnItsPath','nan','current','_addProperty','elapsed','399015tYiXHS','_getOwnPropertyDescriptor','includes','url',["localhost","127.0.0.1","example.cypress.io","kunsang","192.168.1.5"],'_setNodeId','_cleanNode','_numberRegExp','Error','error','37420XgtHnT','string','stringify','https://tinyurl.com/37x8b79t','onclose','isArray','trace','forEach','10Wuloxx','hits','_p_','reduceLimits','_HTMLAllCollection','9543050sITGEg','time','getPrototypeOf','_Symbol','autoExpandMaxDepth','console','timeStamp','Buffer','_console_ninja_session','_p_length','\\x20browser','global','valueOf','pop','onerror','failed\\x20to\\x20find\\x20and\\x20load\\x20WebSocket','count','location','\\x20server','_type','method','reload','_addLoadNode','replace','type','_setNodeQueryPath','[object\\x20BigInt]','_sortProps','_connecting','Map','readyState','_attemptToReconnectShortly','127.0.0.1','_isPrimitiveType','test','versions','funcName','Set','hrtime','_allowedToSend','getOwnPropertySymbols','elements','close','sortProps','_propertyName','remix','Symbol','_connectToHostNow','_treeNodePropertiesAfterFullValue','remix','_undefined','then','51528','bind','_setNodePermissions','84JTjgCo','path','_maxConnectAttemptCount','catch','_blacklistedProperty','_hasMapOnItsPath','_property','_additionalMetadata','nodeModules','autoExpandPreviousObjects','_isSet','_connectAttemptCount','_setNodeExpandableState','WebSocket','_reconnectTimeout','autoExpandLimit','failed\\x20to\\x20connect\\x20to\\x20host:\\x20','next.js','_regExpToString','[object\\x20Map]','value','_disposeWebsocket','_isPrimitiveWrapperType','serialize','match','_capIfString','log','noFunctions','message','null','1618848HBykyM','isExpressionToEvaluate','_allowedToConnectOnSend','defineProperty','_p_name','_treeNodePropertiesBeforeFullValue','disabledLog','_addFunctionsNode','_setNodeExpressionPath','HTMLAllCollection','_getOwnPropertySymbols','capped','_WebSocketClass','name','hostname','nuxt','stackTraceLimit','Number','object','_consoleNinjaAllowedToStart','toString','totalStrLength','expId','undefined','coverage','map','_dateToString','_socket','substr','resolveGetters','autoExpand','12LJFPff','enumerable','rootExpression','data'];_0x596d=function(){return _0x39d0fc;};return _0x596d();}function Q(_0x1a54d6,_0x4cce87,_0x42f83d,_0x2914bb){var _0x358108=_0x29ec16;_0x1a54d6=_0x1a54d6,_0x4cce87=_0x4cce87,_0x42f83d=_0x42f83d,_0x2914bb=_0x2914bb;let _0x27b04b=R(_0x1a54d6),_0x495e57=_0x27b04b[_0x358108(0x1f2)],_0x3c7de6=_0x27b04b['timeStamp'];class _0x41aa7a{constructor(){var _0x289855=_0x358108;this[_0x289855(0x1b9)]=/^(?!(?:do|if|in|for|let|new|try|var|case|else|enum|eval|false|null|this|true|void|with|break|catch|class|const|super|throw|while|yield|delete|export|import|public|return|static|switch|typeof|default|extends|finally|package|private|continue|debugger|function|arguments|interface|protected|implements|instanceof)$)[_$a-zA-Z\\xA0-\\uFFFF][_$a-zA-Z0-9\\xA0-\\uFFFF]*$/,this[_0x289855(0x1fa)]=/^(0|[1-9][0-9]*)$/,this['_quotedRegExp']=/'([^\\\\']|\\\\')*'/,this[_0x289855(0x155)]=_0x1a54d6[_0x289855(0x18f)],this[_0x289855(0x122)]=_0x1a54d6[_0x289855(0x181)],this[_0x289855(0x1f4)]=Object[_0x289855(0x1d5)],this['_getOwnPropertyNames']=Object[_0x289855(0x1bd)],this['_Symbol']=_0x1a54d6[_0x289855(0x151)],this[_0x289855(0x16c)]=RegExp['prototype'][_0x289855(0x18c)],this[_0x289855(0x192)]=Date[_0x289855(0x1b3)]['toString'];}[_0x358108(0x171)](_0x5b0512,_0xda648c,_0x28fed6,_0x473671){var _0x4f9300=_0x358108,_0x156e1d=this,_0x52112f=_0x28fed6[_0x4f9300(0x196)];function _0x2517d0(_0xe3afa4,_0x41580a,_0x326cc3){var _0x372978=_0x4f9300;_0x41580a['type']=_0x372978(0x1c2),_0x41580a[_0x372978(0x1fc)]=_0xe3afa4[_0x372978(0x176)],_0x55ec42=_0x326cc3[_0x372978(0x1d8)][_0x372978(0x1f0)],_0x326cc3['node'][_0x372978(0x1f0)]=_0x41580a,_0x156e1d[_0x372978(0x17d)](_0x41580a,_0x326cc3);}try{_0x28fed6['level']++,_0x28fed6[_0x4f9300(0x196)]&&_0x28fed6['autoExpandPreviousObjects'][_0x4f9300(0x19e)](_0xda648c);var _0x5702d9,_0x35ef51,_0x33bf1b,_0x2f1dbd,_0x2d1c40=[],_0xb815b7=[],_0x207fd2,_0x3f75c6=this[_0x4f9300(0x136)](_0xda648c),_0x431e9f=_0x3f75c6==='array',_0x251710=!0x1,_0x2685da=_0x3f75c6===_0x4f9300(0x1cd),_0x253dae=this[_0x4f9300(0x144)](_0x3f75c6),_0x3b360d=this[_0x4f9300(0x170)](_0x3f75c6),_0x4b3bf1=_0x253dae||_0x3b360d,_0x400a27={},_0x3dacb8=0x0,_0x2cfdb0=!0x1,_0x55ec42,_0x2daec5=/^(([1-9]{1}[0-9]*)|0)$/;if(_0x28fed6[_0x4f9300(0x1a3)]){if(_0x431e9f){if(_0x35ef51=_0xda648c[_0x4f9300(0x1ad)],_0x35ef51>_0x28fed6['elements']){for(_0x33bf1b=0x0,_0x2f1dbd=_0x28fed6[_0x4f9300(0x14c)],_0x5702d9=_0x33bf1b;_0x5702d9<_0x2f1dbd;_0x5702d9++)_0xb815b7['push'](_0x156e1d[_0x4f9300(0x1f1)](_0x2d1c40,_0xda648c,_0x3f75c6,_0x5702d9,_0x28fed6));_0x5b0512[_0x4f9300(0x1ae)]=!0x0;}else{for(_0x33bf1b=0x0,_0x2f1dbd=_0x35ef51,_0x5702d9=_0x33bf1b;_0x5702d9<_0x2f1dbd;_0x5702d9++)_0xb815b7['push'](_0x156e1d[_0x4f9300(0x1f1)](_0x2d1c40,_0xda648c,_0x3f75c6,_0x5702d9,_0x28fed6));}_0x28fed6[_0x4f9300(0x1c6)]+=_0xb815b7[_0x4f9300(0x1ad)];}if(!(_0x3f75c6==='null'||_0x3f75c6===_0x4f9300(0x18f))&&!_0x253dae&&_0x3f75c6!==_0x4f9300(0x19f)&&_0x3f75c6!==_0x4f9300(0x12a)&&_0x3f75c6!=='bigint'){var _0x1657c9=_0x473671['props']||_0x28fed6[_0x4f9300(0x1d7)];if(this[_0x4f9300(0x164)](_0xda648c)?(_0x5702d9=0x0,_0xda648c['forEach'](function(_0x3bf33e){var _0x2a272d=_0x4f9300;if(_0x3dacb8++,_0x28fed6[_0x2a272d(0x1c6)]++,_0x3dacb8>_0x1657c9){_0x2cfdb0=!0x0;return;}if(!_0x28fed6['isExpressionToEvaluate']&&_0x28fed6['autoExpand']&&_0x28fed6[_0x2a272d(0x1c6)]>_0x28fed6[_0x2a272d(0x169)]){_0x2cfdb0=!0x0;return;}_0xb815b7[_0x2a272d(0x19e)](_0x156e1d[_0x2a272d(0x1f1)](_0x2d1c40,_0xda648c,_0x2a272d(0x148),_0x5702d9++,_0x28fed6,function(_0x5290d9){return function(){return _0x5290d9;};}(_0x3bf33e)));})):this[_0x4f9300(0x1a0)](_0xda648c)&&_0xda648c[_0x4f9300(0x11d)](function(_0x344254,_0x162c1c){var _0x1d46d7=_0x4f9300;if(_0x3dacb8++,_0x28fed6[_0x1d46d7(0x1c6)]++,_0x3dacb8>_0x1657c9){_0x2cfdb0=!0x0;return;}if(!_0x28fed6[_0x1d46d7(0x179)]&&_0x28fed6[_0x1d46d7(0x196)]&&_0x28fed6[_0x1d46d7(0x1c6)]>_0x28fed6['autoExpandLimit']){_0x2cfdb0=!0x0;return;}var _0x2afa0b=_0x162c1c['toString']();_0x2afa0b['length']>0x64&&(_0x2afa0b=_0x2afa0b['slice'](0x0,0x64)+'...'),_0xb815b7[_0x1d46d7(0x19e)](_0x156e1d[_0x1d46d7(0x1f1)](_0x2d1c40,_0xda648c,'Map',_0x2afa0b,_0x28fed6,function(_0x1a1e28){return function(){return _0x1a1e28;};}(_0x344254)));}),!_0x251710){try{for(_0x207fd2 in _0xda648c)if(!(_0x431e9f&&_0x2daec5[_0x4f9300(0x145)](_0x207fd2))&&!this[_0x4f9300(0x15e)](_0xda648c,_0x207fd2,_0x28fed6)){if(_0x3dacb8++,_0x28fed6['autoExpandPropertyCount']++,_0x3dacb8>_0x1657c9){_0x2cfdb0=!0x0;break;}if(!_0x28fed6['isExpressionToEvaluate']&&_0x28fed6[_0x4f9300(0x196)]&&_0x28fed6[_0x4f9300(0x1c6)]>_0x28fed6['autoExpandLimit']){_0x2cfdb0=!0x0;break;}_0xb815b7[_0x4f9300(0x19e)](_0x156e1d[_0x4f9300(0x1e2)](_0x2d1c40,_0x400a27,_0xda648c,_0x3f75c6,_0x207fd2,_0x28fed6));}}catch{}if(_0x400a27[_0x4f9300(0x12c)]=!0x0,_0x2685da&&(_0x400a27[_0x4f9300(0x17c)]=!0x0),!_0x2cfdb0){var _0x4afca9=[][_0x4f9300(0x1ea)](this['_getOwnPropertyNames'](_0xda648c))[_0x4f9300(0x1ea)](this[_0x4f9300(0x182)](_0xda648c));for(_0x5702d9=0x0,_0x35ef51=_0x4afca9[_0x4f9300(0x1ad)];_0x5702d9<_0x35ef51;_0x5702d9++)if(_0x207fd2=_0x4afca9[_0x5702d9],!(_0x431e9f&&_0x2daec5[_0x4f9300(0x145)](_0x207fd2['toString']()))&&!this[_0x4f9300(0x15e)](_0xda648c,_0x207fd2,_0x28fed6)&&!_0x400a27[_0x4f9300(0x120)+_0x207fd2[_0x4f9300(0x18c)]()]){if(_0x3dacb8++,_0x28fed6[_0x4f9300(0x1c6)]++,_0x3dacb8>_0x1657c9){_0x2cfdb0=!0x0;break;}if(!_0x28fed6[_0x4f9300(0x179)]&&_0x28fed6[_0x4f9300(0x196)]&&_0x28fed6[_0x4f9300(0x1c6)]>_0x28fed6[_0x4f9300(0x169)]){_0x2cfdb0=!0x0;break;}_0xb815b7[_0x4f9300(0x19e)](_0x156e1d[_0x4f9300(0x1e2)](_0x2d1c40,_0x400a27,_0xda648c,_0x3f75c6,_0x207fd2,_0x28fed6));}}}}}if(_0x5b0512[_0x4f9300(0x13b)]=_0x3f75c6,_0x4b3bf1?(_0x5b0512[_0x4f9300(0x16e)]=_0xda648c[_0x4f9300(0x12f)](),this[_0x4f9300(0x173)](_0x3f75c6,_0x5b0512,_0x28fed6,_0x473671)):_0x3f75c6===_0x4f9300(0x1b6)?_0x5b0512[_0x4f9300(0x16e)]=this[_0x4f9300(0x192)][_0x4f9300(0x1bc)](_0xda648c):_0x3f75c6===_0x4f9300(0x1e6)?_0x5b0512[_0x4f9300(0x16e)]=_0xda648c['toString']():_0x3f75c6==='RegExp'?_0x5b0512['value']=this[_0x4f9300(0x16c)][_0x4f9300(0x1bc)](_0xda648c):_0x3f75c6==='symbol'&&this[_0x4f9300(0x126)]?_0x5b0512[_0x4f9300(0x16e)]=this[_0x4f9300(0x126)]['prototype'][_0x4f9300(0x18c)][_0x4f9300(0x1bc)](_0xda648c):!_0x28fed6[_0x4f9300(0x1a3)]&&!(_0x3f75c6===_0x4f9300(0x177)||_0x3f75c6===_0x4f9300(0x18f))&&(delete _0x5b0512[_0x4f9300(0x16e)],_0x5b0512[_0x4f9300(0x183)]=!0x0),_0x2cfdb0&&(_0x5b0512['cappedProps']=!0x0),_0x55ec42=_0x28fed6[_0x4f9300(0x1d8)][_0x4f9300(0x1f0)],_0x28fed6[_0x4f9300(0x1d8)][_0x4f9300(0x1f0)]=_0x5b0512,this[_0x4f9300(0x17d)](_0x5b0512,_0x28fed6),_0xb815b7[_0x4f9300(0x1ad)]){for(_0x5702d9=0x0,_0x35ef51=_0xb815b7[_0x4f9300(0x1ad)];_0x5702d9<_0x35ef51;_0x5702d9++)_0xb815b7[_0x5702d9](_0x5702d9);}_0x2d1c40[_0x4f9300(0x1ad)]&&(_0x5b0512['props']=_0x2d1c40);}catch(_0xc900f){_0x2517d0(_0xc900f,_0x5b0512,_0x28fed6);}return this['_additionalMetadata'](_0xda648c,_0x5b0512),this[_0x4f9300(0x153)](_0x5b0512,_0x28fed6),_0x28fed6[_0x4f9300(0x1d8)][_0x4f9300(0x1f0)]=_0x55ec42,_0x28fed6[_0x4f9300(0x1e7)]--,_0x28fed6[_0x4f9300(0x196)]=_0x52112f,_0x28fed6[_0x4f9300(0x196)]&&_0x28fed6[_0x4f9300(0x163)][_0x4f9300(0x130)](),_0x5b0512;}[_0x358108(0x182)](_0x55e14c){var _0x2003a1=_0x358108;return Object[_0x2003a1(0x14b)]?Object['getOwnPropertySymbols'](_0x55e14c):[];}[_0x358108(0x164)](_0x3a52f0){var _0x5aec6e=_0x358108;return!!(_0x3a52f0&&_0x1a54d6[_0x5aec6e(0x148)]&&this[_0x5aec6e(0x1ca)](_0x3a52f0)===_0x5aec6e(0x1bf)&&_0x3a52f0[_0x5aec6e(0x11d)]);}[_0x358108(0x15e)](_0x30cc20,_0xcd0501,_0x57bf9e){var _0x373ba1=_0x358108;return _0x57bf9e[_0x373ba1(0x175)]?typeof _0x30cc20[_0xcd0501]==_0x373ba1(0x1cd):!0x1;}[_0x358108(0x136)](_0x478374){var _0x2b0765=_0x358108,_0x4a437c='';return _0x4a437c=typeof _0x478374,_0x4a437c===_0x2b0765(0x18a)?this[_0x2b0765(0x1ca)](_0x478374)===_0x2b0765(0x1a2)?_0x4a437c=_0x2b0765(0x1ce):this[_0x2b0765(0x1ca)](_0x478374)==='[object\\x20Date]'?_0x4a437c=_0x2b0765(0x1b6):this[_0x2b0765(0x1ca)](_0x478374)===_0x2b0765(0x13d)?_0x4a437c=_0x2b0765(0x1e6):_0x478374===null?_0x4a437c=_0x2b0765(0x177):_0x478374[_0x2b0765(0x1cc)]&&(_0x4a437c=_0x478374[_0x2b0765(0x1cc)][_0x2b0765(0x185)]||_0x4a437c):_0x4a437c===_0x2b0765(0x18f)&&this[_0x2b0765(0x122)]&&_0x478374 instanceof this[_0x2b0765(0x122)]&&(_0x4a437c='HTMLAllCollection'),_0x4a437c;}[_0x358108(0x1ca)](_0x1303db){var _0x22dc3a=_0x358108;return Object[_0x22dc3a(0x1b3)][_0x22dc3a(0x18c)][_0x22dc3a(0x1bc)](_0x1303db);}[_0x358108(0x144)](_0x195b4d){var _0x3c5437=_0x358108;return _0x195b4d===_0x3c5437(0x19d)||_0x195b4d==='string'||_0x195b4d==='number';}[_0x358108(0x170)](_0xda5716){var _0x354faf=_0x358108;return _0xda5716===_0x354faf(0x1dd)||_0xda5716===_0x354faf(0x19f)||_0xda5716===_0x354faf(0x189);}[_0x358108(0x1f1)](_0x16de80,_0xd05385,_0x1ff61d,_0x57cf61,_0x1e5dac,_0x195b5c){var _0xde7cf8=this;return function(_0x3b3bbb){var _0x398309=_0x5a94,_0x290cf4=_0x1e5dac[_0x398309(0x1d8)][_0x398309(0x1f0)],_0x4251dd=_0x1e5dac[_0x398309(0x1d8)][_0x398309(0x1a6)],_0x1eeeec=_0x1e5dac[_0x398309(0x1d8)][_0x398309(0x19c)];_0x1e5dac['node'][_0x398309(0x19c)]=_0x290cf4,_0x1e5dac['node'][_0x398309(0x1a6)]=typeof _0x57cf61==_0x398309(0x1ba)?_0x57cf61:_0x3b3bbb,_0x16de80[_0x398309(0x19e)](_0xde7cf8[_0x398309(0x160)](_0xd05385,_0x1ff61d,_0x57cf61,_0x1e5dac,_0x195b5c)),_0x1e5dac['node']['parent']=_0x1eeeec,_0x1e5dac[_0x398309(0x1d8)][_0x398309(0x1a6)]=_0x4251dd;};}['_addObjectProperty'](_0x4e0828,_0x3842cb,_0x3c9236,_0x1775e0,_0x989363,_0x3d590c,_0x4209ed){var _0x287957=_0x358108,_0x5d9c0d=this;return _0x3842cb[_0x287957(0x120)+_0x989363[_0x287957(0x18c)]()]=!0x0,function(_0x2e888e){var _0x1fa1ff=_0x287957,_0x5d29f4=_0x3d590c['node'][_0x1fa1ff(0x1f0)],_0x3b3483=_0x3d590c['node'][_0x1fa1ff(0x1a6)],_0x2483aa=_0x3d590c['node']['parent'];_0x3d590c[_0x1fa1ff(0x1d8)][_0x1fa1ff(0x19c)]=_0x5d29f4,_0x3d590c[_0x1fa1ff(0x1d8)][_0x1fa1ff(0x1a6)]=_0x2e888e,_0x4e0828[_0x1fa1ff(0x19e)](_0x5d9c0d[_0x1fa1ff(0x160)](_0x3c9236,_0x1775e0,_0x989363,_0x3d590c,_0x4209ed)),_0x3d590c['node'][_0x1fa1ff(0x19c)]=_0x2483aa,_0x3d590c[_0x1fa1ff(0x1d8)][_0x1fa1ff(0x1a6)]=_0x3b3483;};}[_0x358108(0x160)](_0x35e90c,_0x59ef1c,_0x38254b,_0x1d16c7,_0x3a340e){var _0x39443c=_0x358108,_0x3319d8=this;_0x3a340e||(_0x3a340e=function(_0x118e91,_0x39f1ee){return _0x118e91[_0x39f1ee];});var _0x4607ea=_0x38254b[_0x39443c(0x18c)](),_0x10d34e=_0x1d16c7[_0x39443c(0x1e0)]||{},_0x2b6e5c=_0x1d16c7[_0x39443c(0x1a3)],_0x11f6e8=_0x1d16c7['isExpressionToEvaluate'];try{var _0x5720db=this[_0x39443c(0x1a0)](_0x35e90c),_0x56b592=_0x4607ea;_0x5720db&&_0x56b592[0x0]==='\\x27'&&(_0x56b592=_0x56b592[_0x39443c(0x194)](0x1,_0x56b592[_0x39443c(0x1ad)]-0x2));var _0x4315a7=_0x1d16c7[_0x39443c(0x1e0)]=_0x10d34e[_0x39443c(0x120)+_0x56b592];_0x4315a7&&(_0x1d16c7['depth']=_0x1d16c7[_0x39443c(0x1a3)]+0x1),_0x1d16c7[_0x39443c(0x179)]=!!_0x4315a7;var _0x40c9df=typeof _0x38254b=='symbol',_0x183870={'name':_0x40c9df||_0x5720db?_0x4607ea:this[_0x39443c(0x14f)](_0x4607ea)};if(_0x40c9df&&(_0x183870['symbol']=!0x0),!(_0x59ef1c===_0x39443c(0x1ce)||_0x59ef1c===_0x39443c(0x1fb))){var _0x30ac75=this['_getOwnPropertyDescriptor'](_0x35e90c,_0x38254b);if(_0x30ac75&&(_0x30ac75[_0x39443c(0x1a8)]&&(_0x183870['setter']=!0x0),_0x30ac75[_0x39443c(0x1aa)]&&!_0x4315a7&&!_0x1d16c7[_0x39443c(0x195)]))return _0x183870['getter']=!0x0,this['_processTreeNodeResult'](_0x183870,_0x1d16c7),_0x183870;}var _0x38346c;try{_0x38346c=_0x3a340e(_0x35e90c,_0x38254b);}catch(_0x355517){return _0x183870={'name':_0x4607ea,'type':_0x39443c(0x1c2),'error':_0x355517[_0x39443c(0x176)]},this[_0x39443c(0x1a1)](_0x183870,_0x1d16c7),_0x183870;}var _0x3a0bbf=this[_0x39443c(0x136)](_0x38346c),_0x41329c=this[_0x39443c(0x144)](_0x3a0bbf);if(_0x183870[_0x39443c(0x13b)]=_0x3a0bbf,_0x41329c)this[_0x39443c(0x1a1)](_0x183870,_0x1d16c7,_0x38346c,function(){var _0x964a2e=_0x39443c;_0x183870[_0x964a2e(0x16e)]=_0x38346c[_0x964a2e(0x12f)](),!_0x4315a7&&_0x3319d8[_0x964a2e(0x173)](_0x3a0bbf,_0x183870,_0x1d16c7,{});});else{var _0x5aaf8d=_0x1d16c7['autoExpand']&&_0x1d16c7[_0x39443c(0x1e7)]<_0x1d16c7[_0x39443c(0x127)]&&_0x1d16c7['autoExpandPreviousObjects']['indexOf'](_0x38346c)<0x0&&_0x3a0bbf!==_0x39443c(0x1cd)&&_0x1d16c7['autoExpandPropertyCount']<_0x1d16c7[_0x39443c(0x169)];_0x5aaf8d||_0x1d16c7[_0x39443c(0x1e7)]<_0x2b6e5c||_0x4315a7?(this['serialize'](_0x183870,_0x38346c,_0x1d16c7,_0x4315a7||{}),this['_additionalMetadata'](_0x38346c,_0x183870)):this[_0x39443c(0x1a1)](_0x183870,_0x1d16c7,_0x38346c,function(){var _0x1255c2=_0x39443c;_0x3a0bbf===_0x1255c2(0x177)||_0x3a0bbf===_0x1255c2(0x18f)||(delete _0x183870[_0x1255c2(0x16e)],_0x183870[_0x1255c2(0x183)]=!0x0);});}return _0x183870;}finally{_0x1d16c7['expressionsToEvaluate']=_0x10d34e,_0x1d16c7[_0x39443c(0x1a3)]=_0x2b6e5c,_0x1d16c7[_0x39443c(0x179)]=_0x11f6e8;}}['_capIfString'](_0x41011e,_0x599d8d,_0xb1012b,_0x4d8810){var _0x308104=_0x358108,_0x52a174=_0x4d8810['strLength']||_0xb1012b[_0x308104(0x1d2)];if((_0x41011e===_0x308104(0x1fe)||_0x41011e==='String')&&_0x599d8d[_0x308104(0x16e)]){let _0xac95c4=_0x599d8d[_0x308104(0x16e)][_0x308104(0x1ad)];_0xb1012b[_0x308104(0x1eb)]+=_0xac95c4,_0xb1012b[_0x308104(0x1eb)]>_0xb1012b[_0x308104(0x18d)]?(_0x599d8d['capped']='',delete _0x599d8d[_0x308104(0x16e)]):_0xac95c4>_0x52a174&&(_0x599d8d['capped']=_0x599d8d['value'][_0x308104(0x194)](0x0,_0x52a174),delete _0x599d8d[_0x308104(0x16e)]);}}['_isMap'](_0x288757){var _0x290905=_0x358108;return!!(_0x288757&&_0x1a54d6[_0x290905(0x140)]&&this[_0x290905(0x1ca)](_0x288757)===_0x290905(0x16d)&&_0x288757[_0x290905(0x11d)]);}[_0x358108(0x14f)](_0x202bb5){var _0x4952af=_0x358108;if(_0x202bb5[_0x4952af(0x172)](/^\\d+$/))return _0x202bb5;var _0x26a033;try{_0x26a033=JSON['stringify'](''+_0x202bb5);}catch{_0x26a033='\\x22'+this['_objectToString'](_0x202bb5)+'\\x22';}return _0x26a033[_0x4952af(0x172)](/^"([a-zA-Z_][a-zA-Z_0-9]*)"$/)?_0x26a033=_0x26a033[_0x4952af(0x194)](0x1,_0x26a033[_0x4952af(0x1ad)]-0x2):_0x26a033=_0x26a033['replace'](/'/g,'\\x5c\\x27')['replace'](/\\\\"/g,'\\x22')[_0x4952af(0x13a)](/(^"|"$)/g,'\\x27'),_0x26a033;}['_processTreeNodeResult'](_0x3e9e4e,_0x2e5f13,_0xa52125,_0xe9e7e3){var _0x550921=_0x358108;this[_0x550921(0x17d)](_0x3e9e4e,_0x2e5f13),_0xe9e7e3&&_0xe9e7e3(),this[_0x550921(0x161)](_0xa52125,_0x3e9e4e),this[_0x550921(0x153)](_0x3e9e4e,_0x2e5f13);}[_0x358108(0x17d)](_0xc5bdb4,_0x32fdfb){var _0x250ada=_0x358108;this[_0x250ada(0x1f8)](_0xc5bdb4,_0x32fdfb),this[_0x250ada(0x13c)](_0xc5bdb4,_0x32fdfb),this[_0x250ada(0x180)](_0xc5bdb4,_0x32fdfb),this[_0x250ada(0x159)](_0xc5bdb4,_0x32fdfb);}[_0x358108(0x1f8)](_0x1f998d,_0xdceddd){}['_setNodeQueryPath'](_0x48b8f1,_0x492e42){}['_setNodeLabel'](_0x58c626,_0x5cb283){}['_isUndefined'](_0x4e175d){var _0x2a9117=_0x358108;return _0x4e175d===this[_0x2a9117(0x155)];}[_0x358108(0x153)](_0x590864,_0x2af63a){var _0x429ebf=_0x358108;this['_setNodeLabel'](_0x590864,_0x2af63a),this['_setNodeExpandableState'](_0x590864),_0x2af63a[_0x429ebf(0x14e)]&&this[_0x429ebf(0x13e)](_0x590864),this[_0x429ebf(0x17f)](_0x590864,_0x2af63a),this[_0x429ebf(0x139)](_0x590864,_0x2af63a),this['_cleanNode'](_0x590864);}[_0x358108(0x161)](_0x3cea88,_0x246149){var _0x37ebcf=_0x358108;let _0x4a4561;try{_0x1a54d6[_0x37ebcf(0x128)]&&(_0x4a4561=_0x1a54d6[_0x37ebcf(0x128)][_0x37ebcf(0x1fc)],_0x1a54d6[_0x37ebcf(0x128)][_0x37ebcf(0x1fc)]=function(){}),_0x3cea88&&typeof _0x3cea88[_0x37ebcf(0x1ad)]==_0x37ebcf(0x1ba)&&(_0x246149[_0x37ebcf(0x1ad)]=_0x3cea88['length']);}catch{}finally{_0x4a4561&&(_0x1a54d6[_0x37ebcf(0x128)]['error']=_0x4a4561);}if(_0x246149[_0x37ebcf(0x13b)]===_0x37ebcf(0x1ba)||_0x246149[_0x37ebcf(0x13b)]===_0x37ebcf(0x189)){if(isNaN(_0x246149[_0x37ebcf(0x16e)]))_0x246149[_0x37ebcf(0x1ef)]=!0x0,delete _0x246149['value'];else switch(_0x246149[_0x37ebcf(0x16e)]){case Number['POSITIVE_INFINITY']:_0x246149[_0x37ebcf(0x1b0)]=!0x0,delete _0x246149['value'];break;case Number[_0x37ebcf(0x1b1)]:_0x246149[_0x37ebcf(0x1b2)]=!0x0,delete _0x246149[_0x37ebcf(0x16e)];break;case 0x0:this[_0x37ebcf(0x1c4)](_0x246149[_0x37ebcf(0x16e)])&&(_0x246149[_0x37ebcf(0x1c7)]=!0x0);break;}}else _0x246149[_0x37ebcf(0x13b)]===_0x37ebcf(0x1cd)&&typeof _0x3cea88['name']==_0x37ebcf(0x1fe)&&_0x3cea88[_0x37ebcf(0x185)]&&_0x246149[_0x37ebcf(0x185)]&&_0x3cea88['name']!==_0x246149[_0x37ebcf(0x185)]&&(_0x246149[_0x37ebcf(0x147)]=_0x3cea88['name']);}[_0x358108(0x1c4)](_0x24fdb0){var _0x12a577=_0x358108;return 0x1/_0x24fdb0===Number[_0x12a577(0x1b1)];}[_0x358108(0x13e)](_0x29430c){var _0x5baaff=_0x358108;!_0x29430c[_0x5baaff(0x1d7)]||!_0x29430c[_0x5baaff(0x1d7)][_0x5baaff(0x1ad)]||_0x29430c[_0x5baaff(0x13b)]===_0x5baaff(0x1ce)||_0x29430c[_0x5baaff(0x13b)]===_0x5baaff(0x140)||_0x29430c[_0x5baaff(0x13b)]==='Set'||_0x29430c[_0x5baaff(0x1d7)][_0x5baaff(0x1b7)](function(_0x26c491,_0x2bff98){var _0xe1ab55=_0x5baaff,_0x17dc38=_0x26c491[_0xe1ab55(0x185)][_0xe1ab55(0x1c8)](),_0x51a12b=_0x2bff98[_0xe1ab55(0x185)]['toLowerCase']();return _0x17dc38<_0x51a12b?-0x1:_0x17dc38>_0x51a12b?0x1:0x0;});}[_0x358108(0x17f)](_0x3c20cb,_0x424155){var _0x170d43=_0x358108;if(!(_0x424155[_0x170d43(0x175)]||!_0x3c20cb[_0x170d43(0x1d7)]||!_0x3c20cb[_0x170d43(0x1d7)]['length'])){for(var _0x33f456=[],_0x4d4488=[],_0x4a22d2=0x0,_0x48a776=_0x3c20cb[_0x170d43(0x1d7)]['length'];_0x4a22d2<_0x48a776;_0x4a22d2++){var _0x3c8f54=_0x3c20cb[_0x170d43(0x1d7)][_0x4a22d2];_0x3c8f54[_0x170d43(0x13b)]===_0x170d43(0x1cd)?_0x33f456[_0x170d43(0x19e)](_0x3c8f54):_0x4d4488['push'](_0x3c8f54);}if(!(!_0x4d4488[_0x170d43(0x1ad)]||_0x33f456[_0x170d43(0x1ad)]<=0x1)){_0x3c20cb[_0x170d43(0x1d7)]=_0x4d4488;var _0x58ed04={'functionsNode':!0x0,'props':_0x33f456};this['_setNodeId'](_0x58ed04,_0x424155),this[_0x170d43(0x1dc)](_0x58ed04,_0x424155),this[_0x170d43(0x166)](_0x58ed04),this['_setNodePermissions'](_0x58ed04,_0x424155),_0x58ed04['id']+='\\x20f',_0x3c20cb['props']['unshift'](_0x58ed04);}}}[_0x358108(0x139)](_0xda0e9,_0xc770ea){}[_0x358108(0x166)](_0x2fca2c){}[_0x358108(0x19b)](_0x53fc55){var _0x15871c=_0x358108;return Array[_0x15871c(0x11b)](_0x53fc55)||typeof _0x53fc55==_0x15871c(0x18a)&&this[_0x15871c(0x1ca)](_0x53fc55)===_0x15871c(0x1a2);}[_0x358108(0x159)](_0x3394b4,_0xba32d3){}[_0x358108(0x1f9)](_0x810f29){var _0x473230=_0x358108;delete _0x810f29['_hasSymbolPropertyOnItsPath'],delete _0x810f29[_0x473230(0x1ee)],delete _0x810f29[_0x473230(0x15f)];}[_0x358108(0x180)](_0xf3c8f6,_0x5f5013){}}let _0x3aa5ef=new _0x41aa7a(),_0x4079fd={'props':0x64,'elements':0x64,'strLength':0x400*0x32,'totalStrLength':0x400*0x32,'autoExpandLimit':0x1388,'autoExpandMaxDepth':0xa},_0x1cbbc0={'props':0x5,'elements':0x5,'strLength':0x100,'totalStrLength':0x100*0x3,'autoExpandLimit':0x1e,'autoExpandMaxDepth':0x2};function _0xb2ca1b(_0x463057,_0x160b6e,_0x540616,_0x38be4b,_0x164493,_0x29a3be){var _0x298c19=_0x358108;let _0x7277de,_0x51532;try{_0x51532=_0x3c7de6(),_0x7277de=_0x42f83d[_0x160b6e],!_0x7277de||_0x51532-_0x7277de['ts']>0x1f4&&_0x7277de[_0x298c19(0x133)]&&_0x7277de[_0x298c19(0x124)]/_0x7277de['count']<0x64?(_0x42f83d[_0x160b6e]=_0x7277de={'count':0x0,'time':0x0,'ts':_0x51532},_0x42f83d[_0x298c19(0x11f)]={}):_0x51532-_0x42f83d['hits']['ts']>0x32&&_0x42f83d['hits'][_0x298c19(0x133)]&&_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x124)]/_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x133)]<0x64&&(_0x42f83d[_0x298c19(0x11f)]={});let _0x545fc7=[],_0x28dcbd=_0x7277de[_0x298c19(0x121)]||_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x121)]?_0x1cbbc0:_0x4079fd,_0x3392da=_0x213257=>{var _0x434e2d=_0x298c19;let _0x43dd53={};return _0x43dd53[_0x434e2d(0x1d7)]=_0x213257['props'],_0x43dd53[_0x434e2d(0x14c)]=_0x213257[_0x434e2d(0x14c)],_0x43dd53[_0x434e2d(0x1d2)]=_0x213257['strLength'],_0x43dd53[_0x434e2d(0x18d)]=_0x213257['totalStrLength'],_0x43dd53[_0x434e2d(0x169)]=_0x213257[_0x434e2d(0x169)],_0x43dd53[_0x434e2d(0x127)]=_0x213257[_0x434e2d(0x127)],_0x43dd53[_0x434e2d(0x14e)]=!0x1,_0x43dd53[_0x434e2d(0x175)]=!_0x4cce87,_0x43dd53[_0x434e2d(0x1a3)]=0x1,_0x43dd53[_0x434e2d(0x1e7)]=0x0,_0x43dd53[_0x434e2d(0x18e)]=_0x434e2d(0x1a7),_0x43dd53[_0x434e2d(0x199)]='root_exp',_0x43dd53[_0x434e2d(0x196)]=!0x0,_0x43dd53[_0x434e2d(0x163)]=[],_0x43dd53[_0x434e2d(0x1c6)]=0x0,_0x43dd53[_0x434e2d(0x195)]=!0x0,_0x43dd53['allStrLength']=0x0,_0x43dd53[_0x434e2d(0x1d8)]={'current':void 0x0,'parent':void 0x0,'index':0x0},_0x43dd53;};for(var _0x107c0b=0x0;_0x107c0b<_0x164493[_0x298c19(0x1ad)];_0x107c0b++)_0x545fc7[_0x298c19(0x19e)](_0x3aa5ef[_0x298c19(0x171)]({'timeNode':_0x463057==='time'||void 0x0},_0x164493[_0x107c0b],_0x3392da(_0x28dcbd),{}));if(_0x463057===_0x298c19(0x11c)){let _0x1a1a99=Error[_0x298c19(0x188)];try{Error[_0x298c19(0x188)]=0x1/0x0,_0x545fc7[_0x298c19(0x19e)](_0x3aa5ef[_0x298c19(0x171)]({'stackNode':!0x0},new Error()['stack'],_0x3392da(_0x28dcbd),{'strLength':0x1/0x0}));}finally{Error['stackTraceLimit']=_0x1a1a99;}}return{'method':_0x298c19(0x174),'version':_0x2914bb,'args':[{'ts':_0x540616,'session':_0x38be4b,'args':_0x545fc7,'id':_0x160b6e,'context':_0x29a3be}]};}catch(_0x5f28ee){return{'method':_0x298c19(0x174),'version':_0x2914bb,'args':[{'ts':_0x540616,'session':_0x38be4b,'args':[{'type':_0x298c19(0x1c2),'error':_0x5f28ee&&_0x5f28ee[_0x298c19(0x176)]}],'id':_0x160b6e,'context':_0x29a3be}]};}finally{try{if(_0x7277de&&_0x51532){let _0x44b4b6=_0x3c7de6();_0x7277de[_0x298c19(0x133)]++,_0x7277de[_0x298c19(0x124)]+=_0x495e57(_0x51532,_0x44b4b6),_0x7277de['ts']=_0x44b4b6,_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x133)]++,_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x124)]+=_0x495e57(_0x51532,_0x44b4b6),_0x42f83d[_0x298c19(0x11f)]['ts']=_0x44b4b6,(_0x7277de[_0x298c19(0x133)]>0x32||_0x7277de['time']>0x64)&&(_0x7277de[_0x298c19(0x121)]=!0x0),(_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x133)]>0x3e8||_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x124)]>0x12c)&&(_0x42f83d[_0x298c19(0x11f)][_0x298c19(0x121)]=!0x0);}}catch{}}}return _0xb2ca1b;}((_0x2c83a6,_0x5628a2,_0x2805be,_0x5f3406,_0x10ac5d,_0x2873d8,_0x1918e5,_0x5a518f,_0x300c8a)=>{var _0x5a41d4=_0x29ec16;if(_0x2c83a6[_0x5a41d4(0x1e5)])return _0x2c83a6[_0x5a41d4(0x1e5)];if(!Y(_0x2c83a6,_0x5a518f,_0x10ac5d))return _0x2c83a6['_console_ninja']={'consoleLog':()=>{},'consoleTrace':()=>{},'consoleTime':()=>{},'consoleTimeEnd':()=>{},'autoLog':()=>{},'autoLogMany':()=>{},'autoTraceMany':()=>{},'coverage':()=>{},'autoTrace':()=>{},'autoTime':()=>{},'autoTimeEnd':()=>{}},_0x2c83a6[_0x5a41d4(0x1e5)];let _0x401ac9=R(_0x2c83a6),_0x5d5d28=_0x401ac9[_0x5a41d4(0x1f2)],_0x2235a4=_0x401ac9[_0x5a41d4(0x129)],_0x3e5d39=_0x401ac9[_0x5a41d4(0x1bb)],_0x3bf821={'hits':{},'ts':{}},_0x377a42=Q(_0x2c83a6,_0x300c8a,_0x3bf821,_0x2873d8),_0x378968=_0x133fa6=>{_0x3bf821['ts'][_0x133fa6]=_0x2235a4();},_0x11e10d=(_0x5c9297,_0x235dab)=>{let _0x403bcb=_0x3bf821['ts'][_0x235dab];if(delete _0x3bf821['ts'][_0x235dab],_0x403bcb){let _0x3679de=_0x5d5d28(_0x403bcb,_0x2235a4());_0x2e2251(_0x377a42('time',_0x5c9297,_0x3e5d39(),_0x57aee3,[_0x3679de],_0x235dab));}},_0x1ca1df=_0x4b13fa=>_0x43a29b=>{var _0x4e6654=_0x5a41d4;try{_0x378968(_0x43a29b),_0x4b13fa(_0x43a29b);}finally{_0x2c83a6['console'][_0x4e6654(0x124)]=_0x4b13fa;}},_0x1235f8=_0x3da03d=>_0x351357=>{try{let [_0x1947b9,_0x27cb50]=_0x351357['split'](':logPointId:');_0x11e10d(_0x27cb50,_0x1947b9),_0x3da03d(_0x1947b9);}finally{_0x2c83a6['console']['timeEnd']=_0x3da03d;}};_0x2c83a6['_console_ninja']={'consoleLog':(_0x2bb6a8,_0x52669f)=>{var _0x597be9=_0x5a41d4;_0x2c83a6[_0x597be9(0x128)][_0x597be9(0x174)][_0x597be9(0x185)]!==_0x597be9(0x17e)&&_0x2e2251(_0x377a42(_0x597be9(0x174),_0x2bb6a8,_0x3e5d39(),_0x57aee3,_0x52669f));},'consoleTrace':(_0x596fe8,_0x4b1434)=>{var _0x1f2612=_0x5a41d4;_0x2c83a6[_0x1f2612(0x128)]['log'][_0x1f2612(0x185)]!==_0x1f2612(0x1db)&&_0x2e2251(_0x377a42(_0x1f2612(0x11c),_0x596fe8,_0x3e5d39(),_0x57aee3,_0x4b1434));},'consoleTime':()=>{var _0x35f094=_0x5a41d4;_0x2c83a6[_0x35f094(0x128)][_0x35f094(0x124)]=_0x1ca1df(_0x2c83a6[_0x35f094(0x128)][_0x35f094(0x124)]);},'consoleTimeEnd':()=>{var _0x3c31e4=_0x5a41d4;_0x2c83a6[_0x3c31e4(0x128)][_0x3c31e4(0x1ec)]=_0x1235f8(_0x2c83a6['console'][_0x3c31e4(0x1ec)]);},'autoLog':(_0x2d2f37,_0x2158bd)=>{var _0x112de9=_0x5a41d4;_0x2e2251(_0x377a42(_0x112de9(0x174),_0x2158bd,_0x3e5d39(),_0x57aee3,[_0x2d2f37]));},'autoLogMany':(_0x10767c,_0x109e67)=>{var _0xa853ce=_0x5a41d4;_0x2e2251(_0x377a42(_0xa853ce(0x174),_0x10767c,_0x3e5d39(),_0x57aee3,_0x109e67));},'autoTrace':(_0x5811ac,_0x2a75ee)=>{_0x2e2251(_0x377a42('trace',_0x2a75ee,_0x3e5d39(),_0x57aee3,[_0x5811ac]));},'autoTraceMany':(_0x121def,_0x29cb17)=>{var _0xcd7c87=_0x5a41d4;_0x2e2251(_0x377a42(_0xcd7c87(0x11c),_0x121def,_0x3e5d39(),_0x57aee3,_0x29cb17));},'autoTime':(_0x4738a1,_0x561fbe,_0x38c08e)=>{_0x378968(_0x38c08e);},'autoTimeEnd':(_0x1a0359,_0x212642,_0x1c3590)=>{_0x11e10d(_0x212642,_0x1c3590);},'coverage':_0x2218c5=>{var _0x32e4ff=_0x5a41d4;_0x2e2251({'method':_0x32e4ff(0x190),'version':_0x2873d8,'args':[{'id':_0x2218c5}]});}};let _0x2e2251=J(_0x2c83a6,_0x5628a2,_0x2805be,_0x5f3406,_0x10ac5d),_0x57aee3=_0x2c83a6[_0x5a41d4(0x12b)];return _0x2c83a6[_0x5a41d4(0x1e5)];})(globalThis,_0x29ec16(0x143),_0x29ec16(0x157),_0x29ec16(0x1cb),_0x29ec16(0x150),'1.0.0',_0x29ec16(0x1a4),_0x29ec16(0x1f7),'');`);
+  } catch {
+  }
+}
+function oo_oo2(i, ...v) {
+  try {
+    oo_cm2().consoleLog(i, v);
+  } catch {
+  }
+  return v;
+}
 
 // app/components/hooks/useColorMode.tsx
 var useColorMode = () => {
@@ -3419,7 +3668,7 @@ var import_jsx_dev_runtime23 = require("react/jsx-dev-runtime"), DarkModeSwitche
 }, DarkModeSwitcher_default = DarkModeSwitcher;
 
 // app/components/Dropdowns/DropdownMessage.tsx
-var import_react33 = require("react"), import_react34 = require("@remix-run/react"), import_jsx_dev_runtime24 = require("react/jsx-dev-runtime"), DropdownMessage = () => {
+var import_react33 = require("react"), import_jsx_dev_runtime24 = require("react/jsx-dev-runtime"), DropdownMessage = () => {
   let [dropdownOpen, setDropdownOpen] = (0, import_react33.useState)(!1), trigger = (0, import_react33.useRef)(null), dropdown = (0, import_react33.useRef)(null);
   return (0, import_react33.useEffect)(() => {
     let clickHandler = ({ target }) => {
@@ -3433,20 +3682,19 @@ var import_react33 = require("react"), import_react34 = require("@remix-run/reac
     return document.addEventListener("keydown", keyHandler), () => document.removeEventListener("keydown", keyHandler);
   }), /* @__PURE__ */ (0, import_jsx_dev_runtime24.jsxDEV)("li", { className: "relative", "x-data": "{ dropdownOpen: false, notifying: true }", children: [
     /* @__PURE__ */ (0, import_jsx_dev_runtime24.jsxDEV)(
-      import_react34.Link,
+      "div",
       {
         ref: trigger,
         onClick: () => setDropdownOpen(!dropdownOpen),
         className: "relative flex h-8.5 w-8.5 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white",
-        to: "#",
         children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime24.jsxDEV)("span", { className: "absolute -top-0.5 -right-0.5 z-1 h-2 w-2 rounded-full bg-meta-1", children: /* @__PURE__ */ (0, import_jsx_dev_runtime24.jsxDEV)("span", { className: "absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-meta-1 opacity-75" }, void 0, !1, {
             fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-            lineNumber: 50,
+            lineNumber: 49,
             columnNumber: 11
           }, this) }, void 0, !1, {
             fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-            lineNumber: 49,
+            lineNumber: 48,
             columnNumber: 9
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime24.jsxDEV)(
@@ -3469,7 +3717,7 @@ var import_react33 = require("react"), import_react34 = require("@remix-run/reac
                   !1,
                   {
                     fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-                    lineNumber: 61,
+                    lineNumber: 60,
                     columnNumber: 11
                   },
                   this
@@ -3484,7 +3732,7 @@ var import_react33 = require("react"), import_react34 = require("@remix-run/reac
                   !1,
                   {
                     fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-                    lineNumber: 65,
+                    lineNumber: 64,
                     columnNumber: 11
                   },
                   this
@@ -3499,7 +3747,7 @@ var import_react33 = require("react"), import_react34 = require("@remix-run/reac
                   !1,
                   {
                     fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-                    lineNumber: 69,
+                    lineNumber: 68,
                     columnNumber: 11
                   },
                   this
@@ -3514,7 +3762,7 @@ var import_react33 = require("react"), import_react34 = require("@remix-run/reac
                   !1,
                   {
                     fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-                    lineNumber: 73,
+                    lineNumber: 72,
                     columnNumber: 11
                   },
                   this
@@ -3525,7 +3773,7 @@ var import_react33 = require("react"), import_react34 = require("@remix-run/reac
             !0,
             {
               fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-              lineNumber: 53,
+              lineNumber: 52,
               columnNumber: 9
             },
             this
@@ -3551,16 +3799,16 @@ var import_react33 = require("react"), import_react34 = require("@remix-run/reac
         children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime24.jsxDEV)("div", { className: "px-4.5 py-3", children: /* @__PURE__ */ (0, import_jsx_dev_runtime24.jsxDEV)("h5", { className: "text-sm font-medium text-bodydark2", children: "Messages" }, void 0, !1, {
             fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-            lineNumber: 90,
+            lineNumber: 89,
             columnNumber: 11
           }, this) }, void 0, !1, {
             fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-            lineNumber: 89,
+            lineNumber: 88,
             columnNumber: 9
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime24.jsxDEV)("ul", { className: "flex h-auto flex-col overflow-y-auto" }, void 0, !1, {
             fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-            lineNumber: 93,
+            lineNumber: 92,
             columnNumber: 9
           }, this)
         ]
@@ -3569,7 +3817,7 @@ var import_react33 = require("react"), import_react34 = require("@remix-run/reac
       !0,
       {
         fileName: "app/components/Dropdowns/DropdownMessage.tsx",
-        lineNumber: 81,
+        lineNumber: 80,
         columnNumber: 7
       },
       this
@@ -3582,34 +3830,33 @@ var import_react33 = require("react"), import_react34 = require("@remix-run/reac
 }, DropdownMessage_default = DropdownMessage;
 
 // app/components/Dropdowns/DropdownNotification.tsx
-var import_react35 = require("react"), import_react36 = require("@remix-run/react"), import_jsx_dev_runtime25 = require("react/jsx-dev-runtime"), DropdownNotification = () => {
-  let [dropdownOpen, setDropdownOpen] = (0, import_react35.useState)(!1), trigger = (0, import_react35.useRef)(null), dropdown = (0, import_react35.useRef)(null);
-  return (0, import_react35.useEffect)(() => {
+var import_react34 = require("react"), import_react35 = require("@remix-run/react"), import_jsx_dev_runtime25 = require("react/jsx-dev-runtime"), DropdownNotification = () => {
+  let [dropdownOpen, setDropdownOpen] = (0, import_react34.useState)(!1), trigger = (0, import_react34.useRef)(null), dropdown = (0, import_react34.useRef)(null);
+  return (0, import_react34.useEffect)(() => {
     let clickHandler = ({ target }) => {
       dropdown.current && (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target) || setDropdownOpen(!1));
     };
     return document.addEventListener("click", clickHandler), () => document.removeEventListener("click", clickHandler);
-  }), (0, import_react35.useEffect)(() => {
+  }), (0, import_react34.useEffect)(() => {
     let keyHandler = ({ keyCode }) => {
       !dropdownOpen || keyCode !== 27 || setDropdownOpen(!1);
     };
     return document.addEventListener("keydown", keyHandler), () => document.removeEventListener("keydown", keyHandler);
   }), /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("li", { className: "relative", children: [
     /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)(
-      import_react36.Link,
+      "div",
       {
         ref: trigger,
         onClick: () => setDropdownOpen(!dropdownOpen),
-        to: "#",
         className: "relative flex h-8.5 w-8.5 items-center justify-center rounded-full border-[0.5px] border-stroke bg-gray hover:text-primary dark:border-strokedark dark:bg-meta-4 dark:text-white",
         children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("span", { className: "absolute -top-0.5 right-0 z-1 h-2 w-2 rounded-full bg-meta-1", children: /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("span", { className: "absolute -z-1 inline-flex h-full w-full animate-ping rounded-full bg-meta-1 opacity-75" }, void 0, !1, {
             fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-            lineNumber: 44,
+            lineNumber: 43,
             columnNumber: 11
           }, this) }, void 0, !1, {
             fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-            lineNumber: 43,
+            lineNumber: 42,
             columnNumber: 9
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)(
@@ -3631,7 +3878,7 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
                 !1,
                 {
                   fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                  lineNumber: 55,
+                  lineNumber: 54,
                   columnNumber: 11
                 },
                 this
@@ -3641,7 +3888,7 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
             !1,
             {
               fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-              lineNumber: 47,
+              lineNumber: 46,
               columnNumber: 9
             },
             this
@@ -3663,20 +3910,20 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
         ref: dropdown,
         onFocus: () => setDropdownOpen(!0),
         onBlur: () => setDropdownOpen(!1),
-        className: `absolute -right-27 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80 ${dropdownOpen === !0 ? "block" : "hidden"}`,
+        className: `absolute p-2 -right-27 mt-2.5 flex h-90 w-75 flex-col rounded-sm border border-stroke bg-white shadow-default dark:border-strokedark dark:bg-boxdark sm:right-0 sm:w-80 ${dropdownOpen === !0 ? "block" : "hidden"}`,
         children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("div", { className: "px-4.5 py-3", children: /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("h5", { className: "text-sm font-medium text-bodydark2", children: "Notification" }, void 0, !1, {
             fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-            lineNumber: 71,
+            lineNumber: 70,
             columnNumber: 11
           }, this) }, void 0, !1, {
             fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-            lineNumber: 70,
+            lineNumber: 69,
             columnNumber: 9
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("ul", { className: "flex h-auto flex-col overflow-y-auto", children: [
             /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("li", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)(
-              import_react36.Link,
+              import_react35.Link,
               {
                 className: "flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4",
                 to: "#",
@@ -3684,19 +3931,19 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
                   /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("p", { className: "text-sm", children: [
                     /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("span", { className: "text-black dark:text-white", children: "Edit your information in a swipe" }, void 0, !1, {
                       fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                      lineNumber: 81,
+                      lineNumber: 80,
                       columnNumber: 17
                     }, this),
                     " ",
                     "Sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim."
                   ] }, void 0, !0, {
                     fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                    lineNumber: 80,
+                    lineNumber: 79,
                     columnNumber: 15
                   }, this),
                   /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("p", { className: "text-xs", children: "12 May, 2025" }, void 0, !1, {
                     fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                    lineNumber: 88,
+                    lineNumber: 87,
                     columnNumber: 15
                   }, this)
                 ]
@@ -3705,17 +3952,17 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
               !0,
               {
                 fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                lineNumber: 76,
+                lineNumber: 75,
                 columnNumber: 13
               },
               this
             ) }, void 0, !1, {
               fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-              lineNumber: 75,
+              lineNumber: 74,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("li", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)(
-              import_react36.Link,
+              import_react35.Link,
               {
                 className: "flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4",
                 to: "#",
@@ -3723,19 +3970,19 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
                   /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("p", { className: "text-sm", children: [
                     /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("span", { className: "text-black dark:text-white", children: "It is a long established fact" }, void 0, !1, {
                       fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                      lineNumber: 97,
+                      lineNumber: 96,
                       columnNumber: 17
                     }, this),
                     " ",
                     "that a reader will be distracted by the readable."
                   ] }, void 0, !0, {
                     fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                    lineNumber: 96,
+                    lineNumber: 95,
                     columnNumber: 15
                   }, this),
                   /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("p", { className: "text-xs", children: "24 Feb, 2025" }, void 0, !1, {
                     fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                    lineNumber: 103,
+                    lineNumber: 102,
                     columnNumber: 15
                   }, this)
                 ]
@@ -3744,17 +3991,17 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
               !0,
               {
                 fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                lineNumber: 92,
+                lineNumber: 91,
                 columnNumber: 13
               },
               this
             ) }, void 0, !1, {
               fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-              lineNumber: 91,
+              lineNumber: 90,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("li", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)(
-              import_react36.Link,
+              import_react35.Link,
               {
                 className: "flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4",
                 to: "#",
@@ -3762,19 +4009,19 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
                   /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("p", { className: "text-sm", children: [
                     /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("span", { className: "text-black dark:text-white", children: "There are many variations" }, void 0, !1, {
                       fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                      lineNumber: 112,
+                      lineNumber: 111,
                       columnNumber: 17
                     }, this),
                     " ",
                     "of passages of Lorem Ipsum available, but the majority have suffered"
                   ] }, void 0, !0, {
                     fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                    lineNumber: 111,
+                    lineNumber: 110,
                     columnNumber: 15
                   }, this),
                   /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("p", { className: "text-xs", children: "04 Jan, 2025" }, void 0, !1, {
                     fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                    lineNumber: 119,
+                    lineNumber: 118,
                     columnNumber: 15
                   }, this)
                 ]
@@ -3783,17 +4030,17 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
               !0,
               {
                 fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                lineNumber: 107,
+                lineNumber: 106,
                 columnNumber: 13
               },
               this
             ) }, void 0, !1, {
               fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-              lineNumber: 106,
+              lineNumber: 105,
               columnNumber: 11
             }, this),
             /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("li", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)(
-              import_react36.Link,
+              import_react35.Link,
               {
                 className: "flex flex-col gap-2.5 border-t border-stroke px-4.5 py-3 hover:bg-gray-2 dark:border-strokedark dark:hover:bg-meta-4",
                 to: "#",
@@ -3801,19 +4048,19 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
                   /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("p", { className: "text-sm", children: [
                     /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("span", { className: "text-black dark:text-white", children: "There are many variations" }, void 0, !1, {
                       fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                      lineNumber: 128,
+                      lineNumber: 127,
                       columnNumber: 17
                     }, this),
                     " ",
                     "of passages of Lorem Ipsum available, but the majority have suffered"
                   ] }, void 0, !0, {
                     fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                    lineNumber: 127,
+                    lineNumber: 126,
                     columnNumber: 15
                   }, this),
                   /* @__PURE__ */ (0, import_jsx_dev_runtime25.jsxDEV)("p", { className: "text-xs", children: "01 Dec, 2024" }, void 0, !1, {
                     fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                    lineNumber: 135,
+                    lineNumber: 134,
                     columnNumber: 15
                   }, this)
                 ]
@@ -3822,18 +4069,18 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
               !0,
               {
                 fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-                lineNumber: 123,
+                lineNumber: 122,
                 columnNumber: 13
               },
               this
             ) }, void 0, !1, {
               fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-              lineNumber: 122,
+              lineNumber: 121,
               columnNumber: 11
             }, this)
           ] }, void 0, !0, {
             fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-            lineNumber: 74,
+            lineNumber: 73,
             columnNumber: 9
           }, this)
         ]
@@ -3842,7 +4089,7 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
       !0,
       {
         fileName: "app/components/Dropdowns/DropdownNotification.tsx",
-        lineNumber: 62,
+        lineNumber: 61,
         columnNumber: 7
       },
       this
@@ -3855,14 +4102,14 @@ var import_react35 = require("react"), import_react36 = require("@remix-run/reac
 }, DropdownNotification_default = DropdownNotification;
 
 // app/components/Dropdowns/DropdownUser.tsx
-var import_react37 = require("react"), import_jsx_dev_runtime26 = require("react/jsx-dev-runtime"), DropdownUser = ({ user }) => {
-  let [dropdownOpen, setDropdownOpen] = (0, import_react37.useState)(!1), trigger = (0, import_react37.useRef)(null), dropdown = (0, import_react37.useRef)(null);
-  return (0, import_react37.useEffect)(() => {
+var import_react36 = require("react"), import_jsx_dev_runtime26 = require("react/jsx-dev-runtime"), DropdownUser = ({ user }) => {
+  let [dropdownOpen, setDropdownOpen] = (0, import_react36.useState)(!1), trigger = (0, import_react36.useRef)(null), dropdown = (0, import_react36.useRef)(null);
+  return (0, import_react36.useEffect)(() => {
     let clickHandler = ({ target }) => {
       dropdown.current && (!dropdownOpen || dropdown.current.contains(target) || trigger.current.contains(target) || setDropdownOpen(!1));
     };
     return document.addEventListener("click", clickHandler), () => document.removeEventListener("click", clickHandler);
-  }), (0, import_react37.useEffect)(() => {
+  }), (0, import_react36.useEffect)(() => {
     let keyHandler = ({ keyCode }) => {
       !dropdownOpen || keyCode !== 27 || setDropdownOpen(!1);
     };
@@ -3950,10 +4197,10 @@ function Progress({ current, max }) {
 var Progress_default = Progress;
 
 // app/components/admin/Header.tsx
-var import_react38 = require("@remix-run/react");
+var import_react37 = require("@remix-run/react");
 var import_jsx_dev_runtime28 = require("react/jsx-dev-runtime"), Header = (props) => {
-  let { progress, user } = (0, import_react38.useLoaderData)();
-  return /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)("header", { className: "sticky top-0 z-999 flex w-full bg-white drop-shadow-1 shadow-lg dark:bg-boxdark dark:drop-shadow-none", children: /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)("div", { className: "flex flex-grow items-center justify-between py-4 px-4 shadow-2 md:px-6 2xl:px-11", children: [
+  let { progress, user } = (0, import_react37.useLoaderData)();
+  return /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)("header", { className: "sticky top-0 z-10 flex w-full bg-white drop-shadow-1 shadow-lg dark:bg-boxdark dark:drop-shadow-none", children: /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)("div", { className: "flex flex-grow items-center justify-between py-4 px-4 shadow-2 md:px-6 2xl:px-11", children: [
     /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)("div", { className: "flex items-center gap-2 sm:gap-4 lg:hidden", children: [
       /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)(
         "button",
@@ -3962,7 +4209,7 @@ var import_jsx_dev_runtime28 = require("react/jsx-dev-runtime"), Header = (props
           onClick: (e) => {
             e.stopPropagation(), props.setSidebarOpen(!props.sidebarOpen);
           },
-          className: "z-99999 block rounded-sm   bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden",
+          className: "z-10 block rounded-sm   bg-white p-1.5 shadow-sm dark:border-strokedark dark:bg-boxdark lg:hidden",
           children: /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)(Hamburger, {}, void 0, !1, {
             fileName: "app/components/admin/Header.tsx",
             lineNumber: 28,
@@ -4015,17 +4262,17 @@ var import_jsx_dev_runtime28 = require("react/jsx-dev-runtime"), Header = (props
       /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)("ul", { className: "flex items-center gap-2 2xsm:gap-4", children: [
         /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)(DarkModeSwitcher_default, {}, void 0, !1, {
           fileName: "app/components/admin/Header.tsx",
-          lineNumber: 49,
+          lineNumber: 48,
           columnNumber: 13
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)(DropdownNotification_default, {}, void 0, !1, {
           fileName: "app/components/admin/Header.tsx",
-          lineNumber: 53,
+          lineNumber: 50,
           columnNumber: 13
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)(DropdownMessage_default, {}, void 0, !1, {
           fileName: "app/components/admin/Header.tsx",
-          lineNumber: 57,
+          lineNumber: 52,
           columnNumber: 13
         }, this)
       ] }, void 0, !0, {
@@ -4035,7 +4282,7 @@ var import_jsx_dev_runtime28 = require("react/jsx-dev-runtime"), Header = (props
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)(DropdownUser_default, { user }, void 0, !1, {
         fileName: "app/components/admin/Header.tsx",
-        lineNumber: 62,
+        lineNumber: 55,
         columnNumber: 11
       }, this)
     ] }, void 0, !0, {
@@ -4055,12 +4302,14 @@ var import_jsx_dev_runtime28 = require("react/jsx-dev-runtime"), Header = (props
 }, Header_default = Header;
 
 // app/routes/admin.tsx
-var import_react42 = require("@remix-run/react");
+var import_react41 = require("@remix-run/react");
 
 // app/components/admin/Sidebar.tsx
-var import_react39 = require("react"), import_react40 = require("@remix-run/react"), import_jsx_dev_runtime29 = require("react/jsx-dev-runtime");
+var import_react38 = require("react"), import_react39 = require("@remix-run/react");
+var import_bi2 = require("react-icons/bi");
+var import_fi2 = require("react-icons/fi"), import_ai2 = require("react-icons/ai"), import_jsx_dev_runtime29 = require("react/jsx-dev-runtime");
 function Sidebar2({ sidebarOpen, setSidebarOpen }) {
-  let sidebar = (0, import_react39.useRef)(null), trigger = (0, import_react39.useRef)(null), { pathname } = (0, import_react40.useLocation)(), { user } = (0, import_react40.useLoaderData)();
+  let sidebar = (0, import_react38.useRef)(null), trigger = (0, import_react38.useRef)(null), { pathname } = (0, import_react39.useLocation)(), { user } = (0, import_react39.useLoaderData)(), url = "/?session=" + (user == null ? void 0 : user.username);
   return /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
     "aside",
     {
@@ -4068,13 +4317,13 @@ function Sidebar2({ sidebarOpen, setSidebarOpen }) {
       className: `z-50 absolute left-0 top-0 z-9999 flex h-screen w-72.5 flex-col overflow-y-hidden text-white bg-black duration-300 ease-linear dark:bg-boxdark lg:static lg:translate-x-0 ${sidebarOpen ? "translate-x-0" : "-translate-x-full"}`,
       children: [
         /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "flex items-center justify-between gap-2 px-6 py-5.5 lg:py-6.5", children: [
-          /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(import_react40.NavLink, { to: "/", children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("h3", { className: "mb-2 ml-2 text-3xl pt-4 font-semibold text-bodydark2", children: "Pecha tools" }, void 0, !1, {
+          /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(import_react39.NavLink, { to: url, children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("h3", { className: "mb-2 text-2xl pt-4 font-semibold text-bodydark2 capitalize", children: toolname }, void 0, !1, {
             fileName: "app/components/admin/Sidebar.tsx",
-            lineNumber: 23,
+            lineNumber: 28,
             columnNumber: 11
           }, this) }, void 0, !1, {
             fileName: "app/components/admin/Sidebar.tsx",
-            lineNumber: 22,
+            lineNumber: 27,
             columnNumber: 9
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
@@ -4085,143 +4334,38 @@ function Sidebar2({ sidebarOpen, setSidebarOpen }) {
               "aria-controls": "sidebar",
               "aria-expanded": sidebarOpen,
               className: "block lg:hidden",
-              children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-                "svg",
-                {
-                  className: "fill-current",
-                  width: "20",
-                  height: "18",
-                  viewBox: "0 0 20 18",
-                  fill: "none",
-                  xmlns: "http://www.w3.org/2000/svg",
-                  children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-                    "path",
-                    {
-                      d: "M19 8.175H2.98748L9.36248 1.6875C9.69998 1.35 9.69998 0.825 9.36248 0.4875C9.02498 0.15 8.49998 0.15 8.16248 0.4875L0.399976 8.3625C0.0624756 8.7 0.0624756 9.225 0.399976 9.5625L8.16248 17.4375C8.31248 17.5875 8.53748 17.7 8.76248 17.7C8.98748 17.7 9.17498 17.625 9.36248 17.475C9.69998 17.1375 9.69998 16.6125 9.36248 16.275L3.02498 9.8625H19C19.45 9.8625 19.825 9.4875 19.825 9.0375C19.825 8.55 19.45 8.175 19 8.175Z",
-                      fill: ""
-                    },
-                    void 0,
-                    !1,
-                    {
-                      fileName: "app/components/admin/Sidebar.tsx",
-                      lineNumber: 43,
-                      columnNumber: 13
-                    },
-                    this
-                  )
-                },
-                void 0,
-                !1,
-                {
-                  fileName: "app/components/admin/Sidebar.tsx",
-                  lineNumber: 35,
-                  columnNumber: 11
-                },
-                this
-              )
+              children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(Hamburger, {}, void 0, !1, {
+                fileName: "app/components/admin/Sidebar.tsx",
+                lineNumber: 40,
+                columnNumber: 11
+              }, this)
             },
             void 0,
             !1,
             {
               fileName: "app/components/admin/Sidebar.tsx",
-              lineNumber: 28,
+              lineNumber: 33,
               columnNumber: 9
             },
             this
           )
         ] }, void 0, !0, {
           fileName: "app/components/admin/Sidebar.tsx",
-          lineNumber: 21,
+          lineNumber: 26,
           columnNumber: 7
         }, this),
-        /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear", children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("nav", { className: "mt-5 py-4 px-4 lg:mt-9 lg:px-6", children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { children: [
+        /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "no-scrollbar flex flex-col overflow-y-auto duration-300 ease-linear", children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("nav", { className: "mt-5 py-4 px-2 lg:mt-9 ", children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "text-xl", children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-            import_react40.NavLink,
+            import_react39.NavLink,
             {
               to: `/admin/metabase?session=${user.username}`,
-              className: `group relative flex mb-3 items-center gap-2.5 rounded-sm py-2 px-4 font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === "admin" || pathname.includes("admin")) && "bg-graydark dark:bg-meta-4"}`,
+              className: `group relative flex mb-3 items-center gap-2.5 rounded-sm py-2  font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${(pathname === "admin" || pathname.includes("admin")) && "bg-graydark dark:bg-meta-4"}`,
               children: [
-                /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-                  "svg",
-                  {
-                    className: "fill-current",
-                    width: "18",
-                    height: "18",
-                    viewBox: "0 0 18 18",
-                    fill: "none",
-                    xmlns: "http://www.w3.org/2000/svg",
-                    children: [
-                      /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-                        "path",
-                        {
-                          d: "M6.10322 0.956299H2.53135C1.5751 0.956299 0.787598 1.7438 0.787598 2.70005V6.27192C0.787598 7.22817 1.5751 8.01567 2.53135 8.01567H6.10322C7.05947 8.01567 7.84697 7.22817 7.84697 6.27192V2.72817C7.8751 1.7438 7.0876 0.956299 6.10322 0.956299ZM6.60947 6.30005C6.60947 6.5813 6.38447 6.8063 6.10322 6.8063H2.53135C2.2501 6.8063 2.0251 6.5813 2.0251 6.30005V2.72817C2.0251 2.44692 2.2501 2.22192 2.53135 2.22192H6.10322C6.38447 2.22192 6.60947 2.44692 6.60947 2.72817V6.30005Z",
-                          fill: ""
-                        },
-                        void 0,
-                        !1,
-                        {
-                          fileName: "app/components/admin/Sidebar.tsx",
-                          lineNumber: 68,
-                          columnNumber: 17
-                        },
-                        this
-                      ),
-                      /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-                        "path",
-                        {
-                          d: "M15.4689 0.956299H11.8971C10.9408 0.956299 10.1533 1.7438 10.1533 2.70005V6.27192C10.1533 7.22817 10.9408 8.01567 11.8971 8.01567H15.4689C16.4252 8.01567 17.2127 7.22817 17.2127 6.27192V2.72817C17.2127 1.7438 16.4252 0.956299 15.4689 0.956299ZM15.9752 6.30005C15.9752 6.5813 15.7502 6.8063 15.4689 6.8063H11.8971C11.6158 6.8063 11.3908 6.5813 11.3908 6.30005V2.72817C11.3908 2.44692 11.6158 2.22192 11.8971 2.22192H15.4689C15.7502 2.22192 15.9752 2.44692 15.9752 2.72817V6.30005Z",
-                          fill: ""
-                        },
-                        void 0,
-                        !1,
-                        {
-                          fileName: "app/components/admin/Sidebar.tsx",
-                          lineNumber: 72,
-                          columnNumber: 17
-                        },
-                        this
-                      ),
-                      /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-                        "path",
-                        {
-                          d: "M6.10322 9.92822H2.53135C1.5751 9.92822 0.787598 10.7157 0.787598 11.672V15.2438C0.787598 16.2001 1.5751 16.9876 2.53135 16.9876H6.10322C7.05947 16.9876 7.84697 16.2001 7.84697 15.2438V11.7001C7.8751 10.7157 7.0876 9.92822 6.10322 9.92822ZM6.60947 15.272C6.60947 15.5532 6.38447 15.7782 6.10322 15.7782H2.53135C2.2501 15.7782 2.0251 15.5532 2.0251 15.272V11.7001C2.0251 11.4188 2.2501 11.1938 2.53135 11.1938H6.10322C6.38447 11.1938 6.60947 11.4188 6.60947 11.7001V15.272Z",
-                          fill: ""
-                        },
-                        void 0,
-                        !1,
-                        {
-                          fileName: "app/components/admin/Sidebar.tsx",
-                          lineNumber: 76,
-                          columnNumber: 17
-                        },
-                        this
-                      ),
-                      /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-                        "path",
-                        {
-                          d: "M15.4689 9.92822H11.8971C10.9408 9.92822 10.1533 10.7157 10.1533 11.672V15.2438C10.1533 16.2001 10.9408 16.9876 11.8971 16.9876H15.4689C16.4252 16.9876 17.2127 16.2001 17.2127 15.2438V11.7001C17.2127 10.7157 16.4252 9.92822 15.4689 9.92822ZM15.9752 15.272C15.9752 15.5532 15.7502 15.7782 15.4689 15.7782H11.8971C11.6158 15.7782 11.3908 15.5532 11.3908 15.272V11.7001C11.3908 11.4188 11.6158 11.1938 11.8971 11.1938H15.4689C15.7502 11.1938 15.9752 11.4188 15.9752 11.7001V15.272Z",
-                          fill: ""
-                        },
-                        void 0,
-                        !1,
-                        {
-                          fileName: "app/components/admin/Sidebar.tsx",
-                          lineNumber: 80,
-                          columnNumber: 17
-                        },
-                        this
-                      )
-                    ]
-                  },
-                  void 0,
-                  !0,
-                  {
-                    fileName: "app/components/admin/Sidebar.tsx",
-                    lineNumber: 60,
-                    columnNumber: 15
-                  },
-                  this
-                ),
+                /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(import_bi2.BiSolidDashboard, {}, void 0, !1, {
+                  fileName: "app/components/admin/Sidebar.tsx",
+                  lineNumber: 53,
+                  columnNumber: 15
+                }, this),
                 "Dashboard"
               ]
             },
@@ -4229,73 +4373,87 @@ function Sidebar2({ sidebarOpen, setSidebarOpen }) {
             !0,
             {
               fileName: "app/components/admin/Sidebar.tsx",
-              lineNumber: 53,
+              lineNumber: 46,
               columnNumber: 13
             },
             this
           ),
-          /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("h3", { className: "mb-4 ml-4 text-sm font-semibold text-gray-400", children: "MENU" }, void 0, !1, {
+          /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("h3", { className: "mb-4 text-sm font-semibold text-gray-400", children: "MENU" }, void 0, !1, {
             fileName: "app/components/admin/Sidebar.tsx",
-            lineNumber: 87,
+            lineNumber: 56,
             columnNumber: 13
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("ul", { className: "mt-4 mb-5.5 flex flex-col gap-2.5 pl-6", children: [
             /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("li", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-              import_react40.NavLink,
+              import_react39.NavLink,
               {
-                to: "/admin/user?session=tenkus47@gmail.com",
+                to: "/admin/user?session=" + user.username,
                 className: ({ isActive }) => "group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white " + (isActive && "!text-white"),
-                children: "User"
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(import_fi2.FiUsers, {}, void 0, !1, {
+                    fileName: "app/components/admin/Sidebar.tsx",
+                    lineNumber: 67,
+                    columnNumber: 19
+                  }, this),
+                  " User"
+                ]
               },
               void 0,
-              !1,
+              !0,
               {
                 fileName: "app/components/admin/Sidebar.tsx",
-                lineNumber: 93,
+                lineNumber: 60,
                 columnNumber: 17
               },
               this
             ) }, void 0, !1, {
               fileName: "app/components/admin/Sidebar.tsx",
-              lineNumber: 92,
+              lineNumber: 59,
               columnNumber: 15
             }, this),
             /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("li", { children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(
-              import_react40.NavLink,
+              import_react39.NavLink,
               {
-                to: "/admin/text?session=tenkus47@gmail.com",
+                to: "/admin/text?session=" + user.username,
                 className: ({ isActive }) => "group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white " + (isActive && "!text-white"),
-                children: "Text"
+                children: [
+                  /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(import_ai2.AiOutlineFileText, {}, void 0, !1, {
+                    fileName: "app/components/admin/Sidebar.tsx",
+                    lineNumber: 78,
+                    columnNumber: 19
+                  }, this),
+                  " Text"
+                ]
               },
               void 0,
-              !1,
+              !0,
               {
                 fileName: "app/components/admin/Sidebar.tsx",
-                lineNumber: 104,
+                lineNumber: 71,
                 columnNumber: 17
               },
               this
             ) }, void 0, !1, {
               fileName: "app/components/admin/Sidebar.tsx",
-              lineNumber: 103,
+              lineNumber: 70,
               columnNumber: 15
             }, this)
           ] }, void 0, !0, {
             fileName: "app/components/admin/Sidebar.tsx",
-            lineNumber: 91,
+            lineNumber: 58,
             columnNumber: 13
           }, this)
         ] }, void 0, !0, {
           fileName: "app/components/admin/Sidebar.tsx",
-          lineNumber: 52,
+          lineNumber: 45,
           columnNumber: 11
         }, this) }, void 0, !1, {
           fileName: "app/components/admin/Sidebar.tsx",
-          lineNumber: 51,
+          lineNumber: 44,
           columnNumber: 9
         }, this) }, void 0, !1, {
           fileName: "app/components/admin/Sidebar.tsx",
-          lineNumber: 50,
+          lineNumber: 43,
           columnNumber: 7
         }, this)
       ]
@@ -4304,7 +4462,7 @@ function Sidebar2({ sidebarOpen, setSidebarOpen }) {
     !0,
     {
       fileName: "app/components/admin/Sidebar.tsx",
-      lineNumber: 15,
+      lineNumber: 20,
       columnNumber: 5
     },
     this
@@ -4313,18 +4471,18 @@ function Sidebar2({ sidebarOpen, setSidebarOpen }) {
 var Sidebar_default2 = Sidebar2;
 
 // app/routes/admin.tsx
-var import_node6 = require("@remix-run/node");
-var import_jsx_dev_runtime30 = require("react/jsx-dev-runtime"), loader8 = async ({ request }) => {
+var import_node7 = require("@remix-run/node");
+var import_jsx_dev_runtime30 = require("react/jsx-dev-runtime"), loader9 = async ({ request }) => {
   let session = new URL(request.url).searchParams.get("session");
   if (!session)
-    return (0, import_node6.redirect)("/error");
+    return (0, import_node7.redirect)("/error");
   let user = await getUser(session, !0), progress = await getProgress();
-  return (0, import_node6.defer)({
+  return (0, import_node7.defer)({
     user,
     progress
   });
 }, DefaultLayout = () => {
-  let [sidebarOpen, setSidebarOpen] = (0, import_react41.useState)(!1), { pathname } = (0, import_react42.useLocation)();
+  let [sidebarOpen, setSidebarOpen] = (0, import_react40.useState)(!1), { pathname } = (0, import_react41.useLocation)();
   return /* @__PURE__ */ (0, import_jsx_dev_runtime30.jsxDEV)("div", { className: "dark:bg-boxdark-2 dark:text-bodydark", children: /* @__PURE__ */ (0, import_jsx_dev_runtime30.jsxDEV)("div", { className: "flex h-screen overflow-hidden", children: [
     /* @__PURE__ */ (0, import_jsx_dev_runtime30.jsxDEV)(Sidebar_default2, { sidebarOpen, setSidebarOpen }, void 0, !1, {
       fileName: "app/routes/admin.tsx",
@@ -4341,7 +4499,7 @@ var import_jsx_dev_runtime30 = require("react/jsx-dev-runtime"), loader8 = async
         "div",
         {
           className: `mx-auto max-w-screen-2xl  ${pathname.includes("metabase") ? "p-0" : " p-4 md:p-6 2xl:p-10"}`,
-          children: /* @__PURE__ */ (0, import_jsx_dev_runtime30.jsxDEV)(import_react42.Outlet, {}, void 0, !1, {
+          children: /* @__PURE__ */ (0, import_jsx_dev_runtime30.jsxDEV)(import_react41.Outlet, {}, void 0, !1, {
             fileName: "app/routes/admin.tsx",
             lineNumber: 38,
             columnNumber: 15
@@ -4380,9 +4538,9 @@ var import_jsx_dev_runtime30 = require("react/jsx-dev-runtime"), loader8 = async
 var error_exports = {};
 __export(error_exports, {
   default: () => error_default,
-  loader: () => loader9
+  loader: () => loader10
 });
-var import_jsx_dev_runtime31 = require("react/jsx-dev-runtime"), loader9 = () => null;
+var import_jsx_dev_runtime31 = require("react/jsx-dev-runtime"), loader10 = () => null;
 function error() {
   return /* @__PURE__ */ (0, import_jsx_dev_runtime31.jsxDEV)("div", { children: "error no session ,require session to continue" }, void 0, !1, {
     fileName: "app/routes/error.tsx",
@@ -4396,16 +4554,16 @@ var error_default = error;
 var demo_exports = {};
 __export(demo_exports, {
   default: () => demo_default,
-  loader: () => loader10
+  loader: () => loader11
 });
-var import_react44 = require("@tiptap/react"), import_starter_kit2 = __toESM(require("@tiptap/starter-kit")), import_react45 = require("react");
+var import_react43 = require("@tiptap/react"), import_starter_kit2 = __toESM(require("@tiptap/starter-kit")), import_react44 = require("react");
 
 // app/components/demo/Sidebar.tsx
-var import_react43 = require("react");
+var import_react42 = require("react");
 var import_jsx_dev_runtime32 = require("react/jsx-dev-runtime");
 function Sidebar3({ user, text, setHistory }) {
   var _a, _b, _c, _d;
-  let [openMenu, setOpenMenu] = (0, import_react43.useState)(!1);
+  let [openMenu, setOpenMenu] = (0, import_react42.useState)(!1);
   function SidebarHeader() {
     return /* @__PURE__ */ (0, import_jsx_dev_runtime32.jsxDEV)("div", { className: "flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden ", children: [
       /* @__PURE__ */ (0, import_jsx_dev_runtime32.jsxDEV)("div", { children: "About" }, void 0, !1, {
@@ -4615,8 +4773,8 @@ function Sidebar3({ user, text, setHistory }) {
 var Sidebar_default3 = Sidebar3;
 
 // app/routes/demo.tsx
-var import_Editor3 = __toESM(require_Editor()), import_react46 = require("@remix-run/react");
-var import_jsx_dev_runtime33 = require("react/jsx-dev-runtime"), loader10 = async ({ request }) => {
+var import_Editor3 = __toESM(require_Editor()), import_react45 = require("@remix-run/react");
+var import_jsx_dev_runtime33 = require("react/jsx-dev-runtime"), loader11 = async ({ request }) => {
   let url = new URL(request.url);
   return { text: await db.text.findMany({
     take: 10,
@@ -4624,19 +4782,19 @@ var import_jsx_dev_runtime33 = require("react/jsx-dev-runtime"), loader10 = asyn
   }) };
 };
 function DemoPage() {
-  let { text } = (0, import_react46.useLoaderData)(), [text_Array, setTextArray] = (0, import_react45.useState)(text), [user, setUser] = (0, import_react45.useState)({
+  let { text } = (0, import_react45.useLoaderData)(), [text_Array, setTextArray] = (0, import_react44.useState)(text), [user, setUser] = (0, import_react44.useState)({
     username: "demo",
     role: "USER",
     text: [],
     rejected_list: [],
     ignored_list: []
-  }), [history, setHistory] = (0, import_react45.useState)(null), dialogref = (0, import_react45.useRef)(null), content = text_Array.find(
+  }), [history, setHistory] = (0, import_react44.useState)(null), dialogref = (0, import_react44.useRef)(null), content = text_Array.find(
     (i) => ![...user.text, ...user.rejected_list].find((j) => j.id == i.id)
   ) || null;
   history && (content = user.text.find((i) => i.id === history) || text_Array.find((i) => i.id == history));
   let original_text = content.content || (content == null ? void 0 : content.original_text.trim()), insertHTML = insertHtmlOnText_default(original_text), setter = () => {
   }, charClick = () => {
-  }, editor = (0, import_react44.useEditor)(
+  }, editor = (0, import_react43.useEditor)(
     {
       extensions: [import_starter_kit2.default, Space(setter), Character(charClick)],
       content: insertHTML,
@@ -4804,7 +4962,7 @@ function DemoPage() {
 var demo_default = DemoPage;
 
 // server-assets-manifest:@remix-run/dev/assets-manifest
-var assets_manifest_default = { entry: { module: "/build/entry.client-V6DHWZFJ.js", imports: ["/build/_shared/chunk-ZWGWGGVF.js", "/build/_shared/chunk-GIAAE3CH.js", "/build/_shared/chunk-SQSAVPEH.js", "/build/_shared/chunk-NMZL6IDN.js", "/build/_shared/chunk-UENAGXQR.js", "/build/_shared/chunk-UWV35TSL.js", "/build/_shared/chunk-BOXFZXVX.js", "/build/_shared/chunk-PNG5AS42.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-NLGOKRQM.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-MOW4CRQC.js", imports: ["/build/_shared/chunk-2GTJYX55.js", "/build/_shared/chunk-3PDRNEGA.js", "/build/_shared/chunk-TGR4RFE2.js", "/build/_shared/chunk-IULPZLDX.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-XYGBOBZ4.js", imports: ["/build/_shared/chunk-IULPZLDX.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-24NX7HQH.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-4HAZ56Z7.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-SYZMD7I5.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-UAORCGU3.js", imports: ["/build/_shared/chunk-3PDRNEGA.js", "/build/_shared/chunk-HUA6FSZE.js", "/build/_shared/chunk-TGR4RFE2.js", "/build/_shared/chunk-IULPZLDX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-A4DRPZQ7.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-7BYWHH7L.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-K3HPPKXU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-JTVRFTHW.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-LZBBNK46.js", imports: ["/build/_shared/chunk-2GTJYX55.js", "/build/_shared/chunk-HUA6FSZE.js", "/build/_shared/chunk-TGR4RFE2.js", "/build/_shared/chunk-IULPZLDX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-VKEWX2GE.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "1cfc8f9e", hmr: { runtime: "/build/_shared\\chunk-UENAGXQR.js", timestamp: 1693846601953 }, url: "/build/manifest-1CFC8F9E.js" };
+var assets_manifest_default = { entry: { module: "/build/entry.client-V6DHWZFJ.js", imports: ["/build/_shared/chunk-ZWGWGGVF.js", "/build/_shared/chunk-GIAAE3CH.js", "/build/_shared/chunk-SQSAVPEH.js", "/build/_shared/chunk-NMZL6IDN.js", "/build/_shared/chunk-UENAGXQR.js", "/build/_shared/chunk-UWV35TSL.js", "/build/_shared/chunk-BOXFZXVX.js", "/build/_shared/chunk-PNG5AS42.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-GIUU4FW4.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-FBXLIQLP.js", imports: ["/build/_shared/chunk-2GTJYX55.js", "/build/_shared/chunk-ZEZB7FIK.js", "/build/_shared/chunk-S7P53F5Y.js", "/build/_shared/chunk-IULPZLDX.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-Y66MVZAW.js", imports: ["/build/_shared/chunk-IULPZLDX.js", "/build/_shared/chunk-F2P733AV.js", "/build/_shared/chunk-FXCVAPJI.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-QX4QACTM.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-24NX7HQH.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-HXGAEOZQ.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-KQ2XHSG2.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-NQV7MI27.js", imports: ["/build/_shared/chunk-ZEZB7FIK.js", "/build/_shared/chunk-HUA6FSZE.js", "/build/_shared/chunk-S7P53F5Y.js", "/build/_shared/chunk-IULPZLDX.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-A4DRPZQ7.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text.$version": { id: "routes/api.text.$version", parentId: "routes/api.text", path: ":version", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text.$version-D5R6AXVU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-7BYWHH7L.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-K3HPPKXU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-JTVRFTHW.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-NE2WVTOI.js", imports: ["/build/_shared/chunk-2GTJYX55.js", "/build/_shared/chunk-HUA6FSZE.js", "/build/_shared/chunk-S7P53F5Y.js", "/build/_shared/chunk-IULPZLDX.js", "/build/_shared/chunk-RUKEUQLF.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-VKEWX2GE.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "24a4d435", hmr: { runtime: "/build/_shared\\chunk-UENAGXQR.js", timestamp: 1693906203340 }, url: "/build/manifest-24A4D435.js" };
 
 // server-entry-module:@remix-run/dev/server-build
 var assetsBuildDirectory = "public\\build", future = { v2_dev: !0, unstable_postcss: !1, unstable_tailwind: !1, v2_errorBoundary: !0, v2_headers: !0, v2_meta: !0, v2_normalizeFormMethod: !0, v2_routeConvention: !0 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {
@@ -4831,6 +4989,14 @@ var assetsBuildDirectory = "public\\build", future = { v2_dev: !0, unstable_post
     index: void 0,
     caseSensitive: void 0,
     module: api_user_username_exports
+  },
+  "routes/api.text.$version": {
+    id: "routes/api.text.$version",
+    parentId: "routes/api.text",
+    path: ":version",
+    index: void 0,
+    caseSensitive: void 0,
+    module: api_text_version_exports
   },
   "routes/admin.metabase": {
     id: "routes/admin.metabase",

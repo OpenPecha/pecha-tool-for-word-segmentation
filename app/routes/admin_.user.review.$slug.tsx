@@ -1,20 +1,15 @@
 import { DataFunctionArgs, LoaderArgs, json, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
-import { useEditor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { useEffect, useMemo, useState } from "react";
 import { LoaderFunction, useLoaderData } from "react-router";
 import checkUnknown from "~/lib/checkUnknown";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { getUser } from "~/model/server.user";
-import { Character } from "~/tiptapProps/extension/character";
-import { editorProps } from "~/tiptapProps/events";
 import AdminHistorySidebar from "~/components/AdminHistorySidebar";
 import { ClientOnly } from "remix-utils";
 import EditorContainer from "~/components/Editor.client";
 import Button from "~/components/Button";
 import { db } from "~/service/db.server";
-import { Space } from "~/tiptapProps/extension/space";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
@@ -22,8 +17,14 @@ import { useSocket } from "~/components/contexts/SocketContext";
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
-  let admin = await getUser(session!, true);
-  let user = await getUser(params.slug!, false);
+  let user = await getUser(session!, true);
+  let annotator = await getUser(params.slug!, false);
+
+  //check if user and admin are in same group
+
+  if (annotator?.reviewer_id !== user?.id)
+    return redirect("/?session=" + session);
+
   let text_data = await db.text.findMany({
     where: { modified_by_id: user?.id, status: "APPROVED", reviewed: false },
     orderBy: { updatedAt: "desc" },
@@ -33,15 +34,12 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     orderBy: { id: "asc" },
   });
 
-  return { user, admin, text_data, id_now: currentText?.id };
+  return { user, annotator, text_data, id_now: currentText?.id };
 };
-
-type LoaderType = Awaited<ReturnType<typeof loader>>;
 
 function UserDetail() {
   const fetcher = useFetcher();
-  const data = useLoaderData();
-  const { user, text_data, admin, id_now } = data as LoaderType;
+  const { annotator, text_data, user, id_now } = useLoaderData();
   let text = text_data?.sort((a, b) =>
     a.reviewed === b.reviewed ? 0 : !a.reviewed ? 1 : -1
   );
@@ -52,10 +50,10 @@ function UserDetail() {
     setSelectedId(id_now);
   }, [id_now]);
   useEffect(() => {
-    if (!user) return;
+    if (!annotator) return;
     let display = selectedId
-      ? user.text.find((d) => d.id === selectedId)
-      : user.text.sort(sortUpdate_reviewed).find((d) => d.id === text.id);
+      ? annotator.text.find((d) => d.id === selectedId)
+      : annotator.text.sort(sortUpdate_reviewed).find((d) => d.id === text?.id);
     if (display) {
       let show =
         JSON.parse(display?.modified_text!)?.join(" ") ||
@@ -73,16 +71,16 @@ function UserDetail() {
   if (!editor) return null;
   function text_reviewed() {
     setTimeout(() => {
-      socket?.emit("reviewed", { user });
+      socket?.emit("reviewed", { annotator });
     }, 1000);
   }
   let saveText = async () => {
     fetcher.submit(
       {
         id: selectedId!,
-        modified_text: editor?.getText(),
-        userId: user.id,
-        adminId: admin?.id,
+        modified_text: editor?.getText()!,
+        userId: annotator.id,
+        adminId: user?.id,
       },
       { method: "POST", action: "/api/text" }
     );
@@ -91,7 +89,7 @@ function UserDetail() {
 
   let rejectTask = async () => {
     fetcher.submit(
-      { id: selectedId!, userId: user.id, _action: "reject", admin: true },
+      { id: selectedId!, userId: annotator.id, _action: "reject", admin: true },
       { method: "PATCH", action: "/api/text" }
     );
     text_reviewed();
@@ -100,7 +98,7 @@ function UserDetail() {
   return (
     <div className="flex flex-col md:flex-row">
       <AdminHistorySidebar
-        user={user}
+        user={annotator}
         selectedId={selectedId!}
         setSelectedId={setSelectedId}
       />

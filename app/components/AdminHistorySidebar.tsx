@@ -32,7 +32,7 @@ function AdminHistorySidebar({
   }, [socket]);
   const SidebarHeader = () => (
     <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden">
-      <Link to={`/admin?session=${data.admin.username}`}>
+      <Link to={`/admin?session=${data.user.username}`}>
         <div className="cursor-pointer">{toolname}</div>
       </Link>
       <div className="close" onClick={() => setOpenMenu(false)}>
@@ -48,7 +48,7 @@ function AdminHistorySidebar({
       >
         <Hamburger />
         <Link
-          to={`/admin?session=${data.admin.username}`}
+          to={`/admin/metabase?session=${data.user.username}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
           {toolname}
@@ -62,7 +62,7 @@ function AdminHistorySidebar({
         <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
           <SidebarHeader />
           <Link
-            to={`/admin?session=${data?.admin.username}`}
+            to={`/admin?session=${data?.user.username}`}
             className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 "
           >
             ADMIN

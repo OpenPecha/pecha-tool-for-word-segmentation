@@ -6,6 +6,7 @@ interface ButtonProps {
   disabled: boolean;
   title: string;
   shortCut: string;
+  className?: string;
 }
 
 function Button({
@@ -14,8 +15,9 @@ function Button({
   disabled,
   title,
   shortCut,
+  className,
 }: ButtonProps) {
-  let classbtn = "h-[100px] w-[100px]  cursor-pointer";
+  let classbtn = "h-[100px] w-[100px]  cursor-pointer hover:opacity-80";
   let innerValue: any = value;
   let btnRef = useRef(null);
   useEffect(() => {
@@ -51,7 +53,7 @@ function Button({
     <button
       disabled={disabled}
       title={title}
-      className={classbtn + " hover:opacity-80"}
+      className={className ? className : classbtn}
       onClick={handleClick}
       ref={btnRef}
     >
