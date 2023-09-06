@@ -1,5 +1,5 @@
 import { useRef, useEffect } from "react";
-import { Ignore, Right, Undo, Wrong } from "./svgs";
+import { Ignore, Right, Undo, Wrong } from "../assets/svgs";
 interface ButtonProps {
   handleClick: () => void;
   value: string;

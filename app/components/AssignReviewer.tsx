@@ -65,7 +65,7 @@ function AssignReviewer({ user }: { user: any }) {
     }
   }
   return (
-    <div className="flex gap-2 w-[200px]">
+    <div className="flex gap-2 w-[50%]">
       <Select
         isMultiple={false}
         value={value}

@@ -26,14 +26,21 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     return redirect("/?session=" + session);
 
   let text_data = await db.text.findMany({
-    where: { modified_by_id: user?.id, status: "APPROVED", reviewed: false },
+    where: {
+      modified_by_id: annotator?.id,
+      status: "APPROVED",
+      reviewed: false,
+    },
     orderBy: { updatedAt: "desc" },
   });
   let currentText = await db.text.findFirst({
-    where: { reviewed: false, modified_by_id: user?.id, status: "APPROVED" },
+    where: {
+      reviewed: false,
+      modified_by_id: annotator?.id,
+      status: "APPROVED",
+    },
     orderBy: { id: "asc" },
   });
-
   return { user, annotator, text_data, id_now: currentText?.id };
 };
 

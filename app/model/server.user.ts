@@ -7,9 +7,11 @@ export const createUserIfNotExists = async (username: string) => {
       username: username,
     },
     include: {
-      text: true,
-      ignored_list: true,
-      rejected_list: true,
+      text: {
+        select: { id: true, reviewed: true, batch: true },
+        orderBy: { id: "desc" },
+      },
+      rejected_list: { select: { id: true, reviewed: true, batch: true } },
     },
   });
   if (existingUser) {
@@ -84,27 +86,10 @@ export const updateUserNickname = async (id: string, name: string) => {
 };
 
 export async function updateUserCategory(id: string, category: string) {
-  const user = await db.user.findUnique({
-    where: { id },
-    select: {
-      categories: true,
-    },
-  });
-
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const currentCategories = user.categories || [];
-
-  const updatedCategories = currentCategories.includes(category)
-    ? currentCategories.filter((c) => c !== category) // Remove the category
-    : [...currentCategories, category]; // Add the category
-
   return db.user.update({
     where: { id },
     data: {
-      categories: updatedCategories,
+      categories: { set: JSON.parse(category) },
     },
   });
 }
@@ -246,6 +231,13 @@ export async function getUserById(id: string | null) {
   if (id === null) return null;
   let item = await db.user.findUnique({
     where: { id },
+  });
+  return item;
+}
+export async function updateUserRole(id: string, role: Role) {
+  let item = await db.user.update({
+    where: { id },
+    data: { role },
   });
   return item;
 }

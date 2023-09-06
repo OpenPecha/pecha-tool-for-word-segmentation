@@ -6,17 +6,26 @@ const userLastCallTimestamps = new Map();
 export async function sendNotification(
   username: string | undefined,
   message: string,
-  type: "success" | "info"
+  type: "success" | "info" | "rejected"
 ) {
-  let webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-  const Hook = new webhook.Webhook(webhookUrl);
+  let reviewerHook = process.env.DISCORD_WEBHOOK_URL_REVIEWER!;
+  let annotatorHook = process.env.DISCORD_WEBHOOK_URL_ANNOTATOR!;
+
+  let hook = {
+    success: annotatorHook,
+    rejected: annotatorHook,
+    info: reviewerHook,
+  };
+  const Hook = new webhook.Webhook(hook[type]);
 
   if (!username) return null;
 
   if (type === "success") {
     Hook.success(username, message);
   }
-
+  if (type === "rejected") {
+    Hook.warn(username, message);
+  }
   // Check if the user's last call timestamp exists
   if (userLastCallTimestamps.has(username)) {
     // Get the timestamp of the last call

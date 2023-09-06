@@ -17,6 +17,7 @@ import { ClientOnly } from "remix-utils";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
 import useModal from "~/components/hooks/useModal";
+import formatTime from "~/lib/formatTime";
 export const loader: LoaderFunction = async ({ request }) => {
   let { NODE_ENV } = process.env;
   let url = new URL(request.url);
@@ -30,7 +31,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (user.allow_assign) {
       text = await getTextToDisplay(user?.id, history);
     }
-    return { text, user, NODE_ENV, history };
+    let current_time = Date.now();
+    return { text, user, NODE_ENV, history, current_time };
   }
 };
 
@@ -49,13 +51,13 @@ export default function Index() {
   const data = useLoaderData();
   const text = data?.text?.original_text.trim() || "";
   const { Modal, Toggle_Modal } = useModal();
-  let dialogref = useRef(null);
   let user = data.user;
   let insertHTML = insertHTMLonText(text);
   let newText = checkUnknown(insertHTML);
   let editor = useEditorTiptap(newText);
   const socket = useSocket();
   const revalidate = useRevalidator();
+
   useEffect(() => {
     if (!socket) return;
     socket.on("change-allow", (data) => {
@@ -67,10 +69,13 @@ export default function Index() {
   }, [socket]);
 
   let saveText = async () => {
+    let endTime = Date.now();
+    let timeDiff = endTime - data?.current_time;
+    let duration = formatTime(timeDiff);
     let modified_text = editor!.getText();
     let id = data.text.id;
     fetcher.submit(
-      { id, modified_text, userId: user.id },
+      { id, modified_text, userId: user.id, duration },
       { method: "POST", action: "/api/text" }
     );
     socket?.emit("text-status-changed", { user });
@@ -94,9 +99,25 @@ export default function Index() {
   if (data.error) return <div>{data.error}</div>;
   return (
     <div className="flex flex-col md:flex-row">
+      <Modal>
+        <iframe
+          className="w-full h-[80vh] z-50"
+          src="https://docs.google.com/spreadsheets/d/1ZdkguvvvWiqZoEh4LLbceYsnHubBDpAAdi4DToFN9I0/edit?usp=sharing"
+        ></iframe>
+      </Modal>
       <Sidebar user={data.user} text={data.text} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
+        {data.user?.rejected_list?.length > 0 && (
+          <div className="text-red-500 flex items-center gap-2 font-bold">
+            <img
+              src="/assets/notification.gif"
+              alt="notification "
+              className="w-8 h-8"
+            />{" "}
+            SOME OF YOUR WORK IS REJECTED{" "}
+          </div>
+        )}
         {!data.text ? (
           <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm text-center py-4">
             {!user.allow_assign && (
@@ -107,11 +128,6 @@ export default function Index() {
             )}
             Thank you . your work is complete ! 😊😊😊
             <br />
-            {user?.rejected_list?.length > 0 ? (
-              <div>you have some rejected work,please visit them</div>
-            ) : (
-              <div>once work are reviewed , you will be assigned new work</div>
-            )}
           </div>
         ) : (
           <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
@@ -119,12 +135,6 @@ export default function Index() {
               <div>transcript</div>
 
               <Toggle_Modal className="cursor-pointer">reference</Toggle_Modal>
-              <Modal>
-                <iframe
-                  className="w-full h-[80vh]"
-                  src="https://docs.google.com/spreadsheets/d/1ZdkguvvvWiqZoEh4LLbceYsnHubBDpAAdi4DToFN9I0/edit?usp=sharing"
-                ></iframe>
-              </Modal>
             </div>
             <ClientOnly fallback={null}>
               {() => <Editor editor={editor!} />}
@@ -148,13 +158,7 @@ export default function Index() {
               title="REJECT (x)"
               shortCut="x"
             />
-            {/* <Button
-            disabled={isButtonDisabled}
-            handleClick={ignoreTask}
-            value="IGNORE"
-            title="IGNORE (i)"
-            shortCut="i"
-          /> */}
+
             <Button
               disabled={isButtonDisabled}
               handleClick={undoTask}

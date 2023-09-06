@@ -4,7 +4,7 @@ import { historyText } from "./Sidebar";
 import TextInfo from "./TextInfo";
 import { AdminHistoryItem } from "./History";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
-import { Hamburger, Tick } from "./svgs";
+import { Hamburger, Tick } from "../assets/svgs";
 import { useSocket } from "./contexts/SocketContext";
 import { toolname } from "~/const";
 
@@ -62,10 +62,10 @@ function AdminHistorySidebar({
         <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
           <SidebarHeader />
           <Link
-            to={`/admin?session=${data?.user.username}`}
+            to={`/admin/user?session=${data?.user.username}`}
             className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 "
           >
-            ADMIN
+            DASHBOARD
           </Link>
           <TextInfo>User : {user?.username}</TextInfo>
           <TextInfo>text id :{selectedId}</TextInfo>
@@ -79,22 +79,19 @@ function AdminHistorySidebar({
           <div className="text-sm mb-2 font-bold">History</div>
           <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
             {user &&
-              user.text &&
-              [...(user?.text || [])]
-                .sort(sortUpdate_reviewed)
-                .map((text: historyText) => (
-                  <AdminHistoryItem
-                    id={text?.id}
-                    key={text.id + "-accepted"}
-                    onClick={() => {
-                      setOpenMenu(false);
-                      setSelectedId(text?.id);
-                    }}
-                    icon={<Tick />}
-                    reviewed={text?.reviewed!}
-                    selectedId={selectedId!}
-                  />
-                ))}
+              user?.text?.sort(sortUpdate_reviewed).map((text: historyText) => (
+                <AdminHistoryItem
+                  id={text?.id}
+                  key={text.id + "-accepted"}
+                  onClick={() => {
+                    setOpenMenu(false);
+                    setSelectedId(text?.id);
+                  }}
+                  icon={<Tick />}
+                  reviewed={text?.reviewed!}
+                  selectedId={selectedId!}
+                />
+              ))}
           </div>
         </div>
       </div>

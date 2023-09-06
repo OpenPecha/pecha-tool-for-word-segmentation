@@ -42,11 +42,12 @@ model Text {
   updatedAt      DateTime @updatedAt
   batch          Int?     @default(0)
   version         String?  @default("")
-  reviewed       Boolean? @default(false)
+  reviewed       Boolean? 
   reviewed_by    User?  @relation("UserReviewedText",fields: [reviewed_by_id],references: [id])
   reviewed_by_id  String?   
   reject_count   Int?     @default(0)
   category       String?  @default("GEN")
+  duration       String?  
 }
 
 enum Status {

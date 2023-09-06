@@ -5,7 +5,7 @@ import DropdownNotification from "../Dropdowns/DropdownNotification";
 import DropdownUser from "../Dropdowns/DropdownUser";
 import Progress from "../Progress";
 import { useLoaderData } from "@remix-run/react";
-import { Hamburger } from "../svgs";
+import { Hamburger } from "../../assets/svgs";
 
 const Header = (props: {
   sidebarOpen: string | boolean | undefined;
@@ -45,11 +45,11 @@ const Header = (props: {
 
         <div className="flex items-center gap-3 2xsm:gap-7">
           <ul className="flex items-center gap-2 2xsm:gap-4">
-            <DarkModeSwitcher />
+            {/* <DarkModeSwitcher /> */}
 
             <DropdownNotification />
 
-            <DropdownMessage />
+            {/* <DropdownMessage /> */}
           </ul>
 
           <DropdownUser user={user} />

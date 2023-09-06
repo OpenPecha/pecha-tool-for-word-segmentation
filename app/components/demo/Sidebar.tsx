@@ -1,7 +1,7 @@
 import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
-import { Cross, Hamburger, Tick } from "../svgs";
+import { Cross, Hamburger, Tick } from "../../assets/svgs";
 import TextInfo from "../TextInfo";
 import { DemoHistoryItem } from "../History";
 import { toolname } from "~/const";

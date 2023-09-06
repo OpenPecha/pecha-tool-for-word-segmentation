@@ -3,7 +3,7 @@ import { NavLink, useLoaderData, useLocation } from "@remix-run/react";
 import SidebarLinkGroup from "./SidebarLinkGroup";
 import { toolname } from "~/const";
 import { BiSolidDashboard } from "react-icons/bi";
-import { Hamburger } from "../svgs";
+import { Hamburger } from "../../assets/svgs";
 import { FiUsers } from "react-icons/fi";
 import { AiOutlineFileText } from "react-icons/ai";
 interface SidebarProps {
@@ -46,8 +46,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
             <NavLink
               to={`/admin/metabase?session=${user.username}`}
               className={`group relative flex mb-3 items-center gap-2.5 rounded-sm py-2  font-medium text-bodydark1 duration-300 ease-in-out hover:bg-graydark dark:hover:bg-meta-4 ${
-                (pathname === "admin" || pathname.includes("admin")) &&
-                "bg-graydark dark:bg-meta-4"
+                pathname.includes("metabase") && "bg-slate-600 dark:bg-meta-4 "
               }`}
             >
               <BiSolidDashboard />
@@ -61,7 +60,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                   to={"/admin/user?session=" + user.username}
                   className={({ isActive }) =>
                     "group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white " +
-                    (isActive && "!text-white")
+                    (isActive && "!text-white bg-slate-600 dark:bg-meta-4")
                   }
                 >
                   <FiUsers /> User
@@ -72,7 +71,7 @@ function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                   to={"/admin/text?session=" + user.username}
                   className={({ isActive }) =>
                     "group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white " +
-                    (isActive && "!text-white")
+                    (isActive && "!text-white  bg-slate-600 dark:bg-meta-4")
                   }
                 >
                   <AiOutlineFileText /> Text

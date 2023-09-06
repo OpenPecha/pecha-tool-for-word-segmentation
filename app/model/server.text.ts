@@ -45,10 +45,9 @@ export async function checkAndAssignBatch(userId: string) {
           return batch;
         }
       }
-      //check if all assigned batch is reviewed
-      const allReviewed = textsInBatch.every((item) => item.reviewed);
+      //check if all assigned batch is accepted
 
-      if (!batchToAssign && allReviewed) {
+      if (!batchToAssign) {
         batchToAssign = await getUnassignedBatch(user.categories);
       }
     }
@@ -97,14 +96,11 @@ export async function getTextToDisplay(userId: string, history: any) {
       rejected_list: true,
     },
   });
-  const rejectedIds = user?.rejected_list.map((item: any) => item.id);
+  const rejectedIds = user?.rejected_list.map((item: any) => item.id) || [];
   let text = await db.text.findFirst({
     where: {
       batch: batch,
       OR: [{ status: null }, { status: "PENDING" }],
-      id: {
-        notIn: [...(rejectedIds || [])],
-      },
     },
     orderBy: {
       id: "asc",
@@ -167,24 +163,12 @@ export async function removeRejectText(
   return text;
 }
 
-export async function ignoreText(id: number, userId: string) {
-  return db.text.update({
-    where: {
-      id,
-    },
-    data: {
-      modified_by: { disconnect: { id: userId } },
-      ignored_by: { connect: { id: userId } },
-      status: "PENDING",
-      modified_text: null,
-    },
-  });
-}
 export function saveText(
   id: number,
   text: string,
   userId: string,
-  adminId: string
+  adminId: string,
+  time?: string
 ) {
   return db.text.update({
     where: {
@@ -197,6 +181,7 @@ export function saveText(
       rejected_by: { disconnect: { id: userId } },
       reviewed: !!adminId,
       reviewed_by_id: adminId || null,
+      duration: time || null,
     },
   });
 }

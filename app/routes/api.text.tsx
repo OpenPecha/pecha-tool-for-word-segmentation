@@ -3,7 +3,6 @@ import { sendNotification } from "~/lib/server.sendDiscordNotification";
 import {
   changeCategory,
   getNumberOfReject,
-  ignoreText,
   rejectText,
   removeRejectText,
   saveText,
@@ -30,8 +29,9 @@ export const action: ActionFunction = async ({ request }) => {
     const modified_text = formData.get("modified_text") as string;
     const userId = formData.get("userId") as string;
     const id = formData.get("id") as string;
+    const time = formData.get("duration") as string;
     await removeRejectText(parseInt(id), userId, "APPROVED");
-    text = await saveText(parseInt(id), modified_text, userId, admin_id);
+    text = await saveText(parseInt(id), modified_text, userId, admin_id, time);
     let user = await getUserById(userId);
     let admin = await getUserById(admin_id);
     let { remaining_count, not_reviewed_count } = await remainingTextToApproved(
@@ -62,11 +62,14 @@ export const action: ActionFunction = async ({ request }) => {
         await updateUserAssign(userId, false);
       }
       text = await rejectText(parseInt(id), userId);
+      let user = await getUserById(userId);
+      sendNotification(
+        user?.username,
+        `rejected, ${user?.nickname} please check for correction`,
+        "rejected"
+      );
     }
-    if (action === "ignore") {
-      await removeRejectText(parseInt(id), userId, "PENDING");
-      text = await ignoreText(parseInt(id), userId);
-    }
+
     if (action === "change_category") {
       const category = formData.get("category") as string;
       const version = formData.get("version") as string;

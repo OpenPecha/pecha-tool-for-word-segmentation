@@ -2,8 +2,7 @@ import { Link } from "@remix-run/react";
 import { useState } from "react";
 import TextInfo from "./TextInfo";
 import { HistoryItem } from "./History";
-import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
-import { Cross, Crossburger, Hamburger, Tick } from "./svgs";
+import { Cross, Crossburger, Hamburger, Tick } from "../assets/svgs";
 import { useOnlineCount } from "./hooks/useOnlineCount";
 import type { User, Text } from "@prisma/client";
 import { toolname } from "~/const";
@@ -20,11 +19,10 @@ type userType = {
 function Sidebar({ user, text }: userType) {
   const onlineCount = useOnlineCount();
   let [openMenu, setOpenMenu] = useState(false);
-
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col z-10 ">
       <div className=" flex px-2 py-3 text-white bg-gray-600 text-lg font-semibold items-center  gap-2 ">
-        <div onClick={() => setOpenMenu((p) => !p)}>
+        <div onClick={() => setOpenMenu((p) => !p)} className="block md:hidden">
           {!openMenu ? <Hamburger /> : <Crossburger />}
         </div>
         {toolname}
@@ -37,7 +35,7 @@ function Sidebar({ user, text }: userType) {
         <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
           {(user?.role === "ADMIN" || user?.role === "REVIEWER") && (
             <Link
-              to={`/admin/metabase?session=${user?.username}`}
+              to={`/admin/user?session=${user?.username}`}
               className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 rounded-sm"
             >
               {user?.role} DASHBOARD
@@ -56,36 +54,31 @@ function Sidebar({ user, text }: userType) {
         <div className="flex-1">
           <div className="text-sm mb-2 font-bold">History</div>
           <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
-            {user &&
-              user?.rejected_list?.length > 0 &&
-              (user?.rejected_list || [])
-                .sort(sortUpdate_reviewed)
-                .map((text: historyText) => (
-                  <HistoryItem
-                    user={user}
-                    id={text?.id}
-                    key={text.id + "-rejected"}
-                    onClick={() => setOpenMenu(false)}
-                    icon={<Cross />}
-                  />
-                ))}
-            {(user?.text || [])
-              .sort(sortUpdate_reviewed)
-              .map((text: historyText) => (
-                <HistoryItem
-                  user={user}
-                  id={text?.id}
-                  key={text.id + "-accepted"}
-                  onClick={() => setOpenMenu(false)}
-                  disabled={text?.reviewed}
-                  icon={
-                    <div className="flex items-center justify-between flex-1">
-                      <Tick />
-                      {text?.reviewed && <span>reviewed</span>}
-                    </div>
-                  }
-                />
-              ))}
+            {user?.rejected_list?.map((text: historyText) => (
+              <HistoryItem
+                user={user}
+                id={text?.id}
+                key={text.id + "-rejected"}
+                onClick={() => setOpenMenu(false)}
+                icon={<Cross />}
+              />
+            ))}
+
+            {user?.text?.map((text: historyText) => (
+              <HistoryItem
+                user={user}
+                id={text?.id}
+                key={text.id + "-accepted"}
+                onClick={() => setOpenMenu(false)}
+                disabled={text?.reviewed}
+                icon={
+                  <div className="flex items-center justify-between flex-1">
+                    <Tick />
+                    {text?.reviewed && <span>reviewed</span>}
+                  </div>
+                }
+              />
+            ))}
           </div>
         </div>
       </div>

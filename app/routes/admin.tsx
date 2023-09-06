@@ -28,7 +28,6 @@ const DefaultLayout = () => {
         <Sidebar sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
         <div className="relative flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
           <Header sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen} />
-
           <main>
             <div
               className={`mx-auto max-w-screen-2xl  ${
