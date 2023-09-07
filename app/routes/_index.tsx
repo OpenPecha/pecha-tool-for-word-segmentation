@@ -50,7 +50,6 @@ export default function Index() {
   let fetcher = useFetcher();
   const data = useLoaderData();
   const text = data?.text?.original_text.trim() || "";
-  const { Modal, Toggle_Modal } = useModal();
   let user = data.user;
   let insertHTML = insertHTMLonText(text);
   let newText = checkUnknown(insertHTML);
@@ -99,12 +98,6 @@ export default function Index() {
   if (data.error) return <div>{data.error}</div>;
   return (
     <div className="flex flex-col md:flex-row">
-      <Modal>
-        <iframe
-          className="w-full h-[80vh] z-50"
-          src="https://docs.google.com/spreadsheets/d/1ZdkguvvvWiqZoEh4LLbceYsnHubBDpAAdi4DToFN9I0/edit?usp=sharing"
-        ></iframe>
-      </Modal>
       <Sidebar user={data.user} text={data.text} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
@@ -114,8 +107,8 @@ export default function Index() {
               src="/assets/notification.gif"
               alt="notification "
               className="w-8 h-8"
-            />{" "}
-            SOME OF YOUR WORK IS REJECTED{" "}
+            />
+            SOME OF YOUR WORK IS REJECTED
           </div>
         )}
         {!data.text ? (
@@ -133,8 +126,6 @@ export default function Index() {
           <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
               <div>transcript</div>
-
-              <Toggle_Modal className="cursor-pointer">reference</Toggle_Modal>
             </div>
             <ClientOnly fallback={null}>
               {() => <Editor editor={editor!} />}

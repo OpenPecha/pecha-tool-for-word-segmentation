@@ -20,7 +20,7 @@ function Sidebar({ user, text }: userType) {
   const onlineCount = useOnlineCount();
   let [openMenu, setOpenMenu] = useState(false);
   return (
-    <div className="flex flex-col z-10 ">
+    <div className="flex flex-col">
       <div className=" flex px-2 py-3 text-white bg-gray-600 text-lg font-semibold items-center  gap-2 ">
         <div onClick={() => setOpenMenu((p) => !p)} className="block md:hidden">
           {!openMenu ? <Hamburger /> : <Crossburger />}
