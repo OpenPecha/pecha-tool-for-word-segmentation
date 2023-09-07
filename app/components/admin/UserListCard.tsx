@@ -1,5 +1,5 @@
 import { User } from "@prisma/client";
-import { Link, useLoaderData, useOutletContext } from "@remix-run/react";
+import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 const UserListCard = ({
   setSelectedUser,
@@ -97,7 +97,7 @@ const UserListCard = ({
 
 function EachUser({ user, setSelectedUser, selectedUser }) {
   let { groups } = useLoaderData();
-  let admin = useOutletContext();
+
   const handleSelection = (value: string) => {
     console.log("hi from userlistcard");
     setSelectedUser(value);
@@ -105,10 +105,9 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
   let currentBatch = user.assigned_batch.filter(
     (item) => !groups[item]?.reviewed && groups[item]?.approved
   );
-  let url = "/admin/user/" + user.username + "?session=" + admin?.username;
+
   return (
-    <Link
-      to={url}
+    <div
       key={user.id + "-userList"}
       onClick={() => handleSelection(user.username)}
       className={` cursor-pointer flex items-center gap-5 py-3 px-7.5 hover:bg-gray-3 dark:hover:bg-meta-4 hover:rounded-sm transition duration-300 ease-in-out hover:bg-green-300 ${
@@ -133,7 +132,7 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
           </div>
         )}
       </div>
-    </Link>
+    </div>
   );
 }
 
