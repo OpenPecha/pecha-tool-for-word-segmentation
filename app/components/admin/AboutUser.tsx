@@ -26,11 +26,12 @@ const AboutUser = ({ selectedUser }: { selectedUser: string | null }) => {
   const { users, user } = useLoaderData();
   const annotator = users.find((user: User) => user?.username === selectedUser);
 
-  if (!annotator) return null;
   const reviewed_count = annotator?.text.filter((item) => item.reviewed).length;
   const approved_count = annotator?.text.length;
   let url = `/admin/user/review/${selectedUser}?session=` + user.username;
   let isAdmin = user.role === "ADMIN";
+  console.log(selectedUser);
+  if (!annotator) return null;
   return (
     <div className="sticky top-[80px]  rounded-sm border border-stroke bg-white px-5 pt-6 pb-10 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-10 ">
       <div className="flex flex-col md:flex-row justify-between px-1">
