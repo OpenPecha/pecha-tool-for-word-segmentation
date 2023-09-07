@@ -16,6 +16,7 @@ import { getCategories } from "~/model/utils/server.category";
 import { useRevalidator } from "@remix-run/react";
 import { useSocket } from "~/components/contexts/SocketContext";
 import { toolname } from "~/const";
+import { ClientOnly } from "remix-utils";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
@@ -71,15 +72,19 @@ function Index() {
     });
   }, [socket]);
   return (
-    <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5 ">
-      <div className="col-span-12 xl:col-span-8 ">
-        <AboutUser selectedUser={selectedUser} />
-      </div>
-      <UserListCard
-        setSelectedUser={setSelectedUser}
-        selectedUser={selectedUser}
-      />
-    </div>
+    <ClientOnly>
+      {() => (
+        <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5 ">
+          <div className="col-span-12 xl:col-span-8 ">
+            <AboutUser selectedUser={selectedUser} />
+          </div>
+          <UserListCard
+            setSelectedUser={setSelectedUser}
+            selectedUser={selectedUser}
+          />
+        </div>
+      )}
+    </ClientOnly>
   );
 }
 
