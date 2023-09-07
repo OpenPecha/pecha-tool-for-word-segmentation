@@ -11,6 +11,7 @@ const UserListCard = ({
   let { users, groups, user, reviewers } = useLoaderData();
 
   const handleSelection = (value: string) => {
+    console.log(value);
     setSelectedUser(value);
   };
   let isAdmin = user.role === "ADMIN";

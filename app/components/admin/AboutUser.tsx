@@ -6,7 +6,7 @@ import AssignCategory from "../AssignCategory";
 import AssignedBatchList from "../AssignedBatchList";
 import AllowAnnotation from "../AllowAnnotation";
 import AssignRole from "../AssignRole";
-
+import { useMemo } from "react";
 function Info({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col items-start px-2 text-lg mt-2">
@@ -24,8 +24,10 @@ function Title({ children }: { children: React.ReactNode }) {
 
 const AboutUser = ({ selectedUser }: { selectedUser: string | null }) => {
   const { users, user } = useLoaderData();
-  const annotator = users.find((user: User) => user?.username === selectedUser);
-
+  const annotator = useMemo(
+    () => users.find((user: User) => user?.username === selectedUser),
+    [selectedUser]
+  );
   const reviewed_count = annotator?.text.filter((item) => item.reviewed).length;
   const approved_count = annotator?.text.length;
   let url = `/admin/user/review/${selectedUser}?session=` + user.username;
