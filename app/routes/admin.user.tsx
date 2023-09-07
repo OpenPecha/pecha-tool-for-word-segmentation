@@ -14,10 +14,9 @@ import { getUniqueTextsGroup } from "~/model/server.group";
 import { getAprovedBatch } from "~/model/server.text";
 import { getUser, getUsers, removeBatchFromUser } from "~/model/server.user";
 import { getCategories } from "~/model/utils/server.category";
-import { useOutletContext, useRevalidator } from "@remix-run/react";
+import { Outlet, useOutletContext, useRevalidator } from "@remix-run/react";
 import { useSocket } from "~/components/contexts/SocketContext";
 import { toolname } from "~/const";
-import { ClientOnly } from "remix-utils";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let users: User[] = await getUsers();
@@ -70,7 +69,7 @@ function Index() {
   return (
     <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5 ">
       <div className="col-span-12 xl:col-span-8 ">
-        <AboutUser selectedUser={selectedUser} user={user} />
+        <Outlet context={user} />
       </div>
       <UserListCard
         user={user}

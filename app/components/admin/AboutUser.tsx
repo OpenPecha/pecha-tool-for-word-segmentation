@@ -23,14 +23,8 @@ function Title({ children }: { children: React.ReactNode }) {
   );
 }
 
-const AboutUser = ({
-  selectedUser,
-  user,
-}: {
-  selectedUser: string;
-  user: any;
-}) => {
-  const { users } = useLoaderData();
+const AboutUser = ({ user }: { user: any }) => {
+  const { users, selectedUser } = useLoaderData();
   const annotator = users.find((user: User) => user?.username === selectedUser);
   const reviewed_count = annotator?.text.filter((item) => item.reviewed).length;
   const approved_count = annotator?.text.length;
