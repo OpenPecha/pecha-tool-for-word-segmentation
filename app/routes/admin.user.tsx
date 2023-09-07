@@ -7,7 +7,7 @@ import {
   json,
   redirect,
 } from "@remix-run/node";
-import AboutUser from "~/components/admin/client.AboutUser";
+import AboutUser from "~/components/admin/AboutUser";
 import UserListCard from "~/components/admin/UserListCard";
 import { useEffect, useState } from "react";
 import { getUniqueTextsGroup } from "~/model/server.group";
@@ -70,9 +70,7 @@ function Index() {
   return (
     <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5 ">
       <div className="col-span-12 xl:col-span-8 ">
-        <ClientOnly>
-          {() => <AboutUser selectedUser={selectedUser} user={user} />}
-        </ClientOnly>
+        <AboutUser selectedUser={selectedUser} user={user} />
       </div>
       <UserListCard
         user={user}

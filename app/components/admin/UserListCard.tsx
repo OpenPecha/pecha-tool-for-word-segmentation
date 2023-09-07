@@ -1,6 +1,6 @@
 import { User } from "@prisma/client";
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
-import { useEffect, useState } from "react";
+import { useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 const UserListCard = ({
   setSelectedUser,
   selectedUser,
@@ -10,11 +10,8 @@ const UserListCard = ({
   selectedUser: string | null;
   setSelectedUser: (data: string) => void;
 }) => {
-  let { users, groups, reviewers } = useLoaderData();
+  let { users, reviewers } = useLoaderData();
 
-  const handleSelection = (value: string) => {
-    setSelectedUser(value);
-  };
   let isAdmin = user.role === "ADMIN";
   let isReviewer = user.role === "REVIEWER";
   const [selectedReviewer, setSelectedReviewer] = useState("All");
@@ -85,45 +82,58 @@ const UserListCard = ({
         </div>
       )}
       <div>
-        {list.map((user: any) => {
-          let currentBatch = user.assigned_batch.filter(
-            (item) => !groups[item]?.reviewed && groups[item]?.approved
-          );
-
-          return (
-            <div
-              key={user.id + "-userList"}
-              onClick={() => handleSelection(user.username)}
-              className={` cursor-pointer flex items-center gap-5 py-3 px-7.5 hover:bg-gray-3 dark:hover:bg-meta-4 hover:rounded-sm transition duration-300 ease-in-out hover:bg-green-300 ${
-                selectedUser === user.username && "bg-green-300"
-              }`}
-            >
-              <div className="flex flex-1 items-center justify-between px-2">
-                <div>
-                  <h5 className="font-medium text-black dark:text-white">
-                    {user.nickname}
-                  </h5>
-                  <p>
-                    <span className="text-sm text-black dark:text-white">
-                      {user.username}
-                    </span>
-                    <span className="text-xs"> . 12 min</span>
-                  </p>
-                </div>
-                {currentBatch.length > 0 && (
-                  <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary">
-                    <span className="text-xs text-white">
-                      {currentBatch.length}
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        {list.map((user: any) => (
+          <EachUser
+            key={user.id + "unique_key"}
+            user={user}
+            setSelectedUser={setSelectedUser}
+            selectedUser={selectedUser}
+          />
+        ))}
       </div>
     </div>
   );
 };
+
+function EachUser({ user, setSelectedUser, selectedUser }) {
+  let { groups } = useLoaderData();
+
+  const handleSelection = (value: string) => {
+    console.log("hi from userlistcard");
+    setSelectedUser(value);
+  };
+  let currentBatch = user.assigned_batch.filter(
+    (item) => !groups[item]?.reviewed && groups[item]?.approved
+  );
+
+  return (
+    <div
+      key={user.id + "-userList"}
+      onClick={() => handleSelection(user.username)}
+      className={` cursor-pointer flex items-center gap-5 py-3 px-7.5 hover:bg-gray-3 dark:hover:bg-meta-4 hover:rounded-sm transition duration-300 ease-in-out hover:bg-green-300 ${
+        selectedUser === user.username && "bg-green-300"
+      }`}
+    >
+      <div className="flex flex-1 items-center justify-between px-2">
+        <div>
+          <h5 className="font-medium text-black dark:text-white">
+            {user.nickname}
+          </h5>
+          <p>
+            <span className="text-sm text-black dark:text-white">
+              {user.username}
+            </span>
+            <span className="text-xs"> . 12 min</span>
+          </p>
+        </div>
+        {currentBatch.length > 0 && (
+          <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary">
+            <span className="text-xs text-white">{currentBatch.length}</span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 export default UserListCard;
