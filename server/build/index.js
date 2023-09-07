@@ -2072,7 +2072,7 @@ var AssignNickName_default = (0, import_react18.memo)(AssignNickName);
 var import_react19 = require("@remix-run/react"), import_react_tailwindcss_select2 = __toESM(require("react-tailwindcss-select")), import_ai = require("react-icons/ai"), import_jsx_dev_runtime16 = require("react/jsx-dev-runtime");
 function AssignReviewer({ user }) {
   var _a, _b;
-  let { reviewers } = (0, import_react19.useLoaderData)(), options = reviewers.map((c) => ({
+  let { users } = (0, import_react19.useLoaderData)(), options = users.filter((user2) => user2.role === "REVIEWER").map((c) => ({
     value: c.username,
     label: c.username
   })), fetcher = (0, import_react19.useFetcher)();
@@ -2128,23 +2128,23 @@ function AssignReviewer({ user }) {
       !1,
       {
         fileName: "app/components/AssignReviewer.tsx",
-        lineNumber: 69,
+        lineNumber: 70,
         columnNumber: 7
       },
       this
     ),
     /* @__PURE__ */ (0, import_jsx_dev_runtime16.jsxDEV)("div", { className: "flex items-center cursor-pointer", onClick: handleDelete, children: /* @__PURE__ */ (0, import_jsx_dev_runtime16.jsxDEV)(import_ai.AiFillDelete, {}, void 0, !1, {
       fileName: "app/components/AssignReviewer.tsx",
-      lineNumber: 79,
+      lineNumber: 80,
       columnNumber: 9
     }, this) }, void 0, !1, {
       fileName: "app/components/AssignReviewer.tsx",
-      lineNumber: 78,
+      lineNumber: 79,
       columnNumber: 7
     }, this)
   ] }, void 0, !0, {
     fileName: "app/components/AssignReviewer.tsx",
-    lineNumber: 68,
+    lineNumber: 69,
     columnNumber: 5
   }, this);
 }
@@ -2475,7 +2475,7 @@ var import_react23 = require("@remix-run/react"), import_react24 = require("reac
   selectedUser,
   user
 }) => {
-  let { users, reviewers } = (0, import_react23.useLoaderData)(), isAdmin = user.role === "ADMIN", isReviewer = user.role === "REVIEWER", [selectedReviewer, setSelectedReviewer] = (0, import_react24.useState)("All"), [search, setSearch] = (0, import_react24.useState)("");
+  let { users } = (0, import_react23.useLoaderData)(), reviewers = users.filter((user2) => user2.role === "REVIEWER"), isAdmin = user.role === "ADMIN", [selectedReviewer, setSelectedReviewer] = (0, import_react24.useState)("All"), [search, setSearch] = (0, import_react24.useState)("");
   function handleReviewerChange(e) {
     let selectedReviewer2 = e.target.value;
     setSelectedReviewer(selectedReviewer2);
@@ -2488,12 +2488,10 @@ var import_react23 = require("@remix-run/react"), import_react24 = require("reac
       var _a;
       return ((_a = user2 == null ? void 0 : user2.reviewer) == null ? void 0 : _a.username) === selectedReviewer || (user2 == null ? void 0 : user2.username) === selectedReviewer;
     }
-  )), isReviewer && (list = list.filter(
-    (annotator) => annotator.reviewer_id === user.id || annotator.reviewer_id === null
-  ).sort((a, b) => a.reviewer_id === null && b.reviewer_id !== null ? 1 : a.reviewer_id !== null && b.reviewer_id === null ? -1 : 0)), /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("div", { className: "col-span-12 rounded-sm border border-stroke bg-white py-6 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4", children: [
+  )), /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("div", { className: "col-span-12 rounded-sm border border-stroke bg-white py-6 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4", children: [
     /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("h4", { className: "mb-6 pl-2 px-7.5 text-xl font-semibold text-black dark:text-white", children: "Annotators" }, void 0, !1, {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 53,
+      lineNumber: 36,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("div", { className: "flex gap-2  items-center flex-1 mb-2 mx-2", children: /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)(
@@ -2508,13 +2506,13 @@ var import_react23 = require("@remix-run/react"), import_react24 = require("reac
       !1,
       {
         fileName: "app/components/admin/UserListCard.tsx",
-        lineNumber: 57,
+        lineNumber: 40,
         columnNumber: 9
       },
       this
     ) }, void 0, !1, {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 56,
+      lineNumber: 39,
       columnNumber: 7
     }, this),
     isAdmin && /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("div", { className: "flex gap-2  items-center mb-2 mx-2", children: /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)(
@@ -2527,7 +2525,7 @@ var import_react23 = require("@remix-run/react"), import_react24 = require("reac
         children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("option", { value: "All", children: "All" }, void 0, !1, {
             fileName: "app/components/admin/UserListCard.tsx",
-            lineNumber: 72,
+            lineNumber: 55,
             columnNumber: 13
           }, this),
           reviewers.map((reviewer) => /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)(
@@ -2540,7 +2538,7 @@ var import_react23 = require("@remix-run/react"), import_react24 = require("reac
             !1,
             {
               fileName: "app/components/admin/UserListCard.tsx",
-              lineNumber: 74,
+              lineNumber: 57,
               columnNumber: 15
             },
             this
@@ -2551,13 +2549,13 @@ var import_react23 = require("@remix-run/react"), import_react24 = require("reac
       !0,
       {
         fileName: "app/components/admin/UserListCard.tsx",
-        lineNumber: 66,
+        lineNumber: 49,
         columnNumber: 11
       },
       this
     ) }, void 0, !1, {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 65,
+      lineNumber: 48,
       columnNumber: 9
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("div", { children: list.map((user2) => /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)(
@@ -2571,24 +2569,24 @@ var import_react23 = require("@remix-run/react"), import_react24 = require("reac
       !1,
       {
         fileName: "app/components/admin/UserListCard.tsx",
-        lineNumber: 86,
+        lineNumber: 69,
         columnNumber: 11
       },
       this
     )) }, void 0, !1, {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 84,
+      lineNumber: 67,
       columnNumber: 7
     }, this)
   ] }, void 0, !0, {
     fileName: "app/components/admin/UserListCard.tsx",
-    lineNumber: 52,
+    lineNumber: 35,
     columnNumber: 5
   }, this);
 };
 function EachUser({ user, setSelectedUser, selectedUser }) {
   let { groups } = (0, import_react23.useLoaderData)(), handleSelection = (value) => {
-    console.log(...oo_oo("f574a5d9_0", "hi from userlistcard")), setSelectedUser(value);
+    console.log(...oo_oo("6ce4f9e0_0", "hi from userlistcard")), setSelectedUser(value);
   }, currentBatch = user.assigned_batch.filter(
     (item) => {
       var _a, _b;
@@ -2604,42 +2602,42 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
         /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("div", { children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("h5", { className: "font-medium text-black dark:text-white", children: user.nickname }, void 0, !1, {
             fileName: "app/components/admin/UserListCard.tsx",
-            lineNumber: 119,
+            lineNumber: 102,
             columnNumber: 11
           }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("p", { children: [
             /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("span", { className: "text-sm text-black dark:text-white", children: user.username }, void 0, !1, {
               fileName: "app/components/admin/UserListCard.tsx",
-              lineNumber: 123,
+              lineNumber: 106,
               columnNumber: 13
             }, this),
             /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("span", { className: "text-xs", children: " . 12 min" }, void 0, !1, {
               fileName: "app/components/admin/UserListCard.tsx",
-              lineNumber: 126,
+              lineNumber: 109,
               columnNumber: 13
             }, this)
           ] }, void 0, !0, {
             fileName: "app/components/admin/UserListCard.tsx",
-            lineNumber: 122,
+            lineNumber: 105,
             columnNumber: 11
           }, this)
         ] }, void 0, !0, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 118,
+          lineNumber: 101,
           columnNumber: 9
         }, this),
         currentBatch.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("div", { className: "flex h-6 w-6 items-center justify-center rounded-full bg-primary", children: /* @__PURE__ */ (0, import_jsx_dev_runtime20.jsxDEV)("span", { className: "text-xs text-white", children: currentBatch.length }, void 0, !1, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 131,
+          lineNumber: 114,
           columnNumber: 13
         }, this) }, void 0, !1, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 130,
+          lineNumber: 113,
           columnNumber: 11
         }, this)
       ] }, void 0, !0, {
         fileName: "app/components/admin/UserListCard.tsx",
-        lineNumber: 117,
+        lineNumber: 100,
         columnNumber: 7
       }, this)
     },
@@ -2647,7 +2645,7 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
     !1,
     {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 110,
+      lineNumber: 93,
       columnNumber: 5
     },
     this
@@ -2898,14 +2896,18 @@ async function getCategories() {
 // app/routes/admin.user.tsx
 var import_react26 = require("@remix-run/react");
 var import_jsx_dev_runtime21 = require("react/jsx-dev-runtime"), loader5 = async ({ request }) => {
-  let users = await getUsers(), groups = await getAprovedBatch(), reviewers = users.filter((user) => user.role === "REVIEWER"), categories = await getCategories(), texts = await getUniqueTextsGroup();
-  return (0, import_node4.json)({
+  let session = new URL(request.url).searchParams.get("session");
+  if (!session)
+    return (0, import_node4.redirect)("/error");
+  let admin = await getUser(session, !0), users = await getUsers(), groups = await getAprovedBatch(), categories = await getCategories(), texts = await getUniqueTextsGroup();
+  return users = users.sort(
+    (a, b) => b.assigned_batch.length - a.assigned_batch.length
+  ), (admin == null ? void 0 : admin.role) !== "ADMIN" && (users = users.filter(
+    (user) => user.reviewer_id === null || user.reviewer_id === (admin == null ? void 0 : admin.id)
+  ).sort((a, b) => a.reviewer_id === null && b.reviewer_id !== null ? 1 : a.reviewer_id !== null && b.reviewer_id === null ? -1 : 0)), (0, import_node4.json)({
     texts,
-    users: users.sort(
-      (a, b) => b.assigned_batch.length - a.assigned_batch.length
-    ),
+    users,
     groups,
-    reviewers,
     categories
   });
 }, action = async ({ request }) => {
@@ -2930,11 +2932,11 @@ function Index() {
   }, [socket]), /* @__PURE__ */ (0, import_jsx_dev_runtime21.jsxDEV)("div", { className: "mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5 ", children: [
     /* @__PURE__ */ (0, import_jsx_dev_runtime21.jsxDEV)("div", { className: "col-span-12 xl:col-span-8 ", children: /* @__PURE__ */ (0, import_jsx_dev_runtime21.jsxDEV)(AboutUser_default, { selectedUser, user }, void 0, !1, {
       fileName: "app/routes/admin.user.tsx",
-      lineNumber: 72,
+      lineNumber: 91,
       columnNumber: 9
     }, this) }, void 0, !1, {
       fileName: "app/routes/admin.user.tsx",
-      lineNumber: 71,
+      lineNumber: 90,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime21.jsxDEV)(
@@ -2948,14 +2950,14 @@ function Index() {
       !1,
       {
         fileName: "app/routes/admin.user.tsx",
-        lineNumber: 74,
+        lineNumber: 93,
         columnNumber: 7
       },
       this
     )
   ] }, void 0, !0, {
     fileName: "app/routes/admin.user.tsx",
-    lineNumber: 70,
+    lineNumber: 89,
     columnNumber: 5
   }, this);
 }
@@ -4460,7 +4462,7 @@ function DemoPage() {
 var demo_default = DemoPage;
 
 // server-assets-manifest:@remix-run/dev/assets-manifest
-var assets_manifest_default = { entry: { module: "/build/entry.client-AN7T7EHS.js", imports: ["/build/_shared/chunk-ZWGWGGVF.js", "/build/_shared/chunk-GIAAE3CH.js", "/build/_shared/chunk-SZGQBB4K.js", "/build/_shared/chunk-NMZL6IDN.js", "/build/_shared/chunk-UENAGXQR.js", "/build/_shared/chunk-UWV35TSL.js", "/build/_shared/chunk-BOXFZXVX.js", "/build/_shared/chunk-PNG5AS42.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-HUN67VVA.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-TZTDTM6F.js", imports: ["/build/_shared/chunk-VW7BFLMU.js", "/build/_shared/chunk-V7ASUWXA.js", "/build/_shared/chunk-FJI5CMXX.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-WLMTHQOR.js", imports: ["/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-F2P733AV.js", "/build/_shared/chunk-FXCVAPJI.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-QX4QACTM.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-OFUYJ642.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-ZM5PB5ST.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-52JFRC4I.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-HDUJ4ASR.js", imports: ["/build/_shared/chunk-V7ASUWXA.js", "/build/_shared/chunk-4SHR5HQ5.js", "/build/_shared/chunk-FJI5CMXX.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-A4DRPZQ7.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text.$version": { id: "routes/api.text.$version", parentId: "routes/api.text", path: ":version", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text.$version-D5R6AXVU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-7BYWHH7L.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-K3HPPKXU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-JTVRFTHW.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-HDUSOLRQ.js", imports: ["/build/_shared/chunk-VW7BFLMU.js", "/build/_shared/chunk-4SHR5HQ5.js", "/build/_shared/chunk-FJI5CMXX.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-VKEWX2GE.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "22c5b94b", hmr: { runtime: "/build/_shared\\chunk-UENAGXQR.js", timestamp: 1694068550987 }, url: "/build/manifest-22C5B94B.js" };
+var assets_manifest_default = { entry: { module: "/build/entry.client-AN7T7EHS.js", imports: ["/build/_shared/chunk-ZWGWGGVF.js", "/build/_shared/chunk-GIAAE3CH.js", "/build/_shared/chunk-SZGQBB4K.js", "/build/_shared/chunk-NMZL6IDN.js", "/build/_shared/chunk-UENAGXQR.js", "/build/_shared/chunk-UWV35TSL.js", "/build/_shared/chunk-BOXFZXVX.js", "/build/_shared/chunk-PNG5AS42.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-HUN67VVA.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-TZTDTM6F.js", imports: ["/build/_shared/chunk-VW7BFLMU.js", "/build/_shared/chunk-V7ASUWXA.js", "/build/_shared/chunk-FJI5CMXX.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-WLMTHQOR.js", imports: ["/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-F2P733AV.js", "/build/_shared/chunk-FXCVAPJI.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-QX4QACTM.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-OFUYJ642.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-ZM5PB5ST.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-IQ46ICTS.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-HDUJ4ASR.js", imports: ["/build/_shared/chunk-V7ASUWXA.js", "/build/_shared/chunk-4SHR5HQ5.js", "/build/_shared/chunk-FJI5CMXX.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-A4DRPZQ7.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text.$version": { id: "routes/api.text.$version", parentId: "routes/api.text", path: ":version", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text.$version-D5R6AXVU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-7BYWHH7L.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-K3HPPKXU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-JTVRFTHW.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-HDUSOLRQ.js", imports: ["/build/_shared/chunk-VW7BFLMU.js", "/build/_shared/chunk-4SHR5HQ5.js", "/build/_shared/chunk-FJI5CMXX.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-VKEWX2GE.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "6defeec7", hmr: { runtime: "/build/_shared\\chunk-UENAGXQR.js", timestamp: 1694070729050 }, url: "/build/manifest-6DEFEEC7.js" };
 
 // server-entry-module:@remix-run/dev/server-build
 var assetsBuildDirectory = "public\\build", future = { v2_dev: !0, unstable_postcss: !1, unstable_tailwind: !1, v2_errorBoundary: !0, v2_headers: !0, v2_meta: !0, v2_normalizeFormMethod: !0, v2_routeConvention: !0 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {

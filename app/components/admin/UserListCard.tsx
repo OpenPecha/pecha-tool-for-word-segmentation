@@ -10,10 +10,9 @@ const UserListCard = ({
   selectedUser: string | null;
   setSelectedUser: (data: string) => void;
 }) => {
-  let { users, reviewers } = useLoaderData();
-
+  let { users } = useLoaderData();
+  let reviewers = users.filter((user) => user.role === "REVIEWER");
   let isAdmin = user.role === "ADMIN";
-  let isReviewer = user.role === "REVIEWER";
   const [selectedReviewer, setSelectedReviewer] = useState("All");
   const [search, setSearch] = useState("");
 
@@ -30,22 +29,6 @@ const UserListCard = ({
         user?.reviewer?.username === selectedReviewer ||
         user?.username === selectedReviewer
     );
-  }
-  if (isReviewer) {
-    list = list
-      .filter(
-        (annotator: User) =>
-          annotator.reviewer_id === user.id || annotator.reviewer_id === null
-      )
-      .sort((a, b) => {
-        if (a.reviewer_id === null && b.reviewer_id !== null) {
-          return 1; // a should come after b
-        } else if (a.reviewer_id !== null && b.reviewer_id === null) {
-          return -1; // a should come before b
-        } else {
-          return 0; // no change in order
-        }
-      });
   }
 
   return (

@@ -19,18 +19,37 @@ import { useSocket } from "~/components/contexts/SocketContext";
 import { toolname } from "~/const";
 
 export const loader: LoaderFunction = async ({ request }) => {
+  let url = new URL(request.url);
+  let session = url.searchParams.get("session");
+  if (!session) return redirect("/error");
+  let admin = await getUser(session, true);
   let users: User[] = await getUsers();
   let groups = await getAprovedBatch();
-  let reviewers = users.filter((user) => user.role === "REVIEWER");
   let categories = await getCategories();
   let texts = await getUniqueTextsGroup();
+  users = users.sort(
+    (a, b) => b.assigned_batch.length - a.assigned_batch.length
+  );
+  if (admin?.role !== "ADMIN") {
+    users = users
+      .filter(
+        (user) => user.reviewer_id === null || user.reviewer_id === admin?.id
+      )
+      .sort((a, b) => {
+        if (a.reviewer_id === null && b.reviewer_id !== null) {
+          return 1; // a should come after b
+        } else if (a.reviewer_id !== null && b.reviewer_id === null) {
+          return -1; // a should come before b
+        } else {
+          return 0; // no change in order
+        }
+      });
+  }
+
   return json({
     texts,
-    users: users.sort(
-      (a, b) => b.assigned_batch.length - a.assigned_batch.length
-    ),
+    users,
     groups,
-    reviewers,
     categories,
   });
 };

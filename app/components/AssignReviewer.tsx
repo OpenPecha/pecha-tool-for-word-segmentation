@@ -9,7 +9,8 @@ interface Option {
 }
 
 function AssignReviewer({ user }: { user: any }) {
-  const { reviewers } = useLoaderData();
+  const { users } = useLoaderData();
+  let reviewers = users.filter((user) => user.role === "REVIEWER");
   let options: Option[] = reviewers.map((c: User) => ({
     value: c.username,
     label: c.username,
