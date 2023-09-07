@@ -1,8 +1,8 @@
 import { useState } from "react";
 import Header from "~/components/admin/Header";
-import { Outlet, useLocation } from "@remix-run/react";
+import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import Sidebar from "~/components/admin/Sidebar";
-import { LoaderFunction, defer, redirect } from "@remix-run/node";
+import { LoaderFunction, defer, json, redirect } from "@remix-run/node";
 import { getUser } from "~/model/server.user";
 import { getProgress } from "~/model/server.text";
 
@@ -12,7 +12,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (!session) return redirect("/error");
   let user = await getUser(session, true);
   let progress = await getProgress();
-  return defer({
+  return json({
     user,
     progress,
   });
@@ -21,7 +21,7 @@ export const loader: LoaderFunction = async ({ request }) => {
 const DefaultLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { pathname } = useLocation();
-
+  const { user } = useLoaderData();
   return (
     <div className="dark:bg-boxdark-2 dark:text-bodydark">
       <div className="flex h-screen overflow-hidden">
@@ -34,7 +34,7 @@ const DefaultLayout = () => {
                 pathname.includes("metabase") ? "p-0" : " p-4 md:p-6 2xl:p-10"
               }`}
             >
-              <Outlet />
+              <Outlet context={user} />
             </div>
           </main>
         </div>

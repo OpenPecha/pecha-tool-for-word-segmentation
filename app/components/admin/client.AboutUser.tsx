@@ -1,12 +1,13 @@
-import { User } from "@prisma/client";
 import { Link, useLoaderData } from "@remix-run/react";
+import AllowAnnotation from "../AllowAnnotation";
+import AssignCategory from "../AssignCategory";
 import AssignNickName from "../AssignNickName";
 import AssignReviewer from "../AssignReviewer";
-import AssignCategory from "../AssignCategory";
-import AssignedBatchList from "../AssignedBatchList";
-import AllowAnnotation from "../AllowAnnotation";
 import AssignRole from "../AssignRole";
+import AssignedBatchList from "../AssignedBatchList";
 import { useMemo } from "react";
+import { User } from "@prisma/client";
+
 function Info({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col items-start px-2 text-lg mt-2">
@@ -22,18 +23,20 @@ function Title({ children }: { children: React.ReactNode }) {
   );
 }
 
-const AboutUser = ({ selectedUser }: { selectedUser: string | null }) => {
-  const { users, user } = useLoaderData();
-  const annotator = useMemo(
-    () => users.find((user: User) => user?.username === selectedUser),
-    [selectedUser]
-  );
+const AboutUser = ({
+  selectedUser,
+  user,
+}: {
+  selectedUser: string;
+  user: any;
+}) => {
+  const { users } = useLoaderData();
+  const annotator = users.find((user: User) => user?.username === selectedUser);
   const reviewed_count = annotator?.text.filter((item) => item.reviewed).length;
   const approved_count = annotator?.text.length;
   let url = `/admin/user/review/${selectedUser}?session=` + user.username;
   let isAdmin = user.role === "ADMIN";
-  if (!annotator) return <div className="font-bold">Select a User please</div>;
-
+  if (selectedUser === "") return null;
   return (
     <div className="sticky top-[80px]  rounded-sm border border-stroke bg-white px-5 pt-6 pb-10 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-10 ">
       <div className="flex flex-col md:flex-row justify-between px-1">
