@@ -26,14 +26,15 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: "*" } });
 // Then you can use `io` to listen the `connection` event and get a socket
 // from a client
-let count = 0;
-io.on("connection", (socket) => {
-  count++;
-  io.emit("count", count);
-  // from this point you are on the WS connection with a specific client
-  console.log(socket.id, "connected");
+const onlineUsers = new Map();
 
-  socket.emit("confirmation", "connected!");
+io.on("connection", (socket) => {
+  socket.on("user_login", (session) => {
+    onlineUsers.set(session, socket.id);
+    // Notify all clients that the user is now online
+    io.emit("user_online", Array.from(onlineUsers.keys()));
+  });
+  // from this point you are on the WS connection with a specific client
 
   socket.on("event", (data) => {
     socket.emit("event", "pong");
@@ -49,8 +50,14 @@ io.on("connection", (socket) => {
     socket.broadcast.emit("reviewed", data);
   });
   socket.on("disconnect", () => {
-    count--;
-    io.emit("count", count);
+    for (const [username, id] of onlineUsers.entries()) {
+      if (id === socket.id) {
+        onlineUsers.delete(username);
+        // Notify all clients that the user is now offline
+        io.emit("user_offline", Array.from(onlineUsers.keys()));
+        break;
+      }
+    }
   });
 });
 

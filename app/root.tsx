@@ -1,4 +1,4 @@
-import { LinksFunction } from "@remix-run/node";
+import { LinksFunction, LoaderFunction } from "@remix-run/node";
 import {
   Links,
   LiveReload,
@@ -6,6 +6,7 @@ import {
   Outlet,
   Scripts,
   ScrollRestoration,
+  useLoaderData,
 } from "@remix-run/react";
 import React, { useEffect, useState } from "react";
 import tailwindStyle from "./styles/tailwind.css";
@@ -13,7 +14,12 @@ import globalStyle from "./styles/global.css";
 import drawwerStyle from "react-modern-drawer/dist/index.css";
 import { SocketProvider, connect } from "./components/contexts/SocketContext";
 import type { Socket } from "socket.io-client";
+export const loader: LoaderFunction = async ({ request }) => {
+  let url = new URL(request.url);
+  let session = url.searchParams.get("session") as string;
 
+  return { session };
+};
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStyle },
   { rel: "stylesheet", href: globalStyle },
@@ -21,19 +27,17 @@ export const links: LinksFunction = () => [
 ];
 export default function App() {
   const [socket, setSocket] = useState<Socket>();
-
+  const { session } = useLoaderData();
   useEffect(() => {
     const socket = connect();
     setSocket(socket);
+    socket.emit("user_login", session);
+
     return () => {
       socket.close();
     };
   }, []);
 
-  useEffect(() => {
-    if (!socket) return;
-    socket.on("confirmation", (data) => {});
-  }, [socket]);
   return (
     <html lang="en">
       <head>

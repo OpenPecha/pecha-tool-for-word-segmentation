@@ -89,14 +89,7 @@ export async function getTextToDisplay(userId: string, history: any) {
     };
   }
   let batch = await checkAndAssignBatch(userId);
-  const user = await db.user.findUnique({
-    where: { id: userId },
-    include: {
-      ignored_list: true,
-      rejected_list: true,
-    },
-  });
-  const rejectedIds = user?.rejected_list.map((item: any) => item.id) || [];
+
   let text = await db.text.findFirst({
     where: {
       batch: batch,
@@ -104,6 +97,12 @@ export async function getTextToDisplay(userId: string, history: any) {
     },
     orderBy: {
       id: "asc",
+    },
+    select: {
+      id: true,
+      original_text: true,
+      modified_text: true,
+      status: true,
     },
   });
   if (!text) return null;

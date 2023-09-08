@@ -1,6 +1,7 @@
 import { User } from "@prisma/client";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
+import { useOnlineList } from "../hooks/useOnlineList";
 const UserListCard = ({
   setSelectedUser,
   selectedUser,
@@ -10,6 +11,8 @@ const UserListCard = ({
   selectedUser: string | null;
   setSelectedUser: (data: string) => void;
 }) => {
+  const onlineUsers = useOnlineList();
+
   let { users } = useLoaderData();
   let reviewers = users.filter((user) => user.role === "REVIEWER");
   let isAdmin = user.role === "ADMIN";
@@ -33,9 +36,12 @@ const UserListCard = ({
 
   return (
     <div className="col-span-12 rounded-sm border border-stroke bg-white py-6 shadow-default dark:border-strokedark dark:bg-boxdark xl:col-span-4">
-      <h4 className="mb-6 pl-2 px-7.5 text-xl font-semibold text-black dark:text-white">
-        Annotators
-      </h4>
+      <div className="flex justify-between px-2">
+        <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
+          Annotators
+        </h4>
+        <div className="text-gray-400">online :{onlineUsers.length}</div>
+      </div>
       <div className="flex gap-2  items-center flex-1 mb-2 mx-2">
         <input
           type="text"
@@ -80,9 +86,9 @@ const UserListCard = ({
 
 function EachUser({ user, setSelectedUser, selectedUser }) {
   let { groups } = useLoaderData();
+  const onlineUsers = useOnlineList();
 
   const handleSelection = (value: string) => {
-    console.log("hi from userlistcard");
     setSelectedUser(value);
   };
   let currentBatch = user.assigned_batch.filter(
@@ -100,7 +106,12 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
       <div className="flex flex-1 items-center justify-between px-2">
         <div>
           <h5 className="font-medium text-black dark:text-white">
-            {user.nickname}
+            {onlineUsers?.includes(user.username) && (
+              <span className="text-xs mr-2" title="online">
+                🟢
+              </span>
+            )}
+            {user.nickname}{" "}
           </h5>
           <p>
             <span className="text-sm text-black dark:text-white">
@@ -109,6 +120,7 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
             <span className="text-xs"> . 12 min</span>
           </p>
         </div>
+
         {currentBatch.length > 0 && (
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary">
             <span className="text-xs text-white">{currentBatch.length}</span>

@@ -16,10 +16,8 @@ import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
-import useModal from "~/components/hooks/useModal";
 import formatTime from "~/lib/formatTime";
 export const loader: LoaderFunction = async ({ request }) => {
-  let { NODE_ENV } = process.env;
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   let history = url.searchParams.get("history") || null;
@@ -32,7 +30,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       text = await getTextToDisplay(user?.id, history);
     }
     let current_time = Date.now();
-    return { text, user, NODE_ENV, history, current_time };
+    return { text, user, history, current_time };
   }
 };
 

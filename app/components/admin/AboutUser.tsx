@@ -5,7 +5,6 @@ import AssignNickName from "../AssignNickName";
 import AssignReviewer from "../AssignReviewer";
 import AssignRole from "../AssignRole";
 import AssignedBatchList from "../AssignedBatchList";
-import { useMemo } from "react";
 import { User } from "@prisma/client";
 
 function Info({ children }: { children: React.ReactNode }) {
@@ -32,8 +31,7 @@ const AboutUser = ({
 }) => {
   const { users } = useLoaderData();
   const annotator = users.find((user: User) => user?.username === selectedUser);
-  const reviewed_count = annotator?.text.filter((item) => item.reviewed).length;
-  const approved_count = annotator?.text.length;
+
   let url = `/admin/user/review/${selectedUser}?session=` + user.username;
   let isAdmin = user.role === "ADMIN";
   if (selectedUser === "") return null;
@@ -66,12 +64,6 @@ const AboutUser = ({
         <AssignCategory user={annotator} />
       </Info>
       <Info>
-        <Title>
-          Assigned Batch:
-          <div title={"reviewed/total"}>
-            {reviewed_count}/{approved_count}
-          </div>
-        </Title>
         <AssignedBatchList user={annotator} />
       </Info>
 
