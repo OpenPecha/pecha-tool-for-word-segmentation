@@ -9,7 +9,6 @@ import {
   updateTextRejectCount,
 } from "~/model/server.text";
 import {
-  getUser,
   getUserById,
   remainingTextToApproved,
   updateUserAssign,

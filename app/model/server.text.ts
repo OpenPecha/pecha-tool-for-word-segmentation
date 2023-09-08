@@ -180,7 +180,7 @@ export function saveText(
       rejected_by: { disconnect: { id: userId } },
       reviewed: !!adminId,
       reviewed_by_id: adminId || null,
-      duration: time || null,
+      duration: time ? parseFloat(time) : null,
     },
   });
 }

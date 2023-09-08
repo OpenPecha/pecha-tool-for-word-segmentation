@@ -68,7 +68,7 @@ export default function Index() {
   let saveText = async () => {
     let endTime = Date.now();
     let timeDiff = endTime - data?.current_time;
-    let duration = formatTime(timeDiff);
+    let duration = timeDiff / 1000;
     let modified_text = editor!.getText();
     let id = data.text.id;
     fetcher.submit(
