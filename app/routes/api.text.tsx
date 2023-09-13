@@ -2,6 +2,7 @@ import { ActionFunction, redirect } from "@remix-run/node";
 import { sendNotification } from "~/lib/server.sendDiscordNotification";
 import {
   changeCategory,
+  deleteTextByVersion,
   getNumberOfReject,
   rejectText,
   removeRejectText,
@@ -76,6 +77,11 @@ export const action: ActionFunction = async ({ request }) => {
       text = await changeCategory(version, category);
       return text;
     }
+  }
+  if (request.method === "DELETE") {
+    const version = formData.get("version") as string;
+    let deletedText = await deleteTextByVersion(version);
+    return deletedText;
   }
   if (history) {
     return redirect(`/?session=${session}`);

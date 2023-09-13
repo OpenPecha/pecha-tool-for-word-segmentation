@@ -40,7 +40,7 @@ model Text {
   ignored_by     User[]   @relation("UserIgnoredText")
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  batch          Int?     @default(0)
+  batch          Int?     @default(autoincrement()) 
   version         String?  @default("")
   reviewed       Boolean? 
   reviewed_by    User?  @relation("UserReviewedText",fields: [reviewed_by_id],references: [id])
