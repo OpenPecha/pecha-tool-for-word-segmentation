@@ -11,10 +11,10 @@ export async function uploadData({ name, data }) {
       console.log("Record already exists");
       return { error: "Record already exists" };
     }
-    console.log(data);
     let UploadData = data?.map((item) => ({
       version: name,
       original_text: item.original_text,
+      batch: item.batch,
     }));
     let uploaded = await db.text.createMany({
       data: UploadData,

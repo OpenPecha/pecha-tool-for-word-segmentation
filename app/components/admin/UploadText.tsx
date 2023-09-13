@@ -6,10 +6,48 @@ import useParseData from "../hooks/useParseData";
 function UploadText() {
   const [data, setData] = React.useState("");
   const [fileName, setFileName] = React.useState("");
+  const [csvData, setCsvData] = React.useState([]);
+
   const dataUpload = useFetcher();
   const { lastbatch } = useLoaderData();
-  const startBatch = lastbatch ? lastbatch.batch + 1 : null;
-  const csvData = useParseData(data, fileName, startBatch);
+  const startBatch = parseInt(lastbatch) + 1;
+  const convertToCSV = () => {
+    Papa.parse(data, {
+      complete: (result) => {
+        const lines = result.data;
+        const rows = [];
+        let currentRow = [];
+        let currentBatch = startBatch;
+        lines.forEach((line, index) => {
+          currentRow.push(line);
+
+          if (currentRow.length === 10 || index === lines.length - 1) {
+            // Map your schema fields to the lines in the currentRow
+            const original_text = currentRow.join(" "); // Join 10 lines into one
+
+            // Add other fields as needed
+            const rowData = {
+              original_text: original_text,
+              version: fileName,
+              batch: currentBatch,
+            };
+
+            rows.push(rowData);
+            if (rows.length % 10 === 0 && rows.length !== 0) {
+              currentBatch += 1;
+            }
+
+            currentRow = [];
+          }
+        });
+
+        setCsvData(rows);
+      },
+    });
+  };
+  React.useEffect(() => {
+    convertToCSV();
+  }, [data]);
   const handleFileInputChange = (e) => {
     const file = e.target.files[0];
 

@@ -1,6 +1,6 @@
 import React from "react";
 import Papa from "papaparse";
-function useParseData(data: string, fileName: string, startBatch: number) {
+function useParseData({ data, fileName, startBatch }) {
   const [csvData, setCsvData] = React.useState([]);
   const convertToCSV = (data1) => {
     Papa.parse(data1, {
@@ -24,9 +24,10 @@ function useParseData(data: string, fileName: string, startBatch: number) {
             };
 
             rows.push(rowData);
-            if (rows.length % 10 === 0) {
-              currentBatch++;
+            if (rows.length % 10 === 0 && rows.length !== 0) {
+              currentBatch += 1;
             }
+
             currentRow = [];
           }
         });
