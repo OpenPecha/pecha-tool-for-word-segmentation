@@ -99,7 +99,7 @@ function UploadText() {
       />
       <button
         onClick={handleUpload}
-        className=" bg-green-300 btn-sm rounded-md min-h-0"
+        className=" bg-green-300 dark:bg-green-600 dark:text-white btn-sm rounded-md min-h-0"
       >
         {dataUpload.state !== "idle" ? <div>uploading</div> : <>upload</>}
       </button>{" "}

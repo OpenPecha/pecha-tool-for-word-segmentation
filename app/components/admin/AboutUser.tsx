@@ -9,7 +9,7 @@ import { User } from "@prisma/client";
 
 function Info({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex flex-col items-start px-2 text-lg mt-2">
+    <div className="flex flex-col items-start px-2 text-lg mt-2 dark:text-white text-black">
       {children}
     </div>
   );
@@ -36,7 +36,7 @@ const AboutUser = ({
   let isAdmin = user.role === "ADMIN";
   if (selectedUser === "") return null;
   return (
-    <div className="sticky top-[80px]  rounded-sm border border-stroke bg-white px-5 pt-6 pb-10 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-10 ">
+    <div className="sticky top-[80px]  rounded-sm border border-stroke bg-white dark:bg-slate-600  px-5 pt-6 pb-10 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-10 ">
       <div className="flex flex-col md:flex-row justify-between px-1">
         <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
           {annotator?.username}

@@ -16,7 +16,7 @@ function AboutText() {
       {user.role === "ADMIN" && <UploadText />}
       <div className="collapse collapse-plus bg-base-200">
         <input type="radio" name="my-accordion-3" />
-        <div className="collapse-title text-xl font-medium bg-gray-300">
+        <div className="collapse-title text-xl font-medium bg-gray-300 dark:bg-slate-600 ">
           <h2>Category</h2>
         </div>
         <div className="collapse-content">
@@ -27,7 +27,7 @@ function AboutText() {
       </div>
       <div className="collapse collapse-plus bg-base-200 mt-3">
         <input type="radio" name="my-accordion-3" />
-        <div className="collapse-title text-xl font-medium bg-gray-300">
+        <div className="collapse-title text-xl font-medium bg-gray-300 dark:bg-slate-600 ">
           <h2>Downloads</h2>
         </div>
         <div className="collapse-content">

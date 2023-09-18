@@ -33,7 +33,9 @@ function AssignedBatchList({ user }: any) {
   return (
     <div className="mt-2 flex gap-2">
       <Toggle_Modal>
-        <span className="text-black underline ">Active Jobs</span>
+        <span className="text-black underline dark:text-white">
+          Active Jobs
+        </span>
       </Toggle_Modal>
       <Modal>
         {currentBatch.map((item) => {
