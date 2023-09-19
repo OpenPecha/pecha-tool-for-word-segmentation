@@ -72,6 +72,9 @@ export const getUniqueTextsGroup = async () => {
     select: {
       version: true,
     },
+    orderBy: {
+      updatedAt: "desc",
+    },
   });
   const uniqueVersions = Array.from(
     new Set(textRecords.map((record) => record.version))

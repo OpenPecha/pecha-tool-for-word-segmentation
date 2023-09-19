@@ -1,7 +1,6 @@
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import React from "react";
 import Papa from "papaparse";
-import useParseData from "../hooks/useParseData";
 
 function UploadText() {
   const [data, setData] = React.useState("");
