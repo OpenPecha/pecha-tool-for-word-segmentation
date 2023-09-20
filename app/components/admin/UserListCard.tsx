@@ -103,6 +103,19 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
         selectedUser === user.username && "bg-green-300"
       }`}
     >
+      {user.picture ? (
+        <div className="avatar ml-2">
+          <div className="w-[40px] rounded-full">
+            <img src={user.picture} alt="" />
+          </div>
+        </div>
+      ) : (
+        <div className="avatar placeholder ml-2">
+          <div className="bg-neutral-focus text-neutral-content rounded-full w-12">
+            <span>{user.username.charAt(0)}</span>
+          </div>
+        </div>
+      )}
       <div className="flex flex-1 items-center justify-between px-2">
         <div>
           <h5 className="font-medium text-black dark:text-white">
