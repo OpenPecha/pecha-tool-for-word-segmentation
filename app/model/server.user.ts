@@ -252,3 +252,9 @@ export async function updateUserRole(id: string, role: Role) {
   });
   return item;
 }
+export async function removeUser(username: string) {
+  let item = await db.user.delete({
+    where: { username },
+  });
+  return item;
+}

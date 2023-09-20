@@ -1,4 +1,4 @@
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useFetcher, useLoaderData } from "@remix-run/react";
 import AllowAnnotation from "../AllowAnnotation";
 import AssignCategory from "../AssignCategory";
 import AssignNickName from "../AssignNickName";
@@ -31,10 +31,26 @@ const AboutUser = ({
 }) => {
   const { users } = useLoaderData();
   const annotator = users.find((user: User) => user?.username === selectedUser);
-
+  const fetcher = useFetcher();
   let url = `/admin/user/review/${selectedUser}?session=` + user.username;
   let isAdmin = user.role === "ADMIN";
   if (selectedUser === "") return null;
+
+  function removeUser() {
+    if (window.confirm("Are you sure you want to remove this user ?")) {
+      fetcher.submit(
+        {
+          username: selectedUser,
+          action: "remove_user",
+        },
+        {
+          method: "DELETE",
+          action: "/api/user",
+        }
+      );
+    }
+  }
+  if (!annotator) return null;
   return (
     <div className="sticky top-[80px]  rounded-sm border border-stroke bg-white dark:bg-slate-600  px-5 pt-6 pb-10 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-10 ">
       <div className="flex flex-col md:flex-row justify-between px-1">
@@ -66,7 +82,16 @@ const AboutUser = ({
       <Info>
         <AssignedBatchList user={annotator} />
       </Info>
-
+      {isAdmin && (
+        <Info>
+          <div
+            onClick={removeUser}
+            className="underline text-red-500 cursor-pointer "
+          >
+            remove user
+          </div>
+        </Info>
+      )}
       <Link
         title="visit"
         className="bg-green-500 text-white font-bold py-1 px-3 w-full  text-center hover:opacity-90 absolute bottom-0 left-0 right-0 "

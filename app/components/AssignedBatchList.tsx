@@ -15,7 +15,7 @@ function AssignedBatchList({ user }: any) {
 
     if (c)
       userfetcher.submit(
-        { batch: e, id: user.id },
+        { batch: e, id: user?.id },
         {
           method: "DELETE",
         }
