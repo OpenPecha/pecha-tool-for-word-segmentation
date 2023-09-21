@@ -2,6 +2,7 @@ import { User } from "@prisma/client";
 import { useLoaderData } from "@remix-run/react";
 import { useState } from "react";
 import { useOnlineList } from "../hooks/useOnlineList";
+import { timeAgo } from "~/lib/getFormattedDate";
 const UserListCard = ({
   setSelectedUser,
   selectedUser,
@@ -94,6 +95,8 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
   let currentBatch = user.assigned_batch.filter(
     (item) => !groups[item]?.reviewed && groups[item]?.approved
   );
+  let Time = user?.text?.at(0)?.modified_on;
+  let time_ago = Time ? timeAgo(Time) : "inactive";
 
   return (
     <div
@@ -117,20 +120,22 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
         </div>
       )}
       <div className="flex flex-1 items-center justify-between px-2">
-        <div>
-          <h5 className="font-medium text-black dark:text-white">
-            {onlineUsers?.includes(user.username) && (
-              <span className="text-xs mr-2" title="online">
-                🟢
-              </span>
-            )}
-            {user.nickname}{" "}
-          </h5>
-          <p>
+        <div className="w-full">
+          <div className="font-medium text-black dark:text-white flex justify-between items-center w-full">
+            <div>
+              {onlineUsers?.includes(user?.username) && (
+                <span className="text-xs mr-2" title="online">
+                  🟢
+                </span>
+              )}
+              {user.nickname}
+            </div>
+            <div className="text-xs ">{time_ago}</div>
+          </div>
+          <p className="flex justify-between items-center">
             <span className="text-sm text-black dark:text-white">
               {user.username}
             </span>
-            <span className="text-xs"> . 12 min</span>
           </p>
         </div>
 

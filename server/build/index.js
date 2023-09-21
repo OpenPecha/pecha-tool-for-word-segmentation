@@ -381,7 +381,11 @@ var createUserIfNotExists = async (username) => {
   try {
     return await db.user.findMany({
       include: {
-        text: { select: { id: !0, status: !0, reviewed: !0 } },
+        text: {
+          select: { id: !0, status: !0, reviewed: !0, modified_on: !0 },
+          orderBy: { id: "desc" },
+          take: 50
+        },
         rejected_list: !0,
         ignored_list: !0,
         reviewer: !0
@@ -2964,6 +2968,49 @@ function useOnlineList() {
   }, [socket]), online;
 }
 
+// app/lib/getFormattedDate.ts
+var MONTH_NAMES = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December"
+];
+function getFormattedDate(date, prefomattedDate = !1, hideYear = !1) {
+  let day = date.getDate(), month = MONTH_NAMES[date.getMonth()], year = date.getFullYear(), hours = date.getHours(), minutes = date.getMinutes();
+  return minutes < 10 && (minutes = `0${minutes}`), prefomattedDate ? `${prefomattedDate}` : hideYear ? `${day} ${month}` : `${day} ${month} ${year}`;
+}
+function timeAgo(dateParam) {
+  if (!dateParam)
+    return null;
+  let date = typeof dateParam == "object" ? dateParam : new Date(dateParam), DAY_IN_MS = 864e5, today = /* @__PURE__ */ new Date(), yesterday = new Date(today - DAY_IN_MS), seconds = Math.round((today - date) / 1e3), minutes = Math.round(seconds / 60), isToday = today.toDateString() === date.toDateString(), isYesterday = yesterday.toDateString() === date.toDateString(), isThisYear = today.getFullYear() === date.getFullYear();
+  switch (!0) {
+    case seconds < 5:
+      return "now";
+    case seconds < 60:
+      return `${seconds} seconds ago`;
+    case seconds < 90:
+      return "about a minute ago";
+    case minutes < 60:
+      return `${minutes} minutes ago`;
+    case isToday:
+      return getFormattedDate(date, "Today");
+    case isYesterday:
+      return getFormattedDate(date, "Yesterday");
+    case isThisYear:
+      return getFormattedDate(date, !1, !0);
+    default:
+      return getFormattedDate(date);
+  }
+}
+
 // app/components/admin/UserListCard.tsx
 var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), UserListCard = ({
   setSelectedUser,
@@ -2987,7 +3034,7 @@ var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), UserListCard = 
     /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "flex justify-between px-2", children: [
       /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("h4", { className: "mb-6 text-xl font-semibold text-black dark:text-white", children: "Annotators" }, void 0, !1, {
         fileName: "app/components/admin/UserListCard.tsx",
-        lineNumber: 40,
+        lineNumber: 41,
         columnNumber: 9
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "text-gray-400", children: [
@@ -2995,12 +3042,12 @@ var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), UserListCard = 
         onlineUsers.length
       ] }, void 0, !0, {
         fileName: "app/components/admin/UserListCard.tsx",
-        lineNumber: 43,
+        lineNumber: 44,
         columnNumber: 9
       }, this)
     ] }, void 0, !0, {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 39,
+      lineNumber: 40,
       columnNumber: 7
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "flex gap-2  items-center flex-1 mb-2 mx-2", children: /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)(
@@ -3015,13 +3062,13 @@ var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), UserListCard = 
       !1,
       {
         fileName: "app/components/admin/UserListCard.tsx",
-        lineNumber: 46,
+        lineNumber: 47,
         columnNumber: 9
       },
       this
     ) }, void 0, !1, {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 45,
+      lineNumber: 46,
       columnNumber: 7
     }, this),
     isAdmin && /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "flex gap-2  items-center mb-2 mx-2", children: /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)(
@@ -3034,7 +3081,7 @@ var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), UserListCard = 
         children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("option", { value: "All", children: "All" }, void 0, !1, {
             fileName: "app/components/admin/UserListCard.tsx",
-            lineNumber: 61,
+            lineNumber: 62,
             columnNumber: 13
           }, this),
           reviewers.map((reviewer) => /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)(
@@ -3047,7 +3094,7 @@ var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), UserListCard = 
             !1,
             {
               fileName: "app/components/admin/UserListCard.tsx",
-              lineNumber: 63,
+              lineNumber: 64,
               columnNumber: 15
             },
             this
@@ -3058,13 +3105,13 @@ var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), UserListCard = 
       !0,
       {
         fileName: "app/components/admin/UserListCard.tsx",
-        lineNumber: 55,
+        lineNumber: 56,
         columnNumber: 11
       },
       this
     ) }, void 0, !1, {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 54,
+      lineNumber: 55,
       columnNumber: 9
     }, this),
     /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { children: list.map((user2) => /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)(
@@ -3078,30 +3125,31 @@ var import_jsx_dev_runtime22 = require("react/jsx-dev-runtime"), UserListCard = 
       !1,
       {
         fileName: "app/components/admin/UserListCard.tsx",
-        lineNumber: 75,
+        lineNumber: 76,
         columnNumber: 11
       },
       this
     )) }, void 0, !1, {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 73,
+      lineNumber: 74,
       columnNumber: 7
     }, this)
   ] }, void 0, !0, {
     fileName: "app/components/admin/UserListCard.tsx",
-    lineNumber: 38,
+    lineNumber: 39,
     columnNumber: 5
   }, this);
 };
 function EachUser({ user, setSelectedUser, selectedUser }) {
+  var _a, _b;
   let { groups } = (0, import_react27.useLoaderData)(), onlineUsers = useOnlineList(), handleSelection = (value) => {
     setSelectedUser(value);
   }, currentBatch = user.assigned_batch.filter(
     (item) => {
-      var _a, _b;
-      return !((_a = groups[item]) != null && _a.reviewed) && ((_b = groups[item]) == null ? void 0 : _b.approved);
+      var _a2, _b2;
+      return !((_a2 = groups[item]) != null && _a2.reviewed) && ((_b2 = groups[item]) == null ? void 0 : _b2.approved);
     }
-  );
+  ), Time = (_b = (_a = user == null ? void 0 : user.text) == null ? void 0 : _a.at(0)) == null ? void 0 : _b.modified_on, time_ago = Time ? timeAgo(Time) : "inactive";
   return /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)(
     "div",
     {
@@ -3110,77 +3158,80 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
       children: [
         user.picture ? /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "avatar ml-2", children: /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "w-[40px] rounded-full", children: /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("img", { src: user.picture, alt: "" }, void 0, !1, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 109,
+          lineNumber: 112,
           columnNumber: 13
         }, this) }, void 0, !1, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 108,
+          lineNumber: 111,
           columnNumber: 11
         }, this) }, void 0, !1, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 107,
+          lineNumber: 110,
           columnNumber: 9
         }, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "avatar placeholder ml-2", children: /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "bg-neutral-focus text-neutral-content rounded-full w-12", children: /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("span", { children: user.username.charAt(0) }, void 0, !1, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 115,
+          lineNumber: 118,
           columnNumber: 13
         }, this) }, void 0, !1, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 114,
+          lineNumber: 117,
           columnNumber: 11
         }, this) }, void 0, !1, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 113,
+          lineNumber: 116,
           columnNumber: 9
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "flex flex-1 items-center justify-between px-2", children: [
-          /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { children: [
-            /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("h5", { className: "font-medium text-black dark:text-white", children: [
-              (onlineUsers == null ? void 0 : onlineUsers.includes(user.username)) && /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("span", { className: "text-xs mr-2", title: "online", children: "\u{1F7E2}" }, void 0, !1, {
+          /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "w-full", children: [
+            /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "font-medium text-black dark:text-white flex justify-between items-center w-full", children: [
+              /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { children: [
+                (onlineUsers == null ? void 0 : onlineUsers.includes(user == null ? void 0 : user.username)) && /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("span", { className: "text-xs mr-2", title: "online", children: "\u{1F7E2}" }, void 0, !1, {
+                  fileName: "app/components/admin/UserListCard.tsx",
+                  lineNumber: 127,
+                  columnNumber: 17
+                }, this),
+                user.nickname
+              ] }, void 0, !0, {
                 fileName: "app/components/admin/UserListCard.tsx",
-                lineNumber: 123,
-                columnNumber: 15
-              }, this),
-              user.nickname,
-              " "
-            ] }, void 0, !0, {
-              fileName: "app/components/admin/UserListCard.tsx",
-              lineNumber: 121,
-              columnNumber: 11
-            }, this),
-            /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("p", { children: [
-              /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("span", { className: "text-sm text-black dark:text-white", children: user.username }, void 0, !1, {
-                fileName: "app/components/admin/UserListCard.tsx",
-                lineNumber: 130,
+                lineNumber: 125,
                 columnNumber: 13
               }, this),
-              /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("span", { className: "text-xs", children: " . 12 min" }, void 0, !1, {
+              /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "text-xs ", children: time_ago }, void 0, !1, {
                 fileName: "app/components/admin/UserListCard.tsx",
                 lineNumber: 133,
                 columnNumber: 13
               }, this)
             ] }, void 0, !0, {
               fileName: "app/components/admin/UserListCard.tsx",
-              lineNumber: 129,
+              lineNumber: 124,
+              columnNumber: 11
+            }, this),
+            /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("p", { className: "flex justify-between items-center", children: /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("span", { className: "text-sm text-black dark:text-white", children: user.username }, void 0, !1, {
+              fileName: "app/components/admin/UserListCard.tsx",
+              lineNumber: 136,
+              columnNumber: 13
+            }, this) }, void 0, !1, {
+              fileName: "app/components/admin/UserListCard.tsx",
+              lineNumber: 135,
               columnNumber: 11
             }, this)
           ] }, void 0, !0, {
             fileName: "app/components/admin/UserListCard.tsx",
-            lineNumber: 120,
+            lineNumber: 123,
             columnNumber: 9
           }, this),
           currentBatch.length > 0 && /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("div", { className: "flex h-6 w-6 items-center justify-center rounded-full bg-primary", children: /* @__PURE__ */ (0, import_jsx_dev_runtime22.jsxDEV)("span", { className: "text-xs text-white", children: currentBatch.length }, void 0, !1, {
             fileName: "app/components/admin/UserListCard.tsx",
-            lineNumber: 139,
+            lineNumber: 144,
             columnNumber: 13
           }, this) }, void 0, !1, {
             fileName: "app/components/admin/UserListCard.tsx",
-            lineNumber: 138,
+            lineNumber: 143,
             columnNumber: 11
           }, this)
         ] }, void 0, !0, {
           fileName: "app/components/admin/UserListCard.tsx",
-          lineNumber: 119,
+          lineNumber: 122,
           columnNumber: 7
         }, this)
       ]
@@ -3189,7 +3240,7 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
     !0,
     {
       fileName: "app/components/admin/UserListCard.tsx",
-      lineNumber: 99,
+      lineNumber: 102,
       columnNumber: 5
     },
     this
@@ -4781,7 +4832,7 @@ function DemoPage() {
 var demo_default = DemoPage;
 
 // server-assets-manifest:@remix-run/dev/assets-manifest
-var assets_manifest_default = { entry: { module: "/build/entry.client-AN7T7EHS.js", imports: ["/build/_shared/chunk-ZWGWGGVF.js", "/build/_shared/chunk-GIAAE3CH.js", "/build/_shared/chunk-SZGQBB4K.js", "/build/_shared/chunk-NMZL6IDN.js", "/build/_shared/chunk-UENAGXQR.js", "/build/_shared/chunk-UWV35TSL.js", "/build/_shared/chunk-BOXFZXVX.js", "/build/_shared/chunk-PNG5AS42.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-KBJ6M75T.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-HZHQMN7O.js", imports: ["/build/_shared/chunk-CBYPBWVQ.js", "/build/_shared/chunk-AXH62WGU.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-LSQYP35T.js", imports: ["/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-F2P733AV.js", "/build/_shared/chunk-FXCVAPJI.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-QX4QACTM.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-OFUYJ642.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-6F5L25CV.js", imports: ["/build/_shared/chunk-TQEC4IOH.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-LBEBCWR2.js", imports: ["/build/_shared/chunk-VW7BFLMU.js", "/build/_shared/chunk-YOH2CPLV.js", "/build/_shared/chunk-TQEC4IOH.js"], hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-IDMFCOTT.js", imports: ["/build/_shared/chunk-CBYPBWVQ.js", "/build/_shared/chunk-4SHR5HQ5.js", "/build/_shared/chunk-AXH62WGU.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-A4DRPZQ7.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text.$version": { id: "routes/api.text.$version", parentId: "routes/api.text", path: ":version", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text.$version-D5R6AXVU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.upload": { id: "routes/api.upload", parentId: "root", path: "api/upload", index: void 0, caseSensitive: void 0, module: "/build/routes/api.upload-NKI3ERUQ.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-7BYWHH7L.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-K3HPPKXU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-JTVRFTHW.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-6YOCPLE4.js", imports: ["/build/_shared/chunk-4SHR5HQ5.js", "/build/_shared/chunk-AXH62WGU.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-VW7BFLMU.js", "/build/_shared/chunk-RUKEUQLF.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-VKEWX2GE.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "5ad5e03a", hmr: { runtime: "/build/_shared\\chunk-UENAGXQR.js", timestamp: 1695274759192 }, url: "/build/manifest-5AD5E03A.js" };
+var assets_manifest_default = { entry: { module: "/build/entry.client-AN7T7EHS.js", imports: ["/build/_shared/chunk-ZWGWGGVF.js", "/build/_shared/chunk-GIAAE3CH.js", "/build/_shared/chunk-SZGQBB4K.js", "/build/_shared/chunk-NMZL6IDN.js", "/build/_shared/chunk-UENAGXQR.js", "/build/_shared/chunk-UWV35TSL.js", "/build/_shared/chunk-BOXFZXVX.js", "/build/_shared/chunk-PNG5AS42.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-KBJ6M75T.js", imports: ["/build/_shared/chunk-YOH2CPLV.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-HZHQMN7O.js", imports: ["/build/_shared/chunk-CBYPBWVQ.js", "/build/_shared/chunk-AXH62WGU.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-LSQYP35T.js", imports: ["/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-F2P733AV.js", "/build/_shared/chunk-FXCVAPJI.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-QX4QACTM.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-OFUYJ642.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-6F5L25CV.js", imports: ["/build/_shared/chunk-TQEC4IOH.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-DUPYPFHX.js", imports: ["/build/_shared/chunk-VW7BFLMU.js", "/build/_shared/chunk-YOH2CPLV.js", "/build/_shared/chunk-TQEC4IOH.js"], hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-IDMFCOTT.js", imports: ["/build/_shared/chunk-CBYPBWVQ.js", "/build/_shared/chunk-4SHR5HQ5.js", "/build/_shared/chunk-AXH62WGU.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-RUKEUQLF.js", "/build/_shared/chunk-G7CHZRZX.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-A4DRPZQ7.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text.$version": { id: "routes/api.text.$version", parentId: "routes/api.text", path: ":version", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text.$version-D5R6AXVU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.upload": { id: "routes/api.upload", parentId: "root", path: "api/upload", index: void 0, caseSensitive: void 0, module: "/build/routes/api.upload-NKI3ERUQ.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-7BYWHH7L.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-K3HPPKXU.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-JTVRFTHW.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-6YOCPLE4.js", imports: ["/build/_shared/chunk-4SHR5HQ5.js", "/build/_shared/chunk-AXH62WGU.js", "/build/_shared/chunk-UUBW257Y.js", "/build/_shared/chunk-VW7BFLMU.js", "/build/_shared/chunk-RUKEUQLF.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-VKEWX2GE.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "30dd9e77", hmr: { runtime: "/build/_shared\\chunk-UENAGXQR.js", timestamp: 1695277354229 }, url: "/build/manifest-30DD9E77.js" };
 
 // server-entry-module:@remix-run/dev/server-build
 var assetsBuildDirectory = "public\\build", future = { v2_dev: !0, unstable_postcss: !1, unstable_tailwind: !1, v2_errorBoundary: !0, v2_headers: !0, v2_meta: !0, v2_normalizeFormMethod: !0, v2_routeConvention: !0 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {

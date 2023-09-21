@@ -46,7 +46,11 @@ export const getUsers = async () => {
   try {
     let users = await db.user.findMany({
       include: {
-        text: { select: { id: true, status: true, reviewed: true } },
+        text: {
+          select: { id: true, status: true, reviewed: true, modified_on: true },
+          orderBy: { id: "desc" },
+          take: 50,
+        },
         rejected_list: true,
         ignored_list: true,
         reviewer: true,
