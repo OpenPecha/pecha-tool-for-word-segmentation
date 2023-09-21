@@ -96,7 +96,7 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
     (item) => !groups[item]?.reviewed && groups[item]?.approved
   );
   let Time = user?.text?.at(0)?.modified_on;
-  let time_ago = Time ? timeAgo(Time) : "inactive";
+  let time_ago = timeAgo(Time);
 
   return (
     <div
