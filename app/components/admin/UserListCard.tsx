@@ -95,8 +95,8 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
   let currentBatch = user.assigned_batch.filter(
     (item) => !groups[item]?.reviewed && groups[item]?.approved
   );
-  let Time = user?.text?.at(0)?.modified_on;
-  let time_ago = timeAgo(Time);
+  let Time = user?.text.find((item) => item.modified_on !== null);
+  let time_ago = timeAgo(Time?.modified_on);
 
   return (
     <div
