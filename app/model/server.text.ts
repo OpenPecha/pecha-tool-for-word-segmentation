@@ -169,20 +169,37 @@ export function saveText(
   adminId: string,
   time?: string
 ) {
-  return db.text.update({
-    where: {
-      id,
-    },
-    data: {
-      modified_text: JSON.stringify(text.split(" ")),
-      modified_by_id: userId,
-      status: "APPROVED",
-      rejected_by: { disconnect: { id: userId } },
-      reviewed: !!adminId,
-      reviewed_by_id: adminId || null,
-      duration: time ? parseFloat(time) : null,
-    },
-  });
+  let isReviewer = !!adminId;
+  let duration = time ? parseFloat(time) : null;
+  if (!isReviewer) {
+    return db.text.update({
+      where: {
+        id,
+      },
+      data: {
+        modified_text: JSON.stringify(text.split(" ")),
+        modified_by_id: userId,
+        reviewed: false,
+        status: "APPROVED",
+        rejected_by: { disconnect: { id: userId } },
+        duration,
+        modified_on: new Date(),
+      },
+    });
+  } else {
+    return db.text.update({
+      where: {
+        id,
+      },
+      data: {
+        modified_text: JSON.stringify(text.split(" ")),
+        status: "APPROVED",
+        rejected_by: { disconnect: { id: userId } },
+        reviewed: true,
+        reviewed_by_id: adminId,
+      },
+    });
+  }
 }
 
 export async function getAprovedBatch() {

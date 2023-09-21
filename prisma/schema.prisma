@@ -37,6 +37,7 @@ model Text {
   status         Status?
   modified_by    User?    @relation("UserModifiedText", fields: [modified_by_id], references: [id])
   modified_by_id String?
+  modified_on    DateTime?
   rejected_by    User[]   @relation("UserRejectedText")
   ignored_by     User[]   @relation("UserIgnoredText")
   createdAt      DateTime @default(now())

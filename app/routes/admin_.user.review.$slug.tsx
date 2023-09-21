@@ -81,7 +81,7 @@ function UserDetail() {
       socket?.emit("reviewed", { annotator });
     }, 1000);
   }
-  let saveText = async () => {
+  let saveText = () => {
     fetcher.submit(
       {
         id: selectedId!,
@@ -94,14 +94,14 @@ function UserDetail() {
     text_reviewed();
   };
 
-  let rejectTask = async () => {
+  let rejectTask = () => {
     fetcher.submit(
       { id: selectedId!, userId: annotator.id, _action: "reject", admin: true },
       { method: "PATCH", action: "/api/text" }
     );
     text_reviewed();
   };
-  let isButtonDisabled = text.length < 1;
+  let isButtonDisabled = editor?.getText()!.length < 1;
   return (
     <div className="flex flex-col md:flex-row">
       <AdminHistorySidebar

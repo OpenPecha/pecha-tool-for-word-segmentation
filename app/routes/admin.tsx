@@ -5,7 +5,7 @@ import Sidebar from "~/components/admin/Sidebar";
 import { LoaderFunction, defer, json, redirect } from "@remix-run/node";
 import { getUser } from "~/model/server.user";
 import { getProgress } from "~/model/server.text";
-
+import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -42,5 +42,32 @@ const DefaultLayout = () => {
     </div>
   );
 };
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  // when true, this is what used to go to `CatchBoundary`
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div>
+        <h1>Oops</h1>
+        <p>Status: {error.status}</p>
+        <p>{error.data.message}</p>
+      </div>
+    );
+  }
+
+  // Don't forget to typecheck with your own logic.
+  // Any value can be thrown, not just errors!
+  let errorMessage = "Unknown error";
+
+  return (
+    <div>
+      <h1>Uh oh ...</h1>
+      <p>Something went wrong.</p>
+      <pre>{errorMessage}</pre>
+    </div>
+  );
+}
 
 export default DefaultLayout;

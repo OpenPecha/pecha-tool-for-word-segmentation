@@ -30,10 +30,13 @@ const AboutUser = ({
   user: any;
 }) => {
   const { users } = useLoaderData();
-  const annotator = users.find((user: User) => user?.username === selectedUser);
+
+  const annotator = users?.find(
+    (user: User) => user?.username === selectedUser
+  );
   const fetcher = useFetcher();
-  let url = `/admin/user/review/${selectedUser}?session=` + user.username;
-  let isAdmin = user.role === "ADMIN";
+  let url = `/admin/user/review/${selectedUser}?session=` + user?.username;
+  let isAdmin = user?.role === "ADMIN";
   if (selectedUser === "") return null;
 
   function removeUser() {
