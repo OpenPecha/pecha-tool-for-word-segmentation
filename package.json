@@ -21,6 +21,7 @@
     "@tiptap/pm": "^2.0.3",
     "@tiptap/react": "^2.0.3",
     "@tiptap/starter-kit": "^2.0.3",
+    "@uidotdev/usehooks": "^2.3.1",
     "cross-env": "^7.0.3",
     "discord.js": "^14.13.0",
     "isbot": "^3.6.8",

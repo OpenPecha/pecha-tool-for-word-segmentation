@@ -4,6 +4,7 @@ module.exports = {
   // appDirectory: "app",
   serverBuildPath: "server/build/index.js",
   serverModuleFormat: "cjs",
+  serverDependenciesToBundle: ["@uidotdev/usehooks"],
   future: {
     v2_dev: true,
     v2_errorBoundary: true,

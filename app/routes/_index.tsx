@@ -4,7 +4,7 @@ import {
   type LoaderFunction,
   type V2_MetaFunction,
 } from "@remix-run/node";
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useFetcher, useLoaderData, useRevalidator } from "@remix-run/react";
 import Button from "~/components/Button";
 import Editor from "~/components/Editor.client";
@@ -16,6 +16,7 @@ import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { ClientOnly } from "remix-utils";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
+import ActiveUser from "~/components/ActiveUser";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -28,8 +29,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (user.allow_assign) {
       text = await getTextToDisplay(user?.id, history);
     }
-    let current_time = Date.now();
-    return { text, user, history, current_time };
+    return { text, user, history };
   }
 };
 
@@ -53,6 +53,7 @@ export default function Index() {
   let editor = useEditorTiptap(newText);
   const socket = useSocket();
   const revalidate = useRevalidator();
+  const [activeTime, setActiveTime] = useState(0); // in sec
 
   useEffect(() => {
     if (!socket) return;
@@ -63,18 +64,17 @@ export default function Index() {
       if (data.user.id === user.id) revalidate.revalidate();
     });
   }, [socket]);
-
   let saveText = async () => {
-    let endTime = Date.now();
-    let timeDiff = endTime - data?.current_time;
-    let duration = timeDiff / 1000;
+    let duration = activeTime;
     let modified_text = editor!.getText();
     let id = data.text.id;
+
     fetcher.submit(
       { id, modified_text, userId: user.id, duration },
       { method: "POST", action: "/api/text" }
     );
     socket?.emit("text-status-changed", { user });
+    setActiveTime(0);
   };
   let undoTask = async () => {
     let text = checkUnknown(insertHTMLonText(data?.text?.original_text));
@@ -88,6 +88,7 @@ export default function Index() {
       { method: "PATCH", action: "/api/text" }
     );
     socket?.emit("text-status-changed", { user });
+    setActiveTime(0);
   };
 
   let isButtonDisabled = !data.text || data.text.reviewed;
@@ -122,6 +123,7 @@ export default function Index() {
         ) : (
           <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
+              <ActiveUser active={activeTime} setActive={setActiveTime} />
               <div>transcript</div>
             </div>
             <ClientOnly fallback={null}>
