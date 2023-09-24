@@ -1,5 +1,6 @@
 {
-  "author": "tenzin Kunsang",
+  "name": "pecha-tool-for-word-segmentation",
+  "author": "Tenzin Kunsang",
   "private": true,
   "sideEffects": false,
   "scripts": {

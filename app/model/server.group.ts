@@ -71,32 +71,28 @@ export const getUniqueTextsGroup = async () => {
   const textRecords = await db.text.findMany({
     select: {
       version: true,
+      category: true, // Include category in the query
     },
     orderBy: {
       updatedAt: "desc",
     },
   });
-  const uniqueVersions = Array.from(
-    new Set(textRecords.map((record) => record.version))
-  );
 
-  const uniqueVersionCategories = [];
-  for (const version of uniqueVersions) {
-    const recordsWithVersion = await db.text.findMany({
-      where: {
-        version: version,
-      },
-      select: {
-        category: true,
-      },
-    });
+  // Create a Map to store unique versions and their categories
+  const uniqueVersionCategories = new Map();
 
-    // Assuming each version has the same category in all its records,
-    // you can pick the category from the first record
-    if (recordsWithVersion.length > 0) {
-      const category = recordsWithVersion[0].category;
-      uniqueVersionCategories.push({ version, category });
+  // Iterate through the records and store unique version-category pairs
+  for (const record of textRecords) {
+    if (!uniqueVersionCategories.has(record.version)) {
+      uniqueVersionCategories.set(record.version, record.category);
     }
   }
-  return uniqueVersionCategories;
+
+  // Convert the Map to an array of objects
+  const result = Array.from(uniqueVersionCategories, ([version, category]) => ({
+    version,
+    category,
+  }));
+
+  return result;
 };

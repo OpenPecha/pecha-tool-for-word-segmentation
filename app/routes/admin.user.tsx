@@ -10,11 +10,10 @@ import {
 import AboutUser from "~/components/admin/AboutUser";
 import UserListCard from "~/components/admin/UserListCard";
 import { useEffect, useState } from "react";
-import { getUniqueTextsGroup } from "~/model/server.group";
 import { getAprovedBatch } from "~/model/server.text";
 import { getUser, getUsers, removeBatchFromUser } from "~/model/server.user";
 import { getCategories } from "~/model/utils/server.category";
-import { Outlet, useOutletContext, useRevalidator } from "@remix-run/react";
+import { useOutletContext, useRevalidator } from "@remix-run/react";
 import { useSocket } from "~/components/contexts/SocketContext";
 import { toolname } from "~/const";
 
@@ -26,7 +25,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   let users: User[] = await getUsers();
   let groups = await getAprovedBatch();
   let categories = await getCategories();
-  let texts = await getUniqueTextsGroup();
   users = users.sort(
     (a, b) => b.assigned_batch.length - a.assigned_batch.length
   );
@@ -47,7 +45,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 
   return json({
-    texts,
     users,
     groups,
     categories,
