@@ -22,9 +22,10 @@ function AssignRole({
     { value: "ANNOTATOR", label: "ANNOTATOR" },
     { value: "USER", label: "USER" },
   ];
-  let value = { value: annotator.role, label: annotator.role };
+  let role = annotator?.role;
+  let value = { value: role, label: role };
   function handleChange(data) {
-    let role = data.value;
+    let role = data?.value;
     if (!role) {
       data = "";
     }
@@ -61,7 +62,7 @@ function AssignRole({
     );
   return (
     <div className="flex gap-2 items-center">
-      <span className="font-light text-sm">{annotator.role}</span>
+      <span className="font-light text-sm">{annotator?.role}</span>
       {isAdmin && (
         <button onClick={openRoleEdit}>
           <FiEdit2 />

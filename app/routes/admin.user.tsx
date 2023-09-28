@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { getAprovedBatch } from "~/model/server.text";
 import { getUser, getUsers, removeBatchFromUser } from "~/model/server.user";
 import { getCategories } from "~/model/utils/server.category";
-import { useOutletContext, useRevalidator } from "@remix-run/react";
+import { useFetcher, useOutletContext, useRevalidator } from "@remix-run/react";
 import { useSocket } from "~/components/contexts/SocketContext";
 import { toolname } from "~/const";
 
@@ -82,10 +82,30 @@ function Index() {
       if (data) reval.revalidate();
     });
   }, [socket]);
+  const fetcher = useFetcher();
+  function removeUser() {
+    if (window.confirm("Are you sure you want to remove this user ?")) {
+      fetcher.submit(
+        {
+          username: selectedUser,
+          action: "remove_user",
+        },
+        {
+          method: "DELETE",
+          action: "/api/user",
+        }
+      );
+    }
+    setSelectedUser("");
+  }
   return (
     <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5 ">
       <div className="col-span-12 xl:col-span-8 ">
-        <AboutUser selectedUser={selectedUser} user={user} />
+        <AboutUser
+          selectedUser={selectedUser}
+          user={user}
+          removeUser={removeUser}
+        />
       </div>
       <UserListCard
         user={user}

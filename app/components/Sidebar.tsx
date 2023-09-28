@@ -18,23 +18,23 @@ type userType = {
 function Sidebar({ user, text }: userType) {
   let [openMenu, setOpenMenu] = useState(false);
   return (
-    <div className="flex flex-col">
-      <div className=" flex px-2 py-3 text-white bg-gray-600 text-lg font-semibold items-center  gap-2 ">
+    <div className="flex flex-col border-r">
+      <div className=" flex px-2 py-3 capitalize bg-white dark:text-white dark:bg-gray-600 text-lg font-semibold items-center  gap-2 ">
         <div onClick={() => setOpenMenu((p) => !p)} className="block md:hidden">
           {!openMenu ? <Hamburger /> : <Crossburger />}
         </div>
         {toolname}
       </div>
       <div
-        className={`flex flex-col text-white bg-[#54606e] overflow-y-auto overflow-x-hidden max-h-[100vh] transition-all -translate-x-full z-30 ${
+        className={`flex flex-col bg-white dark:text-white  dark:bg-[#54606e] overflow-y-auto overflow-x-hidden max-h-[100vh] transition-all -translate-x-full z-30 ${
           openMenu ? "block translate-x-0" : ""
         } min-h-[100vh] w-[260px] md:translate-x-0`}
       >
-        <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
+        <div className="px-2 flex gap-2 flex-col  mb-3 pb-2 mt-2 ">
           {(user?.role === "ADMIN" || user?.role === "REVIEWER") && (
             <Link
               to={`/admin/user?session=${user?.username}`}
-              className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 rounded-sm"
+              className="decoration-0 bg-gray-200 hover:bg-gray-100 dark:text-white dark:bg-gray-500 h-fit px-2 py-1 rounded-sm border-b"
             >
               {user?.role} DASHBOARD
             </Link>
@@ -48,8 +48,8 @@ function Sidebar({ user, text }: userType) {
             Reviewed : {user?.text.filter((r) => r.reviewed)?.length}
           </TextInfo>
         </div>
-        <div className="flex-1">
-          <div className="text-sm mb-2 font-bold">History</div>
+        <div className="flex-1 border-t">
+          <div className="text-sm mb-2 font-bold pl-2">History</div>
           <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
             {user?.rejected_list?.map((text: historyText) => (
               <HistoryItem

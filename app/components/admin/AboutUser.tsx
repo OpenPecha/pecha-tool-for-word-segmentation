@@ -25,34 +25,22 @@ function Title({ children }: { children: React.ReactNode }) {
 const AboutUser = ({
   selectedUser,
   user,
+  removeUser,
 }: {
   selectedUser: string;
   user: any;
+  removeUser: () => void;
 }) => {
   const { users } = useLoaderData();
 
   const annotator = users?.find(
     (user: User) => user?.username === selectedUser
   );
-  const fetcher = useFetcher();
+
   let url = `/admin/user/review/${selectedUser}?session=` + user?.username;
   let isAdmin = user?.role === "ADMIN";
   if (selectedUser === "") return null;
 
-  function removeUser() {
-    if (window.confirm("Are you sure you want to remove this user ?")) {
-      fetcher.submit(
-        {
-          username: selectedUser,
-          action: "remove_user",
-        },
-        {
-          method: "DELETE",
-          action: "/api/user",
-        }
-      );
-    }
-  }
   if (!annotator) return null;
   return (
     <div className="sticky top-[80px]  rounded-sm border border-stroke bg-white dark:bg-slate-600  px-5 pt-6 pb-10 shadow-default dark:border-strokedark dark:bg-boxdark sm:px-7.5 xl:pb-10 ">

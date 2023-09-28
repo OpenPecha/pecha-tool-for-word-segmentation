@@ -97,7 +97,7 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
   );
   let Time = user?.text.find((item) => item.modified_on !== null);
   let time_ago = timeAgo(Time?.modified_on);
-
+  if (!user) return null;
   return (
     <div
       key={user.id + "-userList"}
