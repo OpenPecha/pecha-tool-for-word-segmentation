@@ -184,6 +184,7 @@ export function saveText(
         rejected_by: { disconnect: { id: userId } },
         duration,
         modified_on: new Date(),
+        word_count: text.split(" ").length,
       },
     });
   } else {

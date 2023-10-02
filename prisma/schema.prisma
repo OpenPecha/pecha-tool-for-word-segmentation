@@ -50,6 +50,7 @@ model Text {
   reject_count   Int?     @default(0)
   category       String?  @default("gen")
   duration   Float?  @default(0)
+  word_count Int?  @default(0)
 }
 
 enum Status {

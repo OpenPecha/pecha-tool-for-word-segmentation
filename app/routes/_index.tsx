@@ -67,6 +67,7 @@ export default function Index() {
   let saveText = async () => {
     let duration = activeTime;
     let modified_text = editor!.getText();
+
     let id = data.text.id;
 
     fetcher.submit(

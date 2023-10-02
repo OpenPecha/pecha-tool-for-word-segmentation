@@ -7,6 +7,7 @@ import { TiDelete } from "react-icons/ti";
 type Text_Props = {
   version: string;
   category: string;
+  count: number;
 };
 
 function AboutText() {
@@ -80,23 +81,27 @@ function Text_Category({ text }: { text: Text_Props }) {
       onSubmit={handleSubmit}
       className="text-center flex w-full px-2 justify-between mt-2"
     >
-      <h4 className="text-lg font-bold">
-        {text.version}{" "}
+      <div className="flex items-center gap-2">
+        <h4 className=" font-bold text-sm">
+          {text.version}{" "}
+          <div className="text-gray-600 text-xs float-center">
+            count:{text?.count}
+          </div>
+        </h4>
         {user.role === "ADMIN" && (
           <button onClick={handleDelete} type="button">
             <TiDelete />
           </button>
         )}
-      </h4>
-
+      </div>
       <input hidden name="_action" readOnly value="change_category"></input>
-      <div className="flex gap-2">
+      <div className="flex gap-2 items-center">
         <input
           ref={inputRef}
           type="text"
           name="category"
           placeholder="Type here"
-          className="input input-bordered input-primary w-full max-w-xs"
+          className="input input-bordered input-primary w-full max-w-xs max-h-8"
           value={value ?? text.category}
           onChange={(e) => {
             setHasChanges(e.target.value !== text.category);
@@ -106,7 +111,7 @@ function Text_Category({ text }: { text: Text_Props }) {
         {hasChanges && (
           <button
             onClick={handleSubmit}
-            className="cursor-pointer"
+            className="cursor-pointer bg-green-300 py-1 px-2 rounded"
             disabled={!isAdmin}
           >
             Save

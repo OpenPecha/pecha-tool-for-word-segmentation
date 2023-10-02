@@ -80,11 +80,17 @@ export const getUniqueTextsGroup = async () => {
 
   // Create a Map to store unique versions and their categories
   const uniqueVersionCategories = new Map();
-
+  const versionCount = {};
   // Iterate through the records and store unique version-category pairs
   for (const record of textRecords) {
     if (!uniqueVersionCategories.has(record.version)) {
       uniqueVersionCategories.set(record.version, record.category);
+    }
+    let version = record.version;
+    if (!versionCount[version]) {
+      versionCount[version] = 1;
+    } else {
+      versionCount[version]++;
     }
   }
 
@@ -92,6 +98,7 @@ export const getUniqueTextsGroup = async () => {
   const result = Array.from(uniqueVersionCategories, ([version, category]) => ({
     version,
     category,
+    count: versionCount[version] || 0,
   }));
 
   return result;
