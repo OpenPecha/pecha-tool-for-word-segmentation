@@ -1,4 +1,4 @@
-import { Link } from "@remix-run/react";
+import { Link, NavLink, useNavigate } from "@remix-run/react";
 import { useState } from "react";
 import TextInfo from "./TextInfo";
 import { HistoryItem } from "./History";
@@ -17,6 +17,11 @@ type userType = {
 
 function Sidebar({ user, text }: userType) {
   let [openMenu, setOpenMenu] = useState(false);
+
+  let navigate = useNavigate();
+  const handleDashboradLink = () => {
+    navigate(`/admin/user?session=${user?.username}`);
+  };
   return (
     <div className="flex flex-col border-r">
       <div className=" flex px-2 py-3 capitalize bg-white dark:text-white dark:bg-gray-600 text-lg font-semibold items-center  gap-2 ">
@@ -32,12 +37,14 @@ function Sidebar({ user, text }: userType) {
       >
         <div className="px-2 flex gap-2 flex-col  mb-3 pb-2 mt-2 ">
           {(user?.role === "ADMIN" || user?.role === "REVIEWER") && (
-            <Link
+            <NavLink
               to={`/admin/user?session=${user?.username}`}
+              type="button"
+              onClick={handleDashboradLink}
               className="decoration-0 bg-gray-200 hover:bg-gray-100 dark:text-white dark:bg-gray-500 h-fit px-2 py-1 rounded-sm border-b"
             >
               {user?.role} DASHBOARD
-            </Link>
+            </NavLink>
           )}
           <TextInfo>User : {user?.username.split("@")[0]}</TextInfo>
           <TextInfo>text id :{text?.id}</TextInfo>

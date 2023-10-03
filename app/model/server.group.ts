@@ -72,6 +72,7 @@ export const getUniqueTextsGroup = async () => {
     select: {
       version: true,
       category: true, // Include category in the query
+      reviewed: true,
     },
     orderBy: {
       updatedAt: "desc",
@@ -80,7 +81,8 @@ export const getUniqueTextsGroup = async () => {
 
   // Create a Map to store unique versions and their categories
   const uniqueVersionCategories = new Map();
-  const versionCount = {};
+  const versionCount: any = {};
+  const reviewedCount: any = {};
   // Iterate through the records and store unique version-category pairs
   for (const record of textRecords) {
     if (!uniqueVersionCategories.has(record.version)) {
@@ -92,6 +94,13 @@ export const getUniqueTextsGroup = async () => {
     } else {
       versionCount[version]++;
     }
+    if (record.reviewed) {
+      if (!reviewedCount[version]) {
+        reviewedCount[version] = 1;
+      } else {
+        reviewedCount[version]++;
+      }
+    }
   }
 
   // Convert the Map to an array of objects
@@ -99,6 +108,7 @@ export const getUniqueTextsGroup = async () => {
     version,
     category,
     count: versionCount[version] || 0,
+    completed_count: reviewedCount[version] || 0,
   }));
 
   return result;

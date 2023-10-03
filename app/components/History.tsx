@@ -25,7 +25,7 @@ function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
     <Link
       to={`/?session=${user.username}&history=${id}`}
       className={`px-2 flex gap-3 items-center ${
-        history == id ? "bg-gray-700" : ""
+        history == id ? "bg-gray-400 dark:bg-gray-700" : ""
       }`}
       onClick={onClick}
     >
