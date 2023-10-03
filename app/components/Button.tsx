@@ -17,7 +17,8 @@ function Button({
   shortCut,
   className,
 }: ButtonProps) {
-  let classbtn = "h-[100px] w-[100px]  cursor-pointer hover:opacity-80";
+  let classbtn =
+    "h-[100px] w-[100px]  cursor-pointer hover:opacity-80 disabled:opacity-50";
   let innerValue: any = value;
   let btnRef = useRef(null);
   useEffect(() => {
@@ -40,10 +41,7 @@ function Button({
       innerValue = <Wrong />;
       classbtn += " bg-[--cancel-btn]";
       break;
-    case "IGNORE":
-      innerValue = <Ignore />;
-      classbtn += " bg-[--normal-btn]";
-      break;
+
     case "UNDO":
       innerValue = <Undo />;
       classbtn += " bg-[--normal-btn]";

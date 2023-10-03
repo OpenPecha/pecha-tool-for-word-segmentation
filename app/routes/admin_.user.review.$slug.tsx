@@ -101,7 +101,8 @@ function UserDetail() {
     );
     text_reviewed();
   };
-  let isButtonDisabled = editor?.getText()!.length < 1;
+  let isButtonDisabled =
+    editor?.getText()!.length < 1 || fetcher.state !== "idle";
   return (
     <div className="flex flex-col md:flex-row">
       <AdminHistorySidebar
