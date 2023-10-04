@@ -7,7 +7,12 @@
 <h3 align="center">Word segmentation tool</h3>
 
 <!-- Replace the title of the repository -->
+## Project owner(s)
 
+<!-- Link to the repo owners' github profiles -->
+
+- [@tenkus47](https://github.com/tenkus47)
+  
 <p align="center">
   <a href="#description">Description</a> •
   <a href="#install">Install</a> •
