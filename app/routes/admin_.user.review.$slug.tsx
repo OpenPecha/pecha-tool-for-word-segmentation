@@ -43,6 +43,7 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     },
     orderBy: { id: "asc" },
   });
+  console.log(currentText);
   return { user, annotator, text_data, id_now: currentText?.id };
 };
 
