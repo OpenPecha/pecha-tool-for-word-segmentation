@@ -70,8 +70,8 @@ function AdminHistorySidebar({
           <TextInfo>User : {user?.username}</TextInfo>
           <TextInfo>text id :{selectedId}</TextInfo>
           <TextInfo>Approved :{user?.text?.length}</TextInfo>
-          <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
-          <TextInfo>Reviewed : {user?._count.text}</TextInfo>
+          <TextInfo>Rejected :{user?._count.rejected_list}</TextInfo>
+          <TextInfo>Reviewed :{user?._count.text}</TextInfo>
         </div>
         <div className="flex-1">
           <div className="text-sm mb-2 font-bold">History</div>

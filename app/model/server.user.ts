@@ -7,16 +7,20 @@ export const createUserIfNotExists = async (username: string) => {
     where: {
       username: username,
     },
-    include: {
-      text: {
-        where: { NOT: { reviewed: true } },
-        select: { id: true, reviewed: true, batch: true },
-        orderBy: { id: "desc" },
-      },
+    select: {
       rejected_list: { select: { id: true, reviewed: true, batch: true } },
       _count: {
-        select: { text: { where: { reviewed: true } } }, //only count reviewded text
+        select: { text: { where: { reviewed: true } } }, //only count reviewed text
       },
+      text: { select: { id: true } },
+      categories: true,
+      allow_assign: true,
+      role: true,
+      reviewer_id: true,
+      nickname: true,
+      picture: true,
+      id: true,
+      username: true,
     },
   });
   if (!user) {
@@ -43,6 +47,7 @@ export const createUserIfNotExists = async (username: string) => {
       },
     });
   }
+  user.text = user.text.length;
   return user;
 };
 
@@ -66,17 +71,22 @@ export const getUsers = async () => {
   }
 };
 
-export const getUser = async (username: string, min: boolean) => {
+export const getUser = async (username: string) => {
   try {
     return await db.user.findUnique({
       where: { username },
       include: {
         text: {
           where: { NOT: { reviewed: true } },
-          select: min ? { id: true, reviewed: true } : undefined, // Select specific fields or all (undefined)
+          select: {
+            id: true,
+            modified_text: true,
+          },
         },
         rejected_list: { select: { id: true } }, // Select specific fields or all (undefined)
-        _count: { select: { text: { where: { reviewed: true } } } },
+        _count: {
+          select: { text: { where: { reviewed: true } }, rejected_list: true },
+        },
         reviewer: true,
       },
     });

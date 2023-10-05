@@ -48,6 +48,7 @@ export default function Index() {
   const { user, text, error } = useLoaderData();
   const socket = useSocket();
   const revalidate = useRevalidator();
+  let [history, setHistory] = useState<string[]>([]);
 
   let id = text?.id;
   let textContent = text?.original_text.trim() || "";
@@ -74,6 +75,7 @@ export default function Index() {
     );
     socket?.emit("text-status-changed", { user });
     setActiveTime(0);
+    setHistory([...history, id]);
   };
   let undoTask = async () => {
     let temptext = checkUnknown(insertHTMLonText(text?.original_text));
@@ -88,12 +90,13 @@ export default function Index() {
     setActiveTime(0);
   };
 
-  let isButtonDisabled = !text || text.reviewed;
+  let isButtonDisabled = !text || text.reviewed || fetcher.state !== "idle";
 
   if (error) return <div>{error}</div>;
+
   return (
     <div className="flex flex-col md:flex-row">
-      <Sidebar user={user} text={text} />
+      <Sidebar user={user} text={text} history={history} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
         {user?.rejected_list?.length > 0 && (

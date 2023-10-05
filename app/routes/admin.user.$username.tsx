@@ -8,10 +8,15 @@ import { getCategories } from "~/model/utils/server.category";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   let username = params.username;
-  let user = await getUser(username!, true);
+  let user = await getUser(username!);
   let categories = await getCategories();
   let groups = await getAprovedBatch();
-  return { user, categories, groups };
+
+  let currentBatch = user.assigned_batch.filter(
+    (item) => !groups[item]?.reviewed
+  );
+
+  return { user, categories, currentBatch };
 };
 
 export const action: ActionFunction = async ({ request }) => {

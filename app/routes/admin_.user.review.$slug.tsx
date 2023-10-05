@@ -19,22 +19,14 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   let session = url.searchParams.get("session");
 
   const [user, annotator] = await Promise.all([
-    getUser(session!, true),
-    getUser(params.slug!, false),
+    getUser(session!),
+    getUser(params.slug!),
   ]);
   //check if user and admin are in same group
 
   if (annotator?.reviewer_id !== user?.id)
     return redirect("/?session=" + session);
 
-  let text_data = await db.text.findMany({
-    where: {
-      modified_by_id: annotator?.id,
-      status: "APPROVED",
-      reviewed: false,
-    },
-    orderBy: { updatedAt: "desc" },
-  });
   let currentText = await db.text.findFirst({
     where: {
       reviewed: false,
@@ -43,26 +35,27 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     },
     orderBy: { id: "asc" },
   });
-  return { user, annotator, text_data, id_now: currentText?.id };
+  return { user, annotator, currentText };
 };
 
 function UserDetail() {
   const fetcher = useFetcher();
-  const { annotator, text_data, user, id_now } = useLoaderData() as any;
-  let text = text_data?.sort((a, b) =>
-    a.reviewed === b.reviewed ? 0 : !a.reviewed ? 1 : -1
-  );
+  const { annotator, user, currentText } = useLoaderData() as any;
   const socket = useSocket();
   const [content, setContent] = useState("");
-  const [selectedId, setSelectedId] = useState<number | undefined>(id_now);
+  const [selectedId, setSelectedId] = useState<number | undefined>(
+    currentText.id
+  );
   useEffect(() => {
-    setSelectedId(id_now);
-  }, [id_now]);
+    setSelectedId(currentText.id);
+  }, [currentText.id]);
   useEffect(() => {
     if (!annotator) return;
     let display = selectedId
       ? annotator.text.find((d) => d.id === selectedId)
-      : annotator.text.sort(sortUpdate_reviewed).find((d) => d.id === text?.id);
+      : annotator.text
+          .sort(sortUpdate_reviewed)
+          .find((d) => d.id === currentText?.id);
     if (display) {
       let show =
         JSON.parse(display?.modified_text!)?.join(" ") ||
@@ -110,7 +103,7 @@ function UserDetail() {
       />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh]">
-        {!text || !selectedId || !editor ? (
+        {!currentText || !selectedId || !editor ? (
           <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             Thank you . your work is complete ! 😊😊😊
           </div>

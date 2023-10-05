@@ -10,7 +10,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   let session = url.searchParams.get("session");
   if (!session) return redirect("/error");
   let texts = await getUniqueTextsGroup();
-  let user = await getUser(session, true);
+  let user = await getUser(session);
   let lastbatch = await getLastBatch();
   return defer({
     user,

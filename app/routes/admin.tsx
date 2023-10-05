@@ -10,7 +10,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   if (!session) return redirect("/error");
-  let user = await getUser(session, true);
+  let user = await getUser(session);
   let progress = await getProgress();
   return json({
     user,

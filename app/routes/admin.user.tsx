@@ -22,7 +22,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   if (!session) return redirect("/error");
-  let admin = await getUser(session, true);
+  let admin = await getUser(session);
   let users: User[] = await getUsers();
   let groups = await getAprovedBatch();
   users = users.sort(

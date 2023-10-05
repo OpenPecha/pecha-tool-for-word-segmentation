@@ -90,6 +90,8 @@ export async function getTextToDisplay(userId: string, history: any) {
   }
   let batch = await checkAndAssignBatch(userId);
 
+  // remove batch if all the text in it is reviewed
+
   let text = await db.text.findFirst({
     where: {
       batch: batch,
@@ -103,6 +105,7 @@ export async function getTextToDisplay(userId: string, history: any) {
       original_text: true,
       modified_text: true,
       status: true,
+      batch: true,
     },
   });
   if (!text) return null;
