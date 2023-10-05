@@ -1,11 +1,10 @@
-import { Link, useFetcher, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useOutletContext } from "@remix-run/react";
 import AllowAnnotation from "../AllowAnnotation";
 import AssignCategory from "../AssignCategory";
 import AssignNickName from "../AssignNickName";
 import AssignReviewer from "../AssignReviewer";
 import AssignRole from "../AssignRole";
 import AssignedBatchList from "../AssignedBatchList";
-import { User } from "@prisma/client";
 
 function Info({ children }: { children: React.ReactNode }) {
   return (
@@ -24,21 +23,19 @@ function Title({ children }: { children: React.ReactNode }) {
 
 const AboutUser = ({
   selectedUser,
-  user,
   removeUser,
 }: {
   selectedUser: string;
-  user: any;
   removeUser: () => void;
 }) => {
-  const { users } = useLoaderData();
+  const { user } = useLoaderData();
+  let { current_user } = useOutletContext();
+  const annotator = user;
 
-  const annotator = users?.find(
-    (user: User) => user?.username === selectedUser
-  );
-
-  let url = `/admin/user/review/${selectedUser}?session=` + user?.username;
-  let isAdmin = user?.role === "ADMIN";
+  let url =
+    `/admin/user/review/${selectedUser?.username}?session=` +
+    current_user?.username;
+  let isAdmin = current_user?.role === "ADMIN";
   if (selectedUser === "") return null;
 
   if (!annotator) return null;

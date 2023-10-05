@@ -1,5 +1,4 @@
-import React from "react";
-import { useFetcher, useLoaderData } from "@remix-run/react";
+import { useFetcher, useOutletContext } from "@remix-run/react";
 import Select from "react-tailwindcss-select";
 import { User } from "@prisma/client";
 import { AiFillDelete } from "react-icons/ai";
@@ -9,8 +8,8 @@ interface Option {
 }
 
 function AssignReviewer({ user }: { user: any }) {
-  const { users } = useLoaderData();
-  let reviewers = users.filter((user) => user.role === "REVIEWER");
+  let { reviewers } = useOutletContext();
+
   let options: Option[] = reviewers.map((c: User) => ({
     value: c.username,
     label: c.username,

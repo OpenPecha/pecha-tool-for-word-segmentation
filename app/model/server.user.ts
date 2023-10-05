@@ -75,8 +75,7 @@ export const getUser = async (username: string, min: boolean) => {
           where: { NOT: { reviewed: true } },
           select: min ? { id: true, reviewed: true } : undefined, // Select specific fields or all (undefined)
         },
-        rejected_list: { select: { id: true } }, // Select specific fields or all (undefined)
-        _count: { select: { text: { where: { reviewed: true } } } },
+        reviewer: true,
       },
     });
   } catch (e) {

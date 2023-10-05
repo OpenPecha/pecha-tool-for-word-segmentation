@@ -1,22 +1,14 @@
 import { User } from "@prisma/client";
-import { useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useOutletContext } from "@remix-run/react";
 import { useState } from "react";
 import { useOnlineList } from "../hooks/useOnlineList";
 import { timeAgo } from "~/lib/getFormattedDate";
-const UserListCard = ({
-  setSelectedUser,
-  selectedUser,
-  user,
-}: {
-  user: any;
-  selectedUser: string | null;
-  setSelectedUser: (data: string) => void;
-}) => {
-  const onlineUsers = useOnlineList();
-
+const UserListCard = () => {
   let { users } = useLoaderData();
+  const onlineUsers = useOnlineList();
+  const current_user = useOutletContext();
   let reviewers = users.filter((user) => user.role === "REVIEWER");
-  let isAdmin = user.role === "ADMIN";
+  let isAdmin = current_user?.role === "ADMIN";
   const [selectedReviewer, setSelectedReviewer] = useState("All");
   const [search, setSearch] = useState("");
 
@@ -73,25 +65,17 @@ const UserListCard = ({
       )}
       <div>
         {list.map((user: any) => (
-          <EachUser
-            key={user.id + "unique_key"}
-            user={user}
-            setSelectedUser={setSelectedUser}
-            selectedUser={selectedUser}
-          />
+          <EachUser key={user.id + "unique_key"} user={user} />
         ))}
       </div>
     </div>
   );
 };
 
-function EachUser({ user, setSelectedUser, selectedUser }) {
+function EachUser({ user }) {
   let { groups } = useLoaderData();
   const onlineUsers = useOnlineList();
-
-  const handleSelection = (value: string) => {
-    setSelectedUser(value);
-  };
+  const current_user = useOutletContext();
   let currentBatch = user.assigned_batch.filter(
     (item) => !groups[item]?.reviewed && groups[item]?.approved
   );
@@ -99,12 +83,9 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
   let time_ago = timeAgo(Time?.modified_on);
   if (!user) return null;
   return (
-    <div
-      key={user.id + "-userList"}
-      onClick={() => handleSelection(user.username)}
-      className={` cursor-pointer flex items-center gap-5 py-3 px-7.5 hover:bg-gray-3 dark:hover:bg-meta-4 hover:rounded-sm transition duration-300 ease-in-out hover:bg-green-300 ${
-        selectedUser === user.username && "bg-green-300"
-      }`}
+    <Link
+      to={`/admin/user/${user.username}?session=` + current_user?.username}
+      className={` cursor-pointer flex items-center gap-5 py-3 px-7.5 hover:bg-gray-3 dark:hover:bg-meta-4 hover:rounded-sm transition duration-300 ease-in-out hover:bg-green-300`}
     >
       {user.picture ? (
         <div className="avatar ml-2">
@@ -145,7 +126,7 @@ function EachUser({ user, setSelectedUser, selectedUser }) {
           </div>
         )}
       </div>
-    </div>
+    </Link>
   );
 }
 

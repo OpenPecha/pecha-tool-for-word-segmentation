@@ -49,7 +49,7 @@ export default function Index() {
   const socket = useSocket();
   const revalidate = useRevalidator();
 
-  let id = text.id;
+  let id = text?.id;
   let textContent = text?.original_text.trim() || "";
   let html = insertHTMLonText(textContent);
   let editor = useEditorTiptap(html);
