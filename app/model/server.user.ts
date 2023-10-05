@@ -14,6 +14,9 @@ export const createUserIfNotExists = async (username: string) => {
         orderBy: { id: "desc" },
       },
       rejected_list: { select: { id: true, reviewed: true, batch: true } },
+      _count: {
+        select: { text: { where: { reviewed: true } } }, //only count reviewded text
+      },
     },
   });
   if (!user) {
@@ -64,34 +67,18 @@ export const getUsers = async () => {
 };
 
 export const getUser = async (username: string, min: boolean) => {
-  let include = min
-    ? {
-        text: {
-          where: {
-            NOT: { reviewed: true },
-          },
-          select: { id: true, reviewed: true },
-        },
-        rejected_list: { select: { id: true } },
-      }
-    : {
-        text: {
-          where: {
-            NOT: { reviewed: true },
-          },
-        },
-        rejected_list: true,
-      };
-
   try {
-    let user = db.user.findUnique({
-      where: {
-        username,
+    return await db.user.findUnique({
+      where: { username },
+      include: {
+        text: {
+          where: { NOT: { reviewed: true } },
+          select: min ? { id: true, reviewed: true } : undefined, // Select specific fields or all (undefined)
+        },
+        rejected_list: { select: { id: true } }, // Select specific fields or all (undefined)
+        _count: { select: { text: { where: { reviewed: true } } } },
       },
-
-      include: include,
     });
-    return user;
   } catch (e) {
     throw new Error(e);
   }

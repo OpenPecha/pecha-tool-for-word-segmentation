@@ -45,14 +45,15 @@ export const meta: V2_MetaFunction = () => {
 };
 export default function Index() {
   let fetcher = useFetcher();
-  const data = useLoaderData();
-  const text = data?.text?.original_text.trim() || "";
-  let user = data.user;
-  let insertHTML = insertHTMLonText(text);
-  let newText = checkUnknown(insertHTML);
-  let editor = useEditorTiptap(newText);
+  const { user, text, error } = useLoaderData();
   const socket = useSocket();
   const revalidate = useRevalidator();
+
+  let id = text.id;
+  let textContent = text?.original_text.trim() || "";
+  let html = insertHTMLonText(textContent);
+  let editor = useEditorTiptap(html);
+
   const [activeTime, setActiveTime] = useState(0); // in sec
 
   useEffect(() => {
@@ -67,9 +68,6 @@ export default function Index() {
   let saveText = async () => {
     let duration = activeTime;
     let modified_text = editor!.getText();
-
-    let id = data.text.id;
-
     fetcher.submit(
       { id, modified_text, userId: user.id, duration },
       { method: "POST", action: "/api/text" }
@@ -78,12 +76,10 @@ export default function Index() {
     setActiveTime(0);
   };
   let undoTask = async () => {
-    let text = checkUnknown(insertHTMLonText(data?.text?.original_text));
-    editor?.commands.setContent(text);
+    let temptext = checkUnknown(insertHTMLonText(text?.original_text));
+    editor?.commands.setContent(temptext);
   };
-
   let rejectTask = async () => {
-    let id = data.text.id;
     fetcher.submit(
       { id, userId: user.id, _action: "reject" },
       { method: "PATCH", action: "/api/text" }
@@ -92,15 +88,15 @@ export default function Index() {
     setActiveTime(0);
   };
 
-  let isButtonDisabled = !data.text || data.text.reviewed;
+  let isButtonDisabled = !text || text.reviewed;
 
-  if (data.error) return <div>{data.error}</div>;
+  if (error) return <div>{error}</div>;
   return (
     <div className="flex flex-col md:flex-row">
-      <Sidebar user={data.user} text={data.text} />
+      <Sidebar user={user} text={text} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
-        {data.user?.rejected_list?.length > 0 && (
+        {user?.rejected_list?.length > 0 && (
           <div className="text-red-500 flex items-center gap-2 font-bold">
             <img
               src="/assets/notification.gif"
@@ -110,7 +106,7 @@ export default function Index() {
             SOME OF YOUR WORK IS REJECTED
           </div>
         )}
-        {!data.text ? (
+        {!text ? (
           <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm text-center py-4">
             {!user.allow_assign && (
               <div className="font-bold first-letter:uppercase first-letter:text-red-400">
@@ -133,7 +129,7 @@ export default function Index() {
             {!editor && <div>loading...</div>}
           </div>
         )}
-        {data.text && (
+        {text && (
           <div className="flex gap-2 fixed bottom-0 justify-center ">
             <Button
               disabled={isButtonDisabled}

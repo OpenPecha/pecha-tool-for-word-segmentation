@@ -1,3 +1,4 @@
+import checkUnknown from "./checkUnknown";
 import { replaceSpacesWithHTMLTag } from "./utils";
 
 function insertHTMLonText(text: string) {
@@ -12,7 +13,9 @@ function insertHTMLonText(text: string) {
     }
     length += word.length;
   });
-  return textHTML;
+  let newText = checkUnknown(textHTML);
+
+  return newText;
 }
 
 function splitText(text: string) {

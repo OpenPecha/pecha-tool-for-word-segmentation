@@ -17,7 +17,6 @@ type userType = {
 
 function Sidebar({ user, text }: userType) {
   let [openMenu, setOpenMenu] = useState(false);
-
   let navigate = useNavigate();
   const handleDashboradLink = () => {
     navigate(`/admin/user?session=${user?.username}`);
@@ -51,9 +50,7 @@ function Sidebar({ user, text }: userType) {
           <TextInfo>Batch : {text?.batch}</TextInfo>
           <TextInfo>Approved : {user?.text?.length}</TextInfo>
           <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
-          <TextInfo>
-            Reviewed : {user?.text.filter((r) => r.reviewed)?.length}
-          </TextInfo>
+          <TextInfo>Reviewed : {user?._count.text}</TextInfo>
         </div>
         <div className="flex-1 border-t">
           <div className="text-sm mb-2 font-bold pl-2">History</div>

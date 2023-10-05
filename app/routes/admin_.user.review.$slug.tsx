@@ -17,9 +17,11 @@ import { useSocket } from "~/components/contexts/SocketContext";
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
-  let user = await getUser(session!, true);
-  let annotator = await getUser(params.slug!, false);
 
+  const [user, annotator] = await Promise.all([
+    getUser(session!, true),
+    getUser(params.slug!, false),
+  ]);
   //check if user and admin are in same group
 
   if (annotator?.reviewer_id !== user?.id)
@@ -46,7 +48,7 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
 
 function UserDetail() {
   const fetcher = useFetcher();
-  const { annotator, text_data, user, id_now } = useLoaderData();
+  const { annotator, text_data, user, id_now } = useLoaderData() as any;
   let text = text_data?.sort((a, b) =>
     a.reviewed === b.reviewed ? 0 : !a.reviewed ? 1 : -1
   );
@@ -68,12 +70,8 @@ function UserDetail() {
       setContent(show);
     }
   }, [selectedId]);
-  let insertHTML = insertHTMLonText(content);
-  let newText = checkUnknown(insertHTML);
-  let textMemo = useMemo(() => {
-    if (newText) return newText;
-  }, [newText]);
-  let editor = useEditorTiptap(textMemo);
+  let newText = insertHTMLonText(content);
+  let editor = useEditorTiptap(newText);
 
   if (!editor) return null;
   function text_reviewed() {
