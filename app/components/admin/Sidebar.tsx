@@ -6,6 +6,7 @@ import { BiSolidDashboard } from "react-icons/bi";
 import { Hamburger } from "../../assets/svgs";
 import { FiUsers } from "react-icons/fi";
 import { AiOutlineFileText } from "react-icons/ai";
+import { HiDocumentReport } from "react-icons/hi";
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
@@ -75,6 +76,17 @@ function Sidebar({ sidebarOpen, setSidebarOpen }: SidebarProps) {
                   }
                 >
                   <AiOutlineFileText /> Text
+                </NavLink>
+              </li>
+              <li>
+                <NavLink
+                  to={"/admin/report?session=" + user.username}
+                  className={({ isActive }) =>
+                    "group relative flex items-center gap-2.5 rounded-md px-4 font-medium text-bodydark2 duration-300 ease-in-out hover:text-white " +
+                    (isActive && "!text-white  bg-slate-600 dark:bg-meta-4")
+                  }
+                >
+                  <HiDocumentReport /> Report
                 </NavLink>
               </li>
             </ul>
