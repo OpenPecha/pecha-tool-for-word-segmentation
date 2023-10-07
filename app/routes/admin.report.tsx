@@ -197,7 +197,7 @@ function report() {
                   <div>Task: {user.taskCount}</div>
                   <div>Word: {user.wordSum}</div>
                   <div>Duration: {user.duration}</div>
-                  <div>Pay: ₹ {pay_cal(user.wordSum, user.duration)}</div>
+                  {/* <div>Pay: ₹ {pay_cal(user.wordSum, user.duration)}</div> */}
                 </div>
                 {user.wordSum?.length > 0 ||
                   (user.duration?.length > 0 && (
