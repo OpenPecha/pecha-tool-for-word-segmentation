@@ -126,6 +126,18 @@ function report() {
     });
     changeOpen();
   }
+  var randomColor = () => Math.floor(Math.random() * 16777215).toString(16);
+  const data = {
+    labels: usersDetail.map((user) => user.username),
+    datasets: [
+      {
+        data: usersDetail.map((user) => user.word_count),
+        backgroundColor: usersDetail.map((user) => `#${randomColor()}`),
+        borderColor: usersDetail.map((user) => `#${randomColor()}`),
+        borderWidth: 1,
+      },
+    ],
+  };
   return (
     <div className="mt-3 mx-8">
       <div className="flex justify-between items-center">
@@ -147,73 +159,65 @@ function report() {
             })}
           </select>
         </div>
-        <Toggle_Modal>
-          <div className="bg-gray-400 px-2 rounded">view Date Range</div>
-        </Toggle_Modal>
+        <div className="flex gap-3">
+          <button
+            onClick={downloadReport}
+            className="bg-green-600 px-2  rounded hover:bg-green-700 text-white"
+          >
+            download Report
+          </button>
+          <Toggle_Modal>
+            <div className="bg-gray-400 px-2 rounded">Date Range</div>
+          </Toggle_Modal>
+        </div>
         <Modal>
-          <DateRangePicker ranges={[range]} onChange={handleSelect} />
-          <button
-            className="ml-4 bg-green-300 px-3 hover:bg-green-400"
-            onClick={handleSubmitDate}
-            type="button"
-          >
-            submit
-          </button>
-          <button
-            className="ml-4 text-red-300 px-3"
-            onClick={handleReset}
-            type="button"
-          >
-            reset
-          </button>
-        </Modal>
-        <button
-          onClick={downloadReport}
-          className="bg-green-600 px-2  rounded hover:bg-green-700 text-white"
-        >
-          download Report
-        </button>
-      </div>
-      <div className="flex gap-3 flex-wrap">
-        {usersDetail.map((user) => {
-          const data = {
-            labels: ["word", "task"],
-            datasets: [
-              {
-                data: [user.word_count, user.taskCount],
-                backgroundColor: [
-                  "rgba(255, 99, 132, 0.2)",
-                  "rgba(54, 162, 235, 0.2)",
-                ],
-                borderColor: ["rgba(255, 99, 132, 1)", "rgba(54, 162, 235, 1)"],
-                borderWidth: 1,
-              },
-            ],
-          };
-
-          return (
-            <div
-              key={user.username}
-              className=" flex flex-col bg-gray-200 p-2 capitalize px-10 hover:bg-gray-300 cursor-pointer"
-            >
-              <span className="font-bold text-xl mb-2">{user.nickname}</span>
-              <div className="flex gap-3">
-                <div>
-                  <div>Task: {user.taskCount}</div>
-                  <div title="space count">Word: {user.word_count}</div>
-                  <div>Duration: {user.duration} minutes</div>
-                  {/* <div>Pay: ₹ {pay_cal(user.word_count, user.duration)}</div> */}
-                </div>
-                {user.word_count?.length > 0 ||
-                  (user.duration?.length > 0 && (
-                    <div className="max-h-[100px] flex">
-                      <Pie data={data} />
-                    </div>
-                  ))}
-              </div>
+          <div className="flex">
+            <DateRangePicker ranges={[range]} onChange={handleSelect} />
+            <div className="flex flex-col flex-1 justify-center items-center gap-3">
+              <button
+                className="ml-4 btn-md bg-green-300 rounded w-full hover:bg-green-400"
+                onClick={handleSubmitDate}
+                type="button"
+              >
+                submit
+              </button>
+              <button
+                className="ml-4  btn-md bg-red-300 rounded w-full"
+                onClick={handleReset}
+                type="button"
+              >
+                reset
+              </button>
             </div>
-          );
-        })}
+          </div>
+        </Modal>
+      </div>
+
+      <div className="divider"></div>
+      <div className="flex">
+        <div className="flex flex-1 gap-3 flex-wrap">
+          {usersDetail.map((user) => {
+            return (
+              <div
+                key={user.username}
+                className=" flex flex-col bg-gray-200 p-2 capitalize px-10 hover:bg-gray-300 cursor-pointer"
+              >
+                <span className="font-bold text-xl mb-2">{user.nickname}</span>
+                <div className="flex gap-3">
+                  <div>
+                    <div>Task: {user.taskCount}</div>
+                    <div title="space count">Word: {user.word_count}</div>
+                    <div>Duration: {user.duration} minutes</div>
+                    {/* <div>Pay: ₹ {pay_cal(user.word_count, user.duration)}</div> */}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        <div className="max-h-[300px] flex">
+          <Pie data={data} />
+        </div>
       </div>
     </div>
   );
