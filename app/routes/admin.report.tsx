@@ -38,7 +38,9 @@ export const loader = async ({ request }) => {
           reviewed: true,
           updatedAt:
             startDate && endDate
-              ? { gte: new Date(startDate), lte: new Date(endDate) }
+              ? startDate !== endDate
+                ? { gte: new Date(startDate), lte: new Date(endDate) }
+                : new Date(startDate)
               : undefined,
         },
         select: { word_count: true, updatedAt: true, duration: true },
@@ -49,7 +51,10 @@ export const loader = async ({ request }) => {
   let reviewers = await db.user.findMany({ where: { role: "REVIEWER" } });
 
   let usersDetail = users.map((user) => {
-    const wordSum = user.text.reduce((total, obj) => total + obj.word_count, 0);
+    const word_count = user.text.reduce(
+      (total, obj) => total + obj.word_count,
+      0
+    );
     const duration_sec = user.text.reduce((total, obj) => {
       let duration = obj.duration;
       return total + duration;
@@ -57,14 +62,14 @@ export const loader = async ({ request }) => {
     let duration =
       duration_sec > 0
         ? Math.floor(duration_sec / 60).toFixed(2)
-        : wordSum > 0
+        : word_count > 0
         ? 3
         : 0; // in minutes
     let taskCount = user.text.length;
     return {
       username: user.username,
       nickname: user.nickname,
-      wordSum,
+      word_count,
       duration,
       taskCount,
     };
@@ -175,7 +180,7 @@ function report() {
             labels: ["word", "task"],
             datasets: [
               {
-                data: [user.wordSum, user.taskCount],
+                data: [user.word_count, user.taskCount],
                 backgroundColor: [
                   "rgba(255, 99, 132, 0.2)",
                   "rgba(54, 162, 235, 0.2)",
@@ -195,11 +200,11 @@ function report() {
               <div className="flex gap-3">
                 <div>
                   <div>Task: {user.taskCount}</div>
-                  <div>Word: {user.wordSum}</div>
-                  <div>Duration: {user.duration}</div>
-                  {/* <div>Pay: ₹ {pay_cal(user.wordSum, user.duration)}</div> */}
+                  <div title="space count">Word: {user.word_count}</div>
+                  <div>Duration: {user.duration} minutes</div>
+                  {/* <div>Pay: ₹ {pay_cal(user.word_count, user.duration)}</div> */}
                 </div>
-                {user.wordSum?.length > 0 ||
+                {user.word_count?.length > 0 ||
                   (user.duration?.length > 0 && (
                     <div className="max-h-[100px] flex">
                       <Pie data={data} />
