@@ -1,22 +1,22 @@
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import React from "react";
 import Papa from "papaparse";
+import { set } from "nprogress";
+
+type uploaddata = { batch: number; original_text: string; version: string };
 
 function UploadText() {
-  const [data, setData] = React.useState("");
-  const [fileName, setFileName] = React.useState("");
-  const [csvData, setCsvData] = React.useState([]);
-
+  const [csvData, setCsvData] = React.useState<uploaddata[]>([]);
+  const [fileNames, setFileNames] = React.useState<string[]>([]);
   const dataUpload = useFetcher();
   const { lastbatch } = useLoaderData();
-  const startBatch = parseInt(lastbatch) + 1;
-  const convertToCSV = () => {
+  let currentBatch = parseInt(lastbatch) + 1;
+  const convertToCSV = (filename, data) => {
     Papa.parse(data, {
       complete: (result) => {
         const lines = result.data;
         const rows = [];
         let currentRow = [];
-        let currentBatch = startBatch;
         lines.forEach((line, index) => {
           currentRow.push(line);
 
@@ -27,7 +27,7 @@ function UploadText() {
             // Add other fields as needed
             const rowData = {
               original_text: original_text,
-              version: fileName,
+              version: filename,
               batch: currentBatch,
             };
 
@@ -39,38 +39,47 @@ function UploadText() {
             currentRow = [];
           }
         });
-
-        setCsvData(rows);
+        setCsvData((prev) => [...prev, ...rows]);
+        setFileNames((prev) => [...prev, filename]);
+        currentBatch++;
       },
     });
   };
-  React.useEffect(() => {
-    convertToCSV();
-  }, [data]);
+  console.log(csvData);
+  function reset() {
+    setCsvData([]);
+    setFileNames([]);
+  }
   const handleFileInputChange = (e) => {
-    const file = e.target.files[0];
+    reset();
+    let files = e.target.files;
+    if (files.length === 0) return;
+    for (let i = 0; i < files.length; i++) {
+      const file = e.target.files[i];
 
-    if (file) {
-      let filename = file.name;
-      if (filename.includes(".txt")) {
-        filename = filename.replace(".txt", "");
+      if (file) {
+        let filename = file.name;
+        if (filename.includes(".txt")) {
+          filename = filename.replace(".txt", "");
+        }
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          convertToCSV(filename, event.target?.result);
+        };
+
+        reader.readAsText(file);
       }
-      setFileName(filename);
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        setData(event.target.result);
-      };
-      reader.readAsText(file);
     }
   };
 
   const handleUpload = () => {
     if (csvData?.length < 1) return null;
     const value = JSON.stringify(csvData);
+    const name = JSON.stringify(fileNames);
     try {
       dataUpload.submit(
         {
-          name: fileName,
+          name,
           data: value,
         },
         {
@@ -81,8 +90,7 @@ function UploadText() {
     } catch (error) {
       console.error(error);
     } finally {
-      setData("");
-      setFileName("");
+      reset();
     }
   };
   return (
@@ -94,6 +102,7 @@ function UploadText() {
         type="file"
         accept=".txt"
         onChange={handleFileInputChange}
+        multiple
         className="file-input file-input-bordered w-full max-w-xs"
       />
       <button

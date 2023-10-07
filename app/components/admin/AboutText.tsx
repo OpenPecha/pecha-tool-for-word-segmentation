@@ -98,11 +98,13 @@ function Text_Category({ text }: { text: Text_Props }) {
 }
 
 function TextSettings({ text }: { text: Text_Props }) {
+  let download_fetcher = useFetcher();
+
   let fetcher = useFetcher();
   const { user } = useLoaderData();
 
   function handleDownload() {
-    fetcher.load(`/api/text/${text.version}`);
+    download_fetcher.load(`/api/text/${text.version}`);
   }
   function handleDelete() {
     fetcher.submit(
@@ -116,10 +118,10 @@ function TextSettings({ text }: { text: Text_Props }) {
     );
   }
   useEffect(() => {
-    if (fetcher.data) {
+    if (download_fetcher.data) {
       downloadJsonlFile(fetcher.data, text.version);
     }
-  }, [fetcher.data]);
+  }, [download_fetcher.data]);
   return (
     <ul
       tabIndex={0}

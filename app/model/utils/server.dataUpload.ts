@@ -1,10 +1,16 @@
 import { db } from "~/service/db.server";
 
-export async function uploadData({ name, data }) {
+export async function uploadData({
+  name,
+  data,
+}: {
+  name: string[];
+  data: any;
+}) {
   try {
     const existingRecord = await db.text.findFirst({
       where: {
-        version: name,
+        version: { in: name },
       },
     });
     if (!!existingRecord) {
@@ -12,7 +18,7 @@ export async function uploadData({ name, data }) {
       return { error: "Record already exists" };
     }
     let UploadData = data?.map((item) => ({
-      version: name,
+      version: item.version,
       original_text: item.original_text,
       batch: item.batch,
     }));
