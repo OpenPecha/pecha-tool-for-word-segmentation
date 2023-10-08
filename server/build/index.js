@@ -1473,8 +1473,733 @@ var useEditorTiptap = (newText) => {
   );
 };
 
+// app/animation-pilot.json
+var animation_pilot_default = {
+  v: "5.5.8",
+  fr: 50,
+  ip: 0,
+  op: 147,
+  w: 800,
+  h: 600,
+  nm: "Paperplane",
+  ddd: 0,
+  assets: [
+    {
+      id: "comp_0",
+      layers: [
+        {
+          ddd: 0,
+          ind: 1,
+          ty: 4,
+          nm: "planete Outlines - Group 4",
+          sr: 1,
+          ks: {
+            o: {
+              a: 1,
+              k: [
+                {
+                  i: { x: [0.833], y: [0.833] },
+                  o: { x: [0.167], y: [0.167] },
+                  t: 0,
+                  s: [0]
+                },
+                {
+                  i: { x: [0.833], y: [0.833] },
+                  o: { x: [0.167], y: [0.167] },
+                  t: 38,
+                  s: [50]
+                },
+                {
+                  i: { x: [0.833], y: [0.833] },
+                  o: { x: [0.167], y: [0.167] },
+                  t: 88,
+                  s: [50]
+                },
+                { t: 120, s: [0] }
+              ],
+              ix: 11
+            },
+            r: { a: 0, k: 0, ix: 10 },
+            p: {
+              a: 1,
+              k: [
+                {
+                  i: { x: 0.833, y: 0.833 },
+                  o: { x: 0.167, y: 0.167 },
+                  t: 0,
+                  s: [468.336, 323.378, 0],
+                  to: [-29, 0, 0],
+                  ti: [29, 0, 0]
+                },
+                { t: 102, s: [294.336, 323.378, 0] }
+              ],
+              ix: 2
+            },
+            a: { a: 0, k: [453.672, 304.756, 0], ix: 1 },
+            s: { a: 0, k: [50, 50, 100], ix: 6 }
+          },
+          ao: 0,
+          shapes: [
+            {
+              ty: "gr",
+              it: [
+                {
+                  ind: 0,
+                  ty: "sh",
+                  ix: 1,
+                  ks: {
+                    a: 0,
+                    k: {
+                      i: [
+                        [6.742, 0],
+                        [0.741, -0.14],
+                        [0, 0.074],
+                        [13.484, 0],
+                        [1.669, -0.361],
+                        [19.79, 0],
+                        [3.317, -19.082],
+                        [2.691, 0],
+                        [0, -13.484],
+                        [-0.048, -0.629],
+                        [2.405, 0],
+                        [0, -6.742],
+                        [-6.742, 0],
+                        [0, 0],
+                        [0, 6.743]
+                      ],
+                      o: [
+                        [-0.781, 0],
+                        [1e-3, -0.074],
+                        [0, -13.484],
+                        [-1.778, 0],
+                        [-3.594, -18.742],
+                        [-20.03, 0],
+                        [-2.421, -0.804],
+                        [-13.485, 0],
+                        [0, 0.642],
+                        [-1.89, -1.199],
+                        [-6.742, 0],
+                        [0, 6.743],
+                        [0, 0],
+                        [6.742, 0],
+                        [0, -6.742]
+                      ],
+                      v: [
+                        [75.134, 16.175],
+                        [72.85, 16.396],
+                        [72.856, 16.175],
+                        [48.44, -8.241],
+                        [43.262, -7.685],
+                        [3.406, -40.591],
+                        [-36.571, -6.995],
+                        [-44.269, -8.241],
+                        [-68.685, 16.175],
+                        [-68.604, 18.079],
+                        [-75.133, 16.175],
+                        [-87.341, 28.383],
+                        [-75.133, 40.592],
+                        [75.134, 40.592],
+                        [87.342, 28.383]
+                      ],
+                      c: !0
+                    },
+                    ix: 2
+                  },
+                  nm: "Path 1",
+                  mn: "ADBE Vector Shape - Group",
+                  hd: !1
+                },
+                {
+                  ty: "fl",
+                  c: {
+                    a: 0,
+                    k: [0.815686334348, 0.823529471603, 0.827451040231, 1],
+                    ix: 4
+                  },
+                  o: { a: 0, k: 100, ix: 5 },
+                  r: 1,
+                  bm: 0,
+                  nm: "Fill 1",
+                  mn: "ADBE Vector Graphic - Fill",
+                  hd: !1
+                },
+                {
+                  ty: "tr",
+                  p: { a: 0, k: [453.672, 304.756], ix: 2 },
+                  a: { a: 0, k: [0, 0], ix: 1 },
+                  s: { a: 0, k: [100, 100], ix: 3 },
+                  r: { a: 0, k: 0, ix: 6 },
+                  o: { a: 0, k: 100, ix: 7 },
+                  sk: { a: 0, k: 0, ix: 4 },
+                  sa: { a: 0, k: 0, ix: 5 },
+                  nm: "Transform"
+                }
+              ],
+              nm: "Group 4",
+              np: 2,
+              cix: 2,
+              bm: 0,
+              ix: 1,
+              mn: "ADBE Vector Group",
+              hd: !1
+            }
+          ],
+          ip: 0,
+          op: 151,
+          st: 0,
+          bm: 0
+        },
+        {
+          ddd: 0,
+          ind: 2,
+          ty: 4,
+          nm: "Merged Shape Layer",
+          sr: 1,
+          ks: {
+            o: { a: 0, k: 100, ix: 11 },
+            r: {
+              a: 1,
+              k: [
+                {
+                  i: { x: [0.667], y: [1] },
+                  o: { x: [0.547], y: [0] },
+                  t: 0,
+                  s: [0]
+                },
+                {
+                  i: { x: [0.845], y: [1] },
+                  o: { x: [0.333], y: [0] },
+                  t: 77,
+                  s: [35]
+                },
+                { t: 150, s: [0] }
+              ],
+              ix: 10
+            },
+            p: {
+              a: 1,
+              k: [
+                {
+                  i: { x: 0.667, y: 1 },
+                  o: { x: 0.333, y: 0 },
+                  t: 0,
+                  s: [390.319, 298.2, 0],
+                  to: [0, -2.583, 0],
+                  ti: [0, 0, 0]
+                },
+                {
+                  i: { x: 0.667, y: 1 },
+                  o: { x: 0.333, y: 0 },
+                  t: 44,
+                  s: [390.319, 282.7, 0],
+                  to: [0, 0, 0],
+                  ti: [0, 0, 0]
+                },
+                {
+                  i: { x: 0.667, y: 1 },
+                  o: { x: 0.333, y: 0 },
+                  t: 110,
+                  s: [390.319, 319.25, 0],
+                  to: [0, 0, 0],
+                  ti: [0, 0, 0]
+                },
+                { t: 150, s: [390.319, 298.2, 0] }
+              ],
+              ix: 2
+            },
+            a: { a: 0, k: [664.319, 256.2, 0], ix: 1 },
+            s: { a: 0, k: [100, 100, 100], ix: 6 }
+          },
+          ao: 0,
+          shapes: [
+            {
+              ty: "gr",
+              it: [
+                {
+                  ty: "gr",
+                  it: [
+                    {
+                      ind: 0,
+                      ty: "sh",
+                      ix: 1,
+                      ks: {
+                        a: 0,
+                        k: {
+                          i: [
+                            [0, 0],
+                            [0, 0],
+                            [0, 0]
+                          ],
+                          o: [
+                            [0, 0],
+                            [0, 0],
+                            [0, 0]
+                          ],
+                          v: [
+                            [18.967, -3.189],
+                            [-18.967, 19.935],
+                            [-0.949, -19.935]
+                          ],
+                          c: !0
+                        },
+                        ix: 2
+                      },
+                      nm: "Path 1",
+                      mn: "ADBE Vector Shape - Group",
+                      hd: !1
+                    },
+                    {
+                      ty: "fl",
+                      c: {
+                        a: 0,
+                        k: [
+                          0.223528981209,
+                          0.192156970501,
+                          0.674510002136,
+                          1
+                        ],
+                        ix: 4
+                      },
+                      o: { a: 0, k: 100, ix: 5 },
+                      r: 1,
+                      bm: 0,
+                      nm: "Fill 1",
+                      mn: "ADBE Vector Graphic - Fill",
+                      hd: !1
+                    },
+                    {
+                      ty: "tr",
+                      p: { a: 0, k: [236.879, 292.737], ix: 2 },
+                      a: { a: 0, k: [0, 0], ix: 1 },
+                      s: { a: 0, k: [100, 100], ix: 3 },
+                      r: { a: 0, k: 0, ix: 6 },
+                      o: { a: 0, k: 100, ix: 7 },
+                      sk: { a: 0, k: 0, ix: 4 },
+                      sa: { a: 0, k: 0, ix: 5 },
+                      nm: "Transform"
+                    }
+                  ],
+                  nm: "Group 1",
+                  np: 2,
+                  cix: 2,
+                  bm: 0,
+                  ix: 1,
+                  mn: "ADBE Vector Group",
+                  hd: !1
+                },
+                {
+                  ty: "tr",
+                  p: { a: 0, k: [633.939, 275.369], ix: 2 },
+                  a: { a: 0, k: [236.879, 292.737], ix: 1 },
+                  s: { a: 0, k: [50, 50], ix: 3 },
+                  r: { a: 0, k: 0, ix: 6 },
+                  o: { a: 0, k: 100, ix: 7 },
+                  sk: { a: 0, k: 0, ix: 4 },
+                  sa: { a: 0, k: 0, ix: 5 },
+                  nm: "Transform"
+                }
+              ],
+              nm: "planete Outlines - Group 1",
+              np: 1,
+              cix: 2,
+              bm: 0,
+              ix: 1,
+              mn: "ADBE Vector Group",
+              hd: !1
+            },
+            {
+              ty: "gr",
+              it: [
+                {
+                  ty: "gr",
+                  it: [
+                    {
+                      ind: 0,
+                      ty: "sh",
+                      ix: 1,
+                      ks: {
+                        a: 0,
+                        k: {
+                          i: [
+                            [0, 0],
+                            [0, 0],
+                            [0, 0],
+                            [0, 0]
+                          ],
+                          o: [
+                            [0, 0],
+                            [0, 0],
+                            [0, 0],
+                            [0, 0]
+                          ],
+                          v: [
+                            [-98.335, 64.79],
+                            [-105.619, 4.984],
+                            [105.619, -64.79],
+                            [-80.316, 24.919]
+                          ],
+                          c: !0
+                        },
+                        ix: 2
+                      },
+                      nm: "Path 1",
+                      mn: "ADBE Vector Shape - Group",
+                      hd: !1
+                    },
+                    {
+                      ty: "fl",
+                      c: {
+                        a: 0,
+                        k: [
+                          0.278430998325,
+                          0.294117987156,
+                          0.847059011459,
+                          1
+                        ],
+                        ix: 4
+                      },
+                      o: { a: 0, k: 100, ix: 5 },
+                      r: 1,
+                      bm: 0,
+                      nm: "Fill 1",
+                      mn: "ADBE Vector Graphic - Fill",
+                      hd: !1
+                    },
+                    {
+                      ty: "tr",
+                      p: { a: 0, k: [316.247, 247.882], ix: 2 },
+                      a: { a: 0, k: [0, 0], ix: 1 },
+                      s: { a: 0, k: [100, 100], ix: 3 },
+                      r: { a: 0, k: 0, ix: 6 },
+                      o: { a: 0, k: 100, ix: 7 },
+                      sk: { a: 0, k: 0, ix: 4 },
+                      sa: { a: 0, k: 0, ix: 5 },
+                      nm: "Transform"
+                    }
+                  ],
+                  nm: "Group 2",
+                  np: 2,
+                  cix: 2,
+                  bm: 0,
+                  ix: 1,
+                  mn: "ADBE Vector Group",
+                  hd: !1
+                },
+                {
+                  ty: "tr",
+                  p: { a: 0, k: [673.623, 252.941], ix: 2 },
+                  a: { a: 0, k: [316.247, 247.882], ix: 1 },
+                  s: { a: 0, k: [50, 50], ix: 3 },
+                  r: { a: 0, k: 0, ix: 6 },
+                  o: { a: 0, k: 100, ix: 7 },
+                  sk: { a: 0, k: 0, ix: 4 },
+                  sa: { a: 0, k: 0, ix: 5 },
+                  nm: "Transform"
+                }
+              ],
+              nm: "planete Outlines - Group 2",
+              np: 1,
+              cix: 2,
+              bm: 0,
+              ix: 2,
+              mn: "ADBE Vector Group",
+              hd: !1
+            },
+            {
+              ty: "gr",
+              it: [
+                {
+                  ty: "gr",
+                  it: [
+                    {
+                      ind: 0,
+                      ty: "sh",
+                      ix: 1,
+                      ks: {
+                        a: 0,
+                        k: {
+                          i: [
+                            [0, 0],
+                            [0, 0],
+                            [0, 0],
+                            [0, 0],
+                            [0, 0],
+                            [0, 0]
+                          ],
+                          o: [
+                            [0, 0],
+                            [0, 0],
+                            [0, 0],
+                            [0, 0],
+                            [0, 0],
+                            [0, 0]
+                          ],
+                          v: [
+                            [-133.812, -42.171],
+                            [133.812, -75.141],
+                            [5.765, 75.141],
+                            [-61.708, 18.402],
+                            [124.227, -71.307],
+                            [-87.011, -1.534]
+                          ],
+                          c: !0
+                        },
+                        ix: 2
+                      },
+                      nm: "Path 1",
+                      mn: "ADBE Vector Shape - Group",
+                      hd: !1
+                    },
+                    {
+                      ty: "fl",
+                      c: {
+                        a: 0,
+                        k: [
+                          0.365000009537,
+                          0.407999992371,
+                          0.976000010967,
+                          1
+                        ],
+                        ix: 4
+                      },
+                      o: { a: 0, k: 100, ix: 5 },
+                      r: 1,
+                      bm: 0,
+                      nm: "Fill 1",
+                      mn: "ADBE Vector Graphic - Fill",
+                      hd: !1
+                    },
+                    {
+                      ty: "tr",
+                      p: { a: 0, k: [297.638, 254.4], ix: 2 },
+                      a: { a: 0, k: [0, 0], ix: 1 },
+                      s: { a: 0, k: [100, 100], ix: 3 },
+                      r: { a: 0, k: 0, ix: 6 },
+                      o: { a: 0, k: 100, ix: 7 },
+                      sk: { a: 0, k: 0, ix: 4 },
+                      sa: { a: 0, k: 0, ix: 5 },
+                      nm: "Transform"
+                    }
+                  ],
+                  nm: "Group 3",
+                  np: 2,
+                  cix: 2,
+                  bm: 0,
+                  ix: 1,
+                  mn: "ADBE Vector Group",
+                  hd: !1
+                },
+                {
+                  ty: "tr",
+                  p: { a: 0, k: [664.319, 256.2], ix: 2 },
+                  a: { a: 0, k: [297.638, 254.4], ix: 1 },
+                  s: { a: 0, k: [50, 50], ix: 3 },
+                  r: { a: 0, k: 0, ix: 6 },
+                  o: { a: 0, k: 100, ix: 7 },
+                  sk: { a: 0, k: 0, ix: 4 },
+                  sa: { a: 0, k: 0, ix: 5 },
+                  nm: "Transform"
+                }
+              ],
+              nm: "planete Outlines - Group 3",
+              np: 1,
+              cix: 2,
+              bm: 0,
+              ix: 3,
+              mn: "ADBE Vector Group",
+              hd: !1
+            }
+          ],
+          ip: 0,
+          op: 151,
+          st: 0,
+          bm: 0
+        },
+        {
+          ddd: 0,
+          ind: 3,
+          ty: 4,
+          nm: "planete Outlines - Group 5",
+          sr: 1,
+          ks: {
+            o: {
+              a: 1,
+              k: [
+                {
+                  i: { x: [0.667], y: [1] },
+                  o: { x: [0.333], y: [0] },
+                  t: 0,
+                  s: [0]
+                },
+                {
+                  i: { x: [0.667], y: [1] },
+                  o: { x: [0.333], y: [0] },
+                  t: 45,
+                  s: [100]
+                },
+                {
+                  i: { x: [0.667], y: [1] },
+                  o: { x: [0.333], y: [0] },
+                  t: 102,
+                  s: [100]
+                },
+                { t: 150, s: [0] }
+              ],
+              ix: 11
+            },
+            r: { a: 0, k: 0, ix: 10 },
+            p: {
+              a: 1,
+              k: [
+                {
+                  i: { x: 0.833, y: 0.833 },
+                  o: { x: 0.167, y: 0.167 },
+                  t: 0,
+                  s: [327.38, 267.583, 0],
+                  to: [25.833, 0, 0],
+                  ti: [-25.833, 0, 0]
+                },
+                { t: 150, s: [482.38, 267.583, 0] }
+              ],
+              ix: 2
+            },
+            a: { a: 0, k: [171.76, 193.166, 0], ix: 1 },
+            s: { a: 0, k: [50, 50, 100], ix: 6 }
+          },
+          ao: 0,
+          shapes: [
+            {
+              ty: "gr",
+              it: [
+                {
+                  ind: 0,
+                  ty: "sh",
+                  ix: 1,
+                  ks: {
+                    a: 0,
+                    k: {
+                      i: [
+                        [13.485, 0],
+                        [4.38, -4.171],
+                        [21.913, 0],
+                        [3.575, -18.765],
+                        [1.851, 0],
+                        [0, -13.484],
+                        [-0.011, -0.291],
+                        [1.599, 0],
+                        [0, -6.743],
+                        [-6.742, 0],
+                        [0, 0],
+                        [0, 13.485]
+                      ],
+                      o: [
+                        [-6.526, 0],
+                        [-0.793, -21.719],
+                        [-19.806, 0],
+                        [-1.734, -0.391],
+                        [-13.485, 0],
+                        [0, 0.293],
+                        [-1.4, -0.559],
+                        [-6.742, 0],
+                        [0, 6.742],
+                        [0, 0],
+                        [13.485, 0],
+                        [0, -13.484]
+                      ],
+                      v: [
+                        [59.669, -8.242],
+                        [42.84, -1.506],
+                        [2.287, -40.592],
+                        [-37.576, -7.638],
+                        [-42.962, -8.242],
+                        [-67.378, 16.174],
+                        [-67.356, 17.049],
+                        [-71.878, 16.174],
+                        [-84.086, 28.383],
+                        [-71.878, 40.591],
+                        [59.669, 40.591],
+                        [84.086, 16.174]
+                      ],
+                      c: !0
+                    },
+                    ix: 2
+                  },
+                  nm: "Path 1",
+                  mn: "ADBE Vector Shape - Group",
+                  hd: !1
+                },
+                {
+                  ty: "fl",
+                  c: {
+                    a: 0,
+                    k: [0.816000007181, 0.823999980852, 0.827000038297, 1],
+                    ix: 4
+                  },
+                  o: { a: 0, k: 100, ix: 5 },
+                  r: 1,
+                  bm: 0,
+                  nm: "Fill 1",
+                  mn: "ADBE Vector Graphic - Fill",
+                  hd: !1
+                },
+                {
+                  ty: "tr",
+                  p: { a: 0, k: [171.76, 193.166], ix: 2 },
+                  a: { a: 0, k: [0, 0], ix: 1 },
+                  s: { a: 0, k: [100, 100], ix: 3 },
+                  r: { a: 0, k: 0, ix: 6 },
+                  o: { a: 0, k: 100, ix: 7 },
+                  sk: { a: 0, k: 0, ix: 4 },
+                  sa: { a: 0, k: 0, ix: 5 },
+                  nm: "Transform"
+                }
+              ],
+              nm: "Group 5",
+              np: 2,
+              cix: 2,
+              bm: 0,
+              ix: 1,
+              mn: "ADBE Vector Group",
+              hd: !1
+            }
+          ],
+          ip: 0,
+          op: 151,
+          st: 0,
+          bm: 0
+        }
+      ]
+    }
+  ],
+  layers: [
+    {
+      ddd: 0,
+      ind: 1,
+      ty: 0,
+      nm: "Pre-comp 1",
+      refId: "comp_0",
+      sr: 1,
+      ks: {
+        o: { a: 0, k: 100, ix: 11 },
+        r: { a: 0, k: 0, ix: 10 },
+        p: { a: 0, k: [406, 306, 0], ix: 2 },
+        a: { a: 0, k: [400, 300, 0], ix: 1 },
+        s: { a: 0, k: [179, 179, 100], ix: 6 }
+      },
+      ao: 0,
+      w: 800,
+      h: 600,
+      ip: 0,
+      op: 147,
+      st: 0,
+      bm: 0
+    }
+  ],
+  markers: []
+};
+
 // app/routes/admin_.user.review.$slug.tsx
-var import_jsx_dev_runtime10 = require("react/jsx-dev-runtime"), loader2 = async ({ request, params }) => {
+var import_lottie_react = __toESM(require("lottie-react")), import_jsx_dev_runtime10 = require("react/jsx-dev-runtime"), loader2 = async ({ request, params }) => {
   let session = new URL(request.url).searchParams.get("session"), [user, annotator] = await Promise.all([
     getUser(session),
     getUser(params.slug)
@@ -1543,7 +2268,7 @@ function UserDetail() {
       !1,
       {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 99,
+        lineNumber: 101,
         columnNumber: 7
       },
       this
@@ -1551,31 +2276,35 @@ function UserDetail() {
     /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex-1 flex items-center flex-col md:mt-[10vh]", children: [
       !currentText || !selectedId || !editor ? /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]", children: "Thank you . your work is complete ! \u{1F60A}\u{1F60A}\u{1F60A}" }, void 0, !1, {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 107,
+        lineNumber: 109,
         columnNumber: 11
       }, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]", children: [
         /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ", children: "transcript" }, void 0, !1, {
           fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 112,
-          columnNumber: 13
-        }, this),
-        /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(import_remix_utils.ClientOnly, { fallback: null, children: () => /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Editor_default, { editor }, void 0, !1, {
-          fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 116,
-          columnNumber: 22
-        }, this) }, void 0, !1, {
-          fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 115,
+          lineNumber: 114,
           columnNumber: 13
         }, this),
         !editor && /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { children: "loading..." }, void 0, !1, {
           fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 118,
+          lineNumber: 117,
           columnNumber: 25
+        }, this),
+        fetcher.state !== "idle" ? /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "w-full flex justify-center items-center", children: /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(import_lottie_react.default, { animationData: animation_pilot_default, loop: !0 }, void 0, !1, {
+          fileName: "app/routes/admin_.user.review.$slug.tsx",
+          lineNumber: 120,
+          columnNumber: 17
+        }, this) }, void 0, !1, {
+          fileName: "app/routes/admin_.user.review.$slug.tsx",
+          lineNumber: 119,
+          columnNumber: 15
+        }, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Editor_default, { editor }, void 0, !1, {
+          fileName: "app/routes/admin_.user.review.$slug.tsx",
+          lineNumber: 123,
+          columnNumber: 15
         }, this)
       ] }, void 0, !0, {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 111,
+        lineNumber: 113,
         columnNumber: 11
       }, this),
       /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(import_remix_utils.ClientOnly, { fallback: null, children: () => /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex gap-2 fixed bottom-0 justify-center", children: [
@@ -1592,7 +2321,7 @@ function UserDetail() {
           !1,
           {
             fileName: "app/routes/admin_.user.review.$slug.tsx",
-            lineNumber: 124,
+            lineNumber: 130,
             columnNumber: 15
           },
           this
@@ -1610,28 +2339,28 @@ function UserDetail() {
           !1,
           {
             fileName: "app/routes/admin_.user.review.$slug.tsx",
-            lineNumber: 131,
+            lineNumber: 137,
             columnNumber: 15
           },
           this
         )
       ] }, void 0, !0, {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 123,
+        lineNumber: 129,
         columnNumber: 13
       }, this) }, void 0, !1, {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 121,
+        lineNumber: 127,
         columnNumber: 9
       }, this)
     ] }, void 0, !0, {
       fileName: "app/routes/admin_.user.review.$slug.tsx",
-      lineNumber: 105,
+      lineNumber: 107,
       columnNumber: 7
     }, this)
   ] }, void 0, !0, {
     fileName: "app/routes/admin_.user.review.$slug.tsx",
-    lineNumber: 98,
+    lineNumber: 100,
     columnNumber: 5
   }, this);
 }
@@ -3979,7 +4708,7 @@ __export(index_exports, {
   loader: () => loader12,
   meta: () => meta2
 });
-var import_node7 = require("@remix-run/node"), import_react39 = require("react"), import_lottie_react = __toESM(require("lottie-react")), import_react40 = require("@remix-run/react");
+var import_node7 = require("@remix-run/node"), import_react39 = require("react"), import_lottie_react2 = __toESM(require("lottie-react")), import_react40 = require("@remix-run/react");
 
 // app/components/Sidebar.tsx
 var import_react36 = require("@remix-run/react"), import_react37 = require("react");
@@ -4224,731 +4953,6 @@ function ActiveUser({ active, setActive }) {
   }, this);
 }
 
-// app/animation-pilot.json
-var animation_pilot_default = {
-  v: "5.5.8",
-  fr: 50,
-  ip: 0,
-  op: 147,
-  w: 800,
-  h: 600,
-  nm: "Paperplane",
-  ddd: 0,
-  assets: [
-    {
-      id: "comp_0",
-      layers: [
-        {
-          ddd: 0,
-          ind: 1,
-          ty: 4,
-          nm: "planete Outlines - Group 4",
-          sr: 1,
-          ks: {
-            o: {
-              a: 1,
-              k: [
-                {
-                  i: { x: [0.833], y: [0.833] },
-                  o: { x: [0.167], y: [0.167] },
-                  t: 0,
-                  s: [0]
-                },
-                {
-                  i: { x: [0.833], y: [0.833] },
-                  o: { x: [0.167], y: [0.167] },
-                  t: 38,
-                  s: [50]
-                },
-                {
-                  i: { x: [0.833], y: [0.833] },
-                  o: { x: [0.167], y: [0.167] },
-                  t: 88,
-                  s: [50]
-                },
-                { t: 120, s: [0] }
-              ],
-              ix: 11
-            },
-            r: { a: 0, k: 0, ix: 10 },
-            p: {
-              a: 1,
-              k: [
-                {
-                  i: { x: 0.833, y: 0.833 },
-                  o: { x: 0.167, y: 0.167 },
-                  t: 0,
-                  s: [468.336, 323.378, 0],
-                  to: [-29, 0, 0],
-                  ti: [29, 0, 0]
-                },
-                { t: 102, s: [294.336, 323.378, 0] }
-              ],
-              ix: 2
-            },
-            a: { a: 0, k: [453.672, 304.756, 0], ix: 1 },
-            s: { a: 0, k: [50, 50, 100], ix: 6 }
-          },
-          ao: 0,
-          shapes: [
-            {
-              ty: "gr",
-              it: [
-                {
-                  ind: 0,
-                  ty: "sh",
-                  ix: 1,
-                  ks: {
-                    a: 0,
-                    k: {
-                      i: [
-                        [6.742, 0],
-                        [0.741, -0.14],
-                        [0, 0.074],
-                        [13.484, 0],
-                        [1.669, -0.361],
-                        [19.79, 0],
-                        [3.317, -19.082],
-                        [2.691, 0],
-                        [0, -13.484],
-                        [-0.048, -0.629],
-                        [2.405, 0],
-                        [0, -6.742],
-                        [-6.742, 0],
-                        [0, 0],
-                        [0, 6.743]
-                      ],
-                      o: [
-                        [-0.781, 0],
-                        [1e-3, -0.074],
-                        [0, -13.484],
-                        [-1.778, 0],
-                        [-3.594, -18.742],
-                        [-20.03, 0],
-                        [-2.421, -0.804],
-                        [-13.485, 0],
-                        [0, 0.642],
-                        [-1.89, -1.199],
-                        [-6.742, 0],
-                        [0, 6.743],
-                        [0, 0],
-                        [6.742, 0],
-                        [0, -6.742]
-                      ],
-                      v: [
-                        [75.134, 16.175],
-                        [72.85, 16.396],
-                        [72.856, 16.175],
-                        [48.44, -8.241],
-                        [43.262, -7.685],
-                        [3.406, -40.591],
-                        [-36.571, -6.995],
-                        [-44.269, -8.241],
-                        [-68.685, 16.175],
-                        [-68.604, 18.079],
-                        [-75.133, 16.175],
-                        [-87.341, 28.383],
-                        [-75.133, 40.592],
-                        [75.134, 40.592],
-                        [87.342, 28.383]
-                      ],
-                      c: !0
-                    },
-                    ix: 2
-                  },
-                  nm: "Path 1",
-                  mn: "ADBE Vector Shape - Group",
-                  hd: !1
-                },
-                {
-                  ty: "fl",
-                  c: {
-                    a: 0,
-                    k: [0.815686334348, 0.823529471603, 0.827451040231, 1],
-                    ix: 4
-                  },
-                  o: { a: 0, k: 100, ix: 5 },
-                  r: 1,
-                  bm: 0,
-                  nm: "Fill 1",
-                  mn: "ADBE Vector Graphic - Fill",
-                  hd: !1
-                },
-                {
-                  ty: "tr",
-                  p: { a: 0, k: [453.672, 304.756], ix: 2 },
-                  a: { a: 0, k: [0, 0], ix: 1 },
-                  s: { a: 0, k: [100, 100], ix: 3 },
-                  r: { a: 0, k: 0, ix: 6 },
-                  o: { a: 0, k: 100, ix: 7 },
-                  sk: { a: 0, k: 0, ix: 4 },
-                  sa: { a: 0, k: 0, ix: 5 },
-                  nm: "Transform"
-                }
-              ],
-              nm: "Group 4",
-              np: 2,
-              cix: 2,
-              bm: 0,
-              ix: 1,
-              mn: "ADBE Vector Group",
-              hd: !1
-            }
-          ],
-          ip: 0,
-          op: 151,
-          st: 0,
-          bm: 0
-        },
-        {
-          ddd: 0,
-          ind: 2,
-          ty: 4,
-          nm: "Merged Shape Layer",
-          sr: 1,
-          ks: {
-            o: { a: 0, k: 100, ix: 11 },
-            r: {
-              a: 1,
-              k: [
-                {
-                  i: { x: [0.667], y: [1] },
-                  o: { x: [0.547], y: [0] },
-                  t: 0,
-                  s: [0]
-                },
-                {
-                  i: { x: [0.845], y: [1] },
-                  o: { x: [0.333], y: [0] },
-                  t: 77,
-                  s: [35]
-                },
-                { t: 150, s: [0] }
-              ],
-              ix: 10
-            },
-            p: {
-              a: 1,
-              k: [
-                {
-                  i: { x: 0.667, y: 1 },
-                  o: { x: 0.333, y: 0 },
-                  t: 0,
-                  s: [390.319, 298.2, 0],
-                  to: [0, -2.583, 0],
-                  ti: [0, 0, 0]
-                },
-                {
-                  i: { x: 0.667, y: 1 },
-                  o: { x: 0.333, y: 0 },
-                  t: 44,
-                  s: [390.319, 282.7, 0],
-                  to: [0, 0, 0],
-                  ti: [0, 0, 0]
-                },
-                {
-                  i: { x: 0.667, y: 1 },
-                  o: { x: 0.333, y: 0 },
-                  t: 110,
-                  s: [390.319, 319.25, 0],
-                  to: [0, 0, 0],
-                  ti: [0, 0, 0]
-                },
-                { t: 150, s: [390.319, 298.2, 0] }
-              ],
-              ix: 2
-            },
-            a: { a: 0, k: [664.319, 256.2, 0], ix: 1 },
-            s: { a: 0, k: [100, 100, 100], ix: 6 }
-          },
-          ao: 0,
-          shapes: [
-            {
-              ty: "gr",
-              it: [
-                {
-                  ty: "gr",
-                  it: [
-                    {
-                      ind: 0,
-                      ty: "sh",
-                      ix: 1,
-                      ks: {
-                        a: 0,
-                        k: {
-                          i: [
-                            [0, 0],
-                            [0, 0],
-                            [0, 0]
-                          ],
-                          o: [
-                            [0, 0],
-                            [0, 0],
-                            [0, 0]
-                          ],
-                          v: [
-                            [18.967, -3.189],
-                            [-18.967, 19.935],
-                            [-0.949, -19.935]
-                          ],
-                          c: !0
-                        },
-                        ix: 2
-                      },
-                      nm: "Path 1",
-                      mn: "ADBE Vector Shape - Group",
-                      hd: !1
-                    },
-                    {
-                      ty: "fl",
-                      c: {
-                        a: 0,
-                        k: [
-                          0.223528981209,
-                          0.192156970501,
-                          0.674510002136,
-                          1
-                        ],
-                        ix: 4
-                      },
-                      o: { a: 0, k: 100, ix: 5 },
-                      r: 1,
-                      bm: 0,
-                      nm: "Fill 1",
-                      mn: "ADBE Vector Graphic - Fill",
-                      hd: !1
-                    },
-                    {
-                      ty: "tr",
-                      p: { a: 0, k: [236.879, 292.737], ix: 2 },
-                      a: { a: 0, k: [0, 0], ix: 1 },
-                      s: { a: 0, k: [100, 100], ix: 3 },
-                      r: { a: 0, k: 0, ix: 6 },
-                      o: { a: 0, k: 100, ix: 7 },
-                      sk: { a: 0, k: 0, ix: 4 },
-                      sa: { a: 0, k: 0, ix: 5 },
-                      nm: "Transform"
-                    }
-                  ],
-                  nm: "Group 1",
-                  np: 2,
-                  cix: 2,
-                  bm: 0,
-                  ix: 1,
-                  mn: "ADBE Vector Group",
-                  hd: !1
-                },
-                {
-                  ty: "tr",
-                  p: { a: 0, k: [633.939, 275.369], ix: 2 },
-                  a: { a: 0, k: [236.879, 292.737], ix: 1 },
-                  s: { a: 0, k: [50, 50], ix: 3 },
-                  r: { a: 0, k: 0, ix: 6 },
-                  o: { a: 0, k: 100, ix: 7 },
-                  sk: { a: 0, k: 0, ix: 4 },
-                  sa: { a: 0, k: 0, ix: 5 },
-                  nm: "Transform"
-                }
-              ],
-              nm: "planete Outlines - Group 1",
-              np: 1,
-              cix: 2,
-              bm: 0,
-              ix: 1,
-              mn: "ADBE Vector Group",
-              hd: !1
-            },
-            {
-              ty: "gr",
-              it: [
-                {
-                  ty: "gr",
-                  it: [
-                    {
-                      ind: 0,
-                      ty: "sh",
-                      ix: 1,
-                      ks: {
-                        a: 0,
-                        k: {
-                          i: [
-                            [0, 0],
-                            [0, 0],
-                            [0, 0],
-                            [0, 0]
-                          ],
-                          o: [
-                            [0, 0],
-                            [0, 0],
-                            [0, 0],
-                            [0, 0]
-                          ],
-                          v: [
-                            [-98.335, 64.79],
-                            [-105.619, 4.984],
-                            [105.619, -64.79],
-                            [-80.316, 24.919]
-                          ],
-                          c: !0
-                        },
-                        ix: 2
-                      },
-                      nm: "Path 1",
-                      mn: "ADBE Vector Shape - Group",
-                      hd: !1
-                    },
-                    {
-                      ty: "fl",
-                      c: {
-                        a: 0,
-                        k: [
-                          0.278430998325,
-                          0.294117987156,
-                          0.847059011459,
-                          1
-                        ],
-                        ix: 4
-                      },
-                      o: { a: 0, k: 100, ix: 5 },
-                      r: 1,
-                      bm: 0,
-                      nm: "Fill 1",
-                      mn: "ADBE Vector Graphic - Fill",
-                      hd: !1
-                    },
-                    {
-                      ty: "tr",
-                      p: { a: 0, k: [316.247, 247.882], ix: 2 },
-                      a: { a: 0, k: [0, 0], ix: 1 },
-                      s: { a: 0, k: [100, 100], ix: 3 },
-                      r: { a: 0, k: 0, ix: 6 },
-                      o: { a: 0, k: 100, ix: 7 },
-                      sk: { a: 0, k: 0, ix: 4 },
-                      sa: { a: 0, k: 0, ix: 5 },
-                      nm: "Transform"
-                    }
-                  ],
-                  nm: "Group 2",
-                  np: 2,
-                  cix: 2,
-                  bm: 0,
-                  ix: 1,
-                  mn: "ADBE Vector Group",
-                  hd: !1
-                },
-                {
-                  ty: "tr",
-                  p: { a: 0, k: [673.623, 252.941], ix: 2 },
-                  a: { a: 0, k: [316.247, 247.882], ix: 1 },
-                  s: { a: 0, k: [50, 50], ix: 3 },
-                  r: { a: 0, k: 0, ix: 6 },
-                  o: { a: 0, k: 100, ix: 7 },
-                  sk: { a: 0, k: 0, ix: 4 },
-                  sa: { a: 0, k: 0, ix: 5 },
-                  nm: "Transform"
-                }
-              ],
-              nm: "planete Outlines - Group 2",
-              np: 1,
-              cix: 2,
-              bm: 0,
-              ix: 2,
-              mn: "ADBE Vector Group",
-              hd: !1
-            },
-            {
-              ty: "gr",
-              it: [
-                {
-                  ty: "gr",
-                  it: [
-                    {
-                      ind: 0,
-                      ty: "sh",
-                      ix: 1,
-                      ks: {
-                        a: 0,
-                        k: {
-                          i: [
-                            [0, 0],
-                            [0, 0],
-                            [0, 0],
-                            [0, 0],
-                            [0, 0],
-                            [0, 0]
-                          ],
-                          o: [
-                            [0, 0],
-                            [0, 0],
-                            [0, 0],
-                            [0, 0],
-                            [0, 0],
-                            [0, 0]
-                          ],
-                          v: [
-                            [-133.812, -42.171],
-                            [133.812, -75.141],
-                            [5.765, 75.141],
-                            [-61.708, 18.402],
-                            [124.227, -71.307],
-                            [-87.011, -1.534]
-                          ],
-                          c: !0
-                        },
-                        ix: 2
-                      },
-                      nm: "Path 1",
-                      mn: "ADBE Vector Shape - Group",
-                      hd: !1
-                    },
-                    {
-                      ty: "fl",
-                      c: {
-                        a: 0,
-                        k: [
-                          0.365000009537,
-                          0.407999992371,
-                          0.976000010967,
-                          1
-                        ],
-                        ix: 4
-                      },
-                      o: { a: 0, k: 100, ix: 5 },
-                      r: 1,
-                      bm: 0,
-                      nm: "Fill 1",
-                      mn: "ADBE Vector Graphic - Fill",
-                      hd: !1
-                    },
-                    {
-                      ty: "tr",
-                      p: { a: 0, k: [297.638, 254.4], ix: 2 },
-                      a: { a: 0, k: [0, 0], ix: 1 },
-                      s: { a: 0, k: [100, 100], ix: 3 },
-                      r: { a: 0, k: 0, ix: 6 },
-                      o: { a: 0, k: 100, ix: 7 },
-                      sk: { a: 0, k: 0, ix: 4 },
-                      sa: { a: 0, k: 0, ix: 5 },
-                      nm: "Transform"
-                    }
-                  ],
-                  nm: "Group 3",
-                  np: 2,
-                  cix: 2,
-                  bm: 0,
-                  ix: 1,
-                  mn: "ADBE Vector Group",
-                  hd: !1
-                },
-                {
-                  ty: "tr",
-                  p: { a: 0, k: [664.319, 256.2], ix: 2 },
-                  a: { a: 0, k: [297.638, 254.4], ix: 1 },
-                  s: { a: 0, k: [50, 50], ix: 3 },
-                  r: { a: 0, k: 0, ix: 6 },
-                  o: { a: 0, k: 100, ix: 7 },
-                  sk: { a: 0, k: 0, ix: 4 },
-                  sa: { a: 0, k: 0, ix: 5 },
-                  nm: "Transform"
-                }
-              ],
-              nm: "planete Outlines - Group 3",
-              np: 1,
-              cix: 2,
-              bm: 0,
-              ix: 3,
-              mn: "ADBE Vector Group",
-              hd: !1
-            }
-          ],
-          ip: 0,
-          op: 151,
-          st: 0,
-          bm: 0
-        },
-        {
-          ddd: 0,
-          ind: 3,
-          ty: 4,
-          nm: "planete Outlines - Group 5",
-          sr: 1,
-          ks: {
-            o: {
-              a: 1,
-              k: [
-                {
-                  i: { x: [0.667], y: [1] },
-                  o: { x: [0.333], y: [0] },
-                  t: 0,
-                  s: [0]
-                },
-                {
-                  i: { x: [0.667], y: [1] },
-                  o: { x: [0.333], y: [0] },
-                  t: 45,
-                  s: [100]
-                },
-                {
-                  i: { x: [0.667], y: [1] },
-                  o: { x: [0.333], y: [0] },
-                  t: 102,
-                  s: [100]
-                },
-                { t: 150, s: [0] }
-              ],
-              ix: 11
-            },
-            r: { a: 0, k: 0, ix: 10 },
-            p: {
-              a: 1,
-              k: [
-                {
-                  i: { x: 0.833, y: 0.833 },
-                  o: { x: 0.167, y: 0.167 },
-                  t: 0,
-                  s: [327.38, 267.583, 0],
-                  to: [25.833, 0, 0],
-                  ti: [-25.833, 0, 0]
-                },
-                { t: 150, s: [482.38, 267.583, 0] }
-              ],
-              ix: 2
-            },
-            a: { a: 0, k: [171.76, 193.166, 0], ix: 1 },
-            s: { a: 0, k: [50, 50, 100], ix: 6 }
-          },
-          ao: 0,
-          shapes: [
-            {
-              ty: "gr",
-              it: [
-                {
-                  ind: 0,
-                  ty: "sh",
-                  ix: 1,
-                  ks: {
-                    a: 0,
-                    k: {
-                      i: [
-                        [13.485, 0],
-                        [4.38, -4.171],
-                        [21.913, 0],
-                        [3.575, -18.765],
-                        [1.851, 0],
-                        [0, -13.484],
-                        [-0.011, -0.291],
-                        [1.599, 0],
-                        [0, -6.743],
-                        [-6.742, 0],
-                        [0, 0],
-                        [0, 13.485]
-                      ],
-                      o: [
-                        [-6.526, 0],
-                        [-0.793, -21.719],
-                        [-19.806, 0],
-                        [-1.734, -0.391],
-                        [-13.485, 0],
-                        [0, 0.293],
-                        [-1.4, -0.559],
-                        [-6.742, 0],
-                        [0, 6.742],
-                        [0, 0],
-                        [13.485, 0],
-                        [0, -13.484]
-                      ],
-                      v: [
-                        [59.669, -8.242],
-                        [42.84, -1.506],
-                        [2.287, -40.592],
-                        [-37.576, -7.638],
-                        [-42.962, -8.242],
-                        [-67.378, 16.174],
-                        [-67.356, 17.049],
-                        [-71.878, 16.174],
-                        [-84.086, 28.383],
-                        [-71.878, 40.591],
-                        [59.669, 40.591],
-                        [84.086, 16.174]
-                      ],
-                      c: !0
-                    },
-                    ix: 2
-                  },
-                  nm: "Path 1",
-                  mn: "ADBE Vector Shape - Group",
-                  hd: !1
-                },
-                {
-                  ty: "fl",
-                  c: {
-                    a: 0,
-                    k: [0.816000007181, 0.823999980852, 0.827000038297, 1],
-                    ix: 4
-                  },
-                  o: { a: 0, k: 100, ix: 5 },
-                  r: 1,
-                  bm: 0,
-                  nm: "Fill 1",
-                  mn: "ADBE Vector Graphic - Fill",
-                  hd: !1
-                },
-                {
-                  ty: "tr",
-                  p: { a: 0, k: [171.76, 193.166], ix: 2 },
-                  a: { a: 0, k: [0, 0], ix: 1 },
-                  s: { a: 0, k: [100, 100], ix: 3 },
-                  r: { a: 0, k: 0, ix: 6 },
-                  o: { a: 0, k: 100, ix: 7 },
-                  sk: { a: 0, k: 0, ix: 4 },
-                  sa: { a: 0, k: 0, ix: 5 },
-                  nm: "Transform"
-                }
-              ],
-              nm: "Group 5",
-              np: 2,
-              cix: 2,
-              bm: 0,
-              ix: 1,
-              mn: "ADBE Vector Group",
-              hd: !1
-            }
-          ],
-          ip: 0,
-          op: 151,
-          st: 0,
-          bm: 0
-        }
-      ]
-    }
-  ],
-  layers: [
-    {
-      ddd: 0,
-      ind: 1,
-      ty: 0,
-      nm: "Pre-comp 1",
-      refId: "comp_0",
-      sr: 1,
-      ks: {
-        o: { a: 0, k: 100, ix: 11 },
-        r: { a: 0, k: 0, ix: 10 },
-        p: { a: 0, k: [406, 306, 0], ix: 2 },
-        a: { a: 0, k: [400, 300, 0], ix: 1 },
-        s: { a: 0, k: [179, 179, 100], ix: 6 }
-      },
-      ao: 0,
-      w: 800,
-      h: 600,
-      ip: 0,
-      op: 147,
-      st: 0,
-      bm: 0
-    }
-  ],
-  markers: []
-};
-
 // app/routes/_index.tsx
 var import_jsx_dev_runtime29 = require("react/jsx-dev-runtime"), loader12 = async ({ request }) => {
   let url = new URL(request.url), session = url.searchParams.get("session"), history = url.searchParams.get("history") || null;
@@ -5045,7 +5049,7 @@ function Index2() {
           lineNumber: 137,
           columnNumber: 25
         }, this),
-        fetcher.state !== "idle" ? /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "w-full flex justify-center items-center", children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(import_lottie_react.default, { animationData: animation_pilot_default, loop: !0 }, void 0, !1, {
+        fetcher.state !== "idle" ? /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "w-full flex justify-center items-center", children: /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(import_lottie_react2.default, { animationData: animation_pilot_default, loop: !0 }, void 0, !1, {
           fileName: "app/routes/_index.tsx",
           lineNumber: 140,
           columnNumber: 17
@@ -6098,7 +6102,7 @@ function DemoPage() {
 var demo_default = DemoPage;
 
 // server-assets-manifest:@remix-run/dev/assets-manifest
-var assets_manifest_default = { entry: { module: "/build/entry.client-GKNIRVG4.js", imports: ["/build/_shared/chunk-JXHNNPNR.js", "/build/_shared/chunk-H36SQQE5.js", "/build/_shared/chunk-2BJBEIYL.js", "/build/_shared/chunk-WQFJ2CRD.js", "/build/_shared/chunk-TVZC3ZTX.js", "/build/_shared/chunk-FQLEIDJG.js", "/build/_shared/chunk-N4FG5RPV.js", "/build/_shared/chunk-RODUX5XG.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-J3AEEHAH.js", imports: ["/build/_shared/chunk-NI7JAU6A.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-MTQAOM76.js", imports: ["/build/_shared/chunk-743PHSZZ.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-F3LZS3ZG.js", imports: ["/build/_shared/chunk-ISL7VQVN.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js", "/build/_shared/chunk-P6XXN3LH.js", "/build/_shared/chunk-CUO3Z73U.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-4CSAPWUI.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.report": { id: "routes/admin.report", parentId: "routes/admin", path: "report", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.report-EAWOSJQL.js", imports: ["/build/_shared/chunk-22IYJMTB.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-AFFC3JOX.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-YMNBIFRH.js", imports: ["/build/_shared/chunk-NI7JAU6A.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user.$username": { id: "routes/admin.user.$username", parentId: "routes/admin.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user.$username-ZAKPWIRJ.js", imports: ["/build/_shared/chunk-P6XXN3LH.js", "/build/_shared/chunk-CUO3Z73U.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-2UNTDENQ.js", imports: ["/build/_shared/chunk-F56ZNTZ2.js", "/build/_shared/chunk-743PHSZZ.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js", "/build/_shared/chunk-22IYJMTB.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-OYX5TFJP.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text.$version": { id: "routes/api.text.$version", parentId: "routes/api.text", path: ":version", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text.$version-ZB5WXGQ4.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.upload": { id: "routes/api.upload", parentId: "root", path: "api/upload", index: void 0, caseSensitive: void 0, module: "/build/routes/api.upload-GZ6WQ6KT.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-OIUCC7WD.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-7X3ZS5IA.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-CEAV37AZ.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-BNMDFO3W.js", imports: ["/build/_shared/chunk-F56ZNTZ2.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-22IYJMTB.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-PKRHG3KN.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/health": { id: "routes/health", parentId: "root", path: "health", index: void 0, caseSensitive: void 0, module: "/build/routes/health-FRTIOQQI.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "19826d74", hmr: { runtime: "/build/_shared\\chunk-FQLEIDJG.js", timestamp: 1696771537715 }, url: "/build/manifest-19826D74.js" };
+var assets_manifest_default = { entry: { module: "/build/entry.client-GKNIRVG4.js", imports: ["/build/_shared/chunk-JXHNNPNR.js", "/build/_shared/chunk-H36SQQE5.js", "/build/_shared/chunk-2BJBEIYL.js", "/build/_shared/chunk-WQFJ2CRD.js", "/build/_shared/chunk-TVZC3ZTX.js", "/build/_shared/chunk-FQLEIDJG.js", "/build/_shared/chunk-N4FG5RPV.js", "/build/_shared/chunk-RODUX5XG.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-J3AEEHAH.js", imports: ["/build/_shared/chunk-NI7JAU6A.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-FCIBWDEL.js", imports: ["/build/_shared/chunk-MUEUXPXM.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-F3LZS3ZG.js", imports: ["/build/_shared/chunk-ISL7VQVN.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js", "/build/_shared/chunk-P6XXN3LH.js", "/build/_shared/chunk-CUO3Z73U.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-4CSAPWUI.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.report": { id: "routes/admin.report", parentId: "routes/admin", path: "report", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.report-EAWOSJQL.js", imports: ["/build/_shared/chunk-22IYJMTB.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-AFFC3JOX.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-YMNBIFRH.js", imports: ["/build/_shared/chunk-NI7JAU6A.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user.$username": { id: "routes/admin.user.$username", parentId: "routes/admin.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user.$username-ZAKPWIRJ.js", imports: ["/build/_shared/chunk-P6XXN3LH.js", "/build/_shared/chunk-CUO3Z73U.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-EY4XQ6YP.js", imports: ["/build/_shared/chunk-F56ZNTZ2.js", "/build/_shared/chunk-MUEUXPXM.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js", "/build/_shared/chunk-22IYJMTB.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-OYX5TFJP.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text.$version": { id: "routes/api.text.$version", parentId: "routes/api.text", path: ":version", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text.$version-ZB5WXGQ4.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.upload": { id: "routes/api.upload", parentId: "root", path: "api/upload", index: void 0, caseSensitive: void 0, module: "/build/routes/api.upload-GZ6WQ6KT.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-OIUCC7WD.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-7X3ZS5IA.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-CEAV37AZ.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-BNMDFO3W.js", imports: ["/build/_shared/chunk-F56ZNTZ2.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-22IYJMTB.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-PKRHG3KN.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/health": { id: "routes/health", parentId: "root", path: "health", index: void 0, caseSensitive: void 0, module: "/build/routes/health-FRTIOQQI.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "49bdc781", hmr: { runtime: "/build/_shared\\chunk-FQLEIDJG.js", timestamp: 1696771882640 }, url: "/build/manifest-49BDC781.js" };
 
 // server-entry-module:@remix-run/dev/server-build
 var assetsBuildDirectory = "public\\build", future = { v2_dev: !0, unstable_postcss: !1, unstable_tailwind: !1, v2_errorBoundary: !0, v2_headers: !0, v2_meta: !0, v2_normalizeFormMethod: !0, v2_routeConvention: !0 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {

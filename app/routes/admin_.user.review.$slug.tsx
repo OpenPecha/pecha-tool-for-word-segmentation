@@ -13,6 +13,8 @@ import { db } from "~/service/db.server";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
+import lottie_plain from "~/animation-pilot.json";
+import Lottie from "lottie-react";
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
@@ -112,10 +114,14 @@ function UserDetail() {
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
               transcript
             </div>
-            <ClientOnly fallback={null}>
-              {() => <EditorContainer editor={editor!} />}
-            </ClientOnly>
             {!editor && <div>loading...</div>}
+            {fetcher.state !== "idle" ? (
+              <div className="w-full flex justify-center items-center">
+                <Lottie animationData={lottie_plain} loop={true} />
+              </div>
+            ) : (
+              <EditorContainer editor={editor!} />
+            )}
           </div>
         )}
         <ClientOnly fallback={null}>
