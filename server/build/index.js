@@ -1551,24 +1551,26 @@ function UserDetail() {
       columnNumber: 11
     }, this) : /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(import_jsx_dev_runtime10.Fragment, { children: [
       /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]", children: [
-        /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ", children: "transcript" }, void 0, !1, {
+        /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ", children: [
+          "transcript",
+          fetcher.state !== "idle" && /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "w-full flex justify-center items-center", children: "saving" }, void 0, !1, {
+            fileName: "app/routes/admin_.user.review.$slug.tsx",
+            lineNumber: 114,
+            columnNumber: 19
+          }, this)
+        ] }, void 0, !0, {
           fileName: "app/routes/admin_.user.review.$slug.tsx",
           lineNumber: 111,
           columnNumber: 15
         }, this),
         !editor && /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { children: "loading..." }, void 0, !1, {
           fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 114,
+          lineNumber: 119,
           columnNumber: 27
-        }, this),
-        fetcher.state !== "idle" && /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)("div", { className: "w-full flex justify-center items-center", children: "saving" }, void 0, !1, {
-          fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 116,
-          columnNumber: 17
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime10.jsxDEV)(Editor_default, { editor }, void 0, !1, {
           fileName: "app/routes/admin_.user.review.$slug.tsx",
-          lineNumber: 120,
+          lineNumber: 121,
           columnNumber: 15
         }, this)
       ] }, void 0, !0, {
@@ -1590,7 +1592,7 @@ function UserDetail() {
           !1,
           {
             fileName: "app/routes/admin_.user.review.$slug.tsx",
-            lineNumber: 123,
+            lineNumber: 124,
             columnNumber: 15
           },
           this
@@ -1608,14 +1610,14 @@ function UserDetail() {
           !1,
           {
             fileName: "app/routes/admin_.user.review.$slug.tsx",
-            lineNumber: 130,
+            lineNumber: 131,
             columnNumber: 15
           },
           this
         )
       ] }, void 0, !0, {
         fileName: "app/routes/admin_.user.review.$slug.tsx",
-        lineNumber: 122,
+        lineNumber: 123,
         columnNumber: 13
       }, this)
     ] }, void 0, !0, {
@@ -4202,23 +4204,12 @@ function ActiveUser({ active, setActive }) {
   return (0, import_react38.useEffect)(() => (idle || (timer = setInterval(() => {
     setActive((prev) => prev + 1);
   }, 1e3)), () => clearInterval(timer)), [idle]), /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)("div", { children: [
-    /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)("span", { className: idle ? "idle" : "" }, void 0, !1, {
-      fileName: "app/components/ActiveUser.tsx",
-      lineNumber: 16,
-      columnNumber: 7
-    }, this),
-    /* @__PURE__ */ (0, import_jsx_dev_runtime28.jsxDEV)("label", { children: [
-      "Status: ",
-      idle ? "idle" : active + " s"
-    ] }, void 0, !0, {
-      fileName: "app/components/ActiveUser.tsx",
-      lineNumber: 17,
-      columnNumber: 7
-    }, this)
+    "Status: ",
+    idle ? "idle" : active + " Sec"
   ] }, void 0, !0, {
     fileName: "app/components/ActiveUser.tsx",
-    lineNumber: 15,
-    columnNumber: 5
+    lineNumber: 14,
+    columnNumber: 10
   }, this);
 }
 
@@ -4297,15 +4288,20 @@ function Index2() {
         columnNumber: 11
       }, this),
       text ? /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]", children: [
-        /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ", children: [
+        /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "flex items-center justify-between opacity-75 text-sm font-bold px-2  pt-1 ", children: [
           /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(ActiveUser, { active: activeTime, setActive: setActiveTime }, void 0, !1, {
             fileName: "app/routes/_index.tsx",
             lineNumber: 132,
             columnNumber: 15
           }, this),
+          fetcher.state !== "idle" && /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: " flex justify-center items-center", children: "saving..." }, void 0, !1, {
+            fileName: "app/routes/_index.tsx",
+            lineNumber: 134,
+            columnNumber: 17
+          }, this),
           /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { children: "transcript" }, void 0, !1, {
             fileName: "app/routes/_index.tsx",
-            lineNumber: 133,
+            lineNumber: 138,
             columnNumber: 15
           }, this)
         ] }, void 0, !0, {
@@ -4315,17 +4311,12 @@ function Index2() {
         }, this),
         !editor && /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { children: "loading..." }, void 0, !1, {
           fileName: "app/routes/_index.tsx",
-          lineNumber: 135,
+          lineNumber: 140,
           columnNumber: 25
-        }, this),
-        fetcher.state !== "idle" && /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)("div", { className: "w-full flex justify-center items-center", children: "saving..." }, void 0, !1, {
-          fileName: "app/routes/_index.tsx",
-          lineNumber: 137,
-          columnNumber: 15
         }, this),
         /* @__PURE__ */ (0, import_jsx_dev_runtime29.jsxDEV)(Editor_default, { editor }, void 0, !1, {
           fileName: "app/routes/_index.tsx",
-          lineNumber: 141,
+          lineNumber: 142,
           columnNumber: 13
         }, this)
       ] }, void 0, !0, {
@@ -4363,7 +4354,7 @@ function Index2() {
           !1,
           {
             fileName: "app/routes/_index.tsx",
-            lineNumber: 146,
+            lineNumber: 147,
             columnNumber: 13
           },
           this
@@ -4381,7 +4372,7 @@ function Index2() {
           !1,
           {
             fileName: "app/routes/_index.tsx",
-            lineNumber: 153,
+            lineNumber: 154,
             columnNumber: 13
           },
           this
@@ -4399,14 +4390,14 @@ function Index2() {
           !1,
           {
             fileName: "app/routes/_index.tsx",
-            lineNumber: 161,
+            lineNumber: 162,
             columnNumber: 13
           },
           this
         )
       ] }, void 0, !0, {
         fileName: "app/routes/_index.tsx",
-        lineNumber: 145,
+        lineNumber: 146,
         columnNumber: 11
       }, this)
     ] }, void 0, !0, {
@@ -5368,7 +5359,7 @@ function DemoPage() {
 var demo_default = DemoPage;
 
 // server-assets-manifest:@remix-run/dev/assets-manifest
-var assets_manifest_default = { entry: { module: "/build/entry.client-GKNIRVG4.js", imports: ["/build/_shared/chunk-JXHNNPNR.js", "/build/_shared/chunk-H36SQQE5.js", "/build/_shared/chunk-2BJBEIYL.js", "/build/_shared/chunk-WQFJ2CRD.js", "/build/_shared/chunk-TVZC3ZTX.js", "/build/_shared/chunk-FQLEIDJG.js", "/build/_shared/chunk-N4FG5RPV.js", "/build/_shared/chunk-RODUX5XG.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-J3AEEHAH.js", imports: ["/build/_shared/chunk-NI7JAU6A.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-OVENZPUV.js", imports: ["/build/_shared/chunk-743PHSZZ.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-F3LZS3ZG.js", imports: ["/build/_shared/chunk-ISL7VQVN.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js", "/build/_shared/chunk-P6XXN3LH.js", "/build/_shared/chunk-CUO3Z73U.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-4CSAPWUI.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.report": { id: "routes/admin.report", parentId: "routes/admin", path: "report", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.report-EAWOSJQL.js", imports: ["/build/_shared/chunk-22IYJMTB.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-AFFC3JOX.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-YMNBIFRH.js", imports: ["/build/_shared/chunk-NI7JAU6A.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user.$username": { id: "routes/admin.user.$username", parentId: "routes/admin.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user.$username-ZAKPWIRJ.js", imports: ["/build/_shared/chunk-P6XXN3LH.js", "/build/_shared/chunk-CUO3Z73U.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-ILGYKVQD.js", imports: ["/build/_shared/chunk-F56ZNTZ2.js", "/build/_shared/chunk-743PHSZZ.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js", "/build/_shared/chunk-22IYJMTB.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-OYX5TFJP.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text.$version": { id: "routes/api.text.$version", parentId: "routes/api.text", path: ":version", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text.$version-ZB5WXGQ4.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.upload": { id: "routes/api.upload", parentId: "root", path: "api/upload", index: void 0, caseSensitive: void 0, module: "/build/routes/api.upload-GZ6WQ6KT.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-OIUCC7WD.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-7X3ZS5IA.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-CEAV37AZ.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-BNMDFO3W.js", imports: ["/build/_shared/chunk-F56ZNTZ2.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-22IYJMTB.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-PKRHG3KN.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/health": { id: "routes/health", parentId: "root", path: "health", index: void 0, caseSensitive: void 0, module: "/build/routes/health-FRTIOQQI.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "26e68e9c", hmr: { runtime: "/build/_shared\\chunk-FQLEIDJG.js", timestamp: 1696774489166 }, url: "/build/manifest-26E68E9C.js" };
+var assets_manifest_default = { entry: { module: "/build/entry.client-GKNIRVG4.js", imports: ["/build/_shared/chunk-JXHNNPNR.js", "/build/_shared/chunk-H36SQQE5.js", "/build/_shared/chunk-2BJBEIYL.js", "/build/_shared/chunk-WQFJ2CRD.js", "/build/_shared/chunk-TVZC3ZTX.js", "/build/_shared/chunk-FQLEIDJG.js", "/build/_shared/chunk-N4FG5RPV.js", "/build/_shared/chunk-RODUX5XG.js"] }, routes: { root: { id: "root", parentId: void 0, path: "", index: void 0, caseSensitive: void 0, module: "/build/root-J3AEEHAH.js", imports: ["/build/_shared/chunk-NI7JAU6A.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/_index": { id: "routes/_index", parentId: "root", path: void 0, index: !0, caseSensitive: void 0, module: "/build/routes/_index-PQLAB4P6.js", imports: ["/build/_shared/chunk-743PHSZZ.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin": { id: "routes/admin", parentId: "root", path: "admin", index: void 0, caseSensitive: void 0, module: "/build/routes/admin-F3LZS3ZG.js", imports: ["/build/_shared/chunk-ISL7VQVN.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js", "/build/_shared/chunk-P6XXN3LH.js", "/build/_shared/chunk-CUO3Z73U.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !0 }, "routes/admin.metabase": { id: "routes/admin.metabase", parentId: "routes/admin", path: "metabase", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.metabase-4CSAPWUI.js", imports: void 0, hasAction: !1, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.report": { id: "routes/admin.report", parentId: "routes/admin", path: "report", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.report-EAWOSJQL.js", imports: ["/build/_shared/chunk-22IYJMTB.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.text": { id: "routes/admin.text", parentId: "routes/admin", path: "text", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.text-AFFC3JOX.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user": { id: "routes/admin.user", parentId: "routes/admin", path: "user", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user-YMNBIFRH.js", imports: ["/build/_shared/chunk-NI7JAU6A.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin.user.$username": { id: "routes/admin.user.$username", parentId: "routes/admin.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/admin.user.$username-ZAKPWIRJ.js", imports: ["/build/_shared/chunk-P6XXN3LH.js", "/build/_shared/chunk-CUO3Z73U.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/admin_.user.review.$slug": { id: "routes/admin_.user.review.$slug", parentId: "root", path: "admin/user/review/:slug", index: void 0, caseSensitive: void 0, module: "/build/routes/admin_.user.review.$slug-ZLXTYVGR.js", imports: ["/build/_shared/chunk-F56ZNTZ2.js", "/build/_shared/chunk-743PHSZZ.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-TMJLOEVS.js", "/build/_shared/chunk-22IYJMTB.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text": { id: "routes/api.text", parentId: "root", path: "api/text", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text-OYX5TFJP.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.text.$version": { id: "routes/api.text.$version", parentId: "routes/api.text", path: ":version", index: void 0, caseSensitive: void 0, module: "/build/routes/api.text.$version-ZB5WXGQ4.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.upload": { id: "routes/api.upload", parentId: "root", path: "api/upload", index: void 0, caseSensitive: void 0, module: "/build/routes/api.upload-GZ6WQ6KT.js", imports: void 0, hasAction: !0, hasLoader: !1, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user": { id: "routes/api.user", parentId: "root", path: "api/user", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user-OIUCC7WD.js", imports: void 0, hasAction: !0, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.user.$username": { id: "routes/api.user.$username", parentId: "routes/api.user", path: ":username", index: void 0, caseSensitive: void 0, module: "/build/routes/api.user.$username-7X3ZS5IA.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/api.word": { id: "routes/api.word", parentId: "root", path: "api/word", index: void 0, caseSensitive: void 0, module: "/build/routes/api.word-CEAV37AZ.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/demo": { id: "routes/demo", parentId: "root", path: "demo", index: void 0, caseSensitive: void 0, module: "/build/routes/demo-BNMDFO3W.js", imports: ["/build/_shared/chunk-F56ZNTZ2.js", "/build/_shared/chunk-DODFZYYL.js", "/build/_shared/chunk-6T752PYK.js", "/build/_shared/chunk-GWY423AB.js", "/build/_shared/chunk-22IYJMTB.js", "/build/_shared/chunk-TIECZ337.js"], hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/error": { id: "routes/error", parentId: "root", path: "error", index: void 0, caseSensitive: void 0, module: "/build/routes/error-PKRHG3KN.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 }, "routes/health": { id: "routes/health", parentId: "root", path: "health", index: void 0, caseSensitive: void 0, module: "/build/routes/health-FRTIOQQI.js", imports: void 0, hasAction: !1, hasLoader: !0, hasCatchBoundary: !1, hasErrorBoundary: !1 } }, version: "d2b4a80d", hmr: { runtime: "/build/_shared\\chunk-FQLEIDJG.js", timestamp: 1696775045564 }, url: "/build/manifest-D2B4A80D.js" };
 
 // server-entry-module:@remix-run/dev/server-build
 var assetsBuildDirectory = "public\\build", future = { v2_dev: !0, unstable_postcss: !1, unstable_tailwind: !1, v2_errorBoundary: !0, v2_headers: !0, v2_meta: !0, v2_normalizeFormMethod: !0, v2_routeConvention: !0 }, publicPath = "/build/", entry = { module: entry_server_exports }, routes = {

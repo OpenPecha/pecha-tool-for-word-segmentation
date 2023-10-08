@@ -11,10 +11,5 @@ export default function ActiveUser({ active, setActive }) {
     }
     return () => clearInterval(timer);
   }, [idle]);
-  return (
-    <div>
-      <span className={idle ? "idle" : ""} />
-      <label>Status: {!idle ? active + " s" : "idle"}</label>
-    </div>
-  );
+  return <div>Status: {!idle ? active + " Sec" : "idle"}</div>;
 }

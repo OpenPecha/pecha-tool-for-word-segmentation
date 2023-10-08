@@ -128,16 +128,17 @@ export default function Index() {
           </div>
         ) : (
           <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
-            <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
+            <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2  pt-1 ">
               <ActiveUser active={activeTime} setActive={setActiveTime} />
+              {fetcher.state !== "idle" && (
+                <div className=" flex justify-center items-center">
+                  saving...
+                </div>
+              )}
               <div>transcript</div>
             </div>
             {!editor && <div>loading...</div>}
-            {fetcher.state !== "idle" && (
-              <div className="w-full flex justify-center items-center">
-                saving...
-              </div>
-            )}
+
             <Editor editor={editor!} />
           </div>
         )}

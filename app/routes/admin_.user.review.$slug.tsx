@@ -110,13 +110,14 @@ function UserDetail() {
             <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
               <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
                 transcript
+                {fetcher.state !== "idle" && (
+                  <div className="w-full flex justify-center items-center">
+                    saving
+                  </div>
+                )}
               </div>
               {!editor && <div>loading...</div>}
-              {fetcher.state !== "idle" && (
-                <div className="w-full flex justify-center items-center">
-                  saving
-                </div>
-              )}
+
               <EditorContainer editor={editor!} />
             </div>
             <div className="flex gap-2 fixed bottom-0 justify-center">
