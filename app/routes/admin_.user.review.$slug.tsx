@@ -7,7 +7,7 @@ import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { getUser } from "~/model/server.user";
 import AdminHistorySidebar from "~/components/AdminHistorySidebar";
 import { ClientOnly } from "remix-utils";
-import EditorContainer from "~/components/Editor.client";
+import EditorContainer from "~/components/Editor";
 import Button from "~/components/Button";
 import { db } from "~/service/db.server";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";

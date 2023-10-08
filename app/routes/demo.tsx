@@ -6,7 +6,7 @@ import Sidebar from "~/components/demo/Sidebar";
 import { Character } from "~/tiptapProps/extension/character";
 import { editorProps } from "~/tiptapProps/events";
 import { Space } from "~/tiptapProps/extension/space";
-import EditorContainer from "~/components/Editor.client";
+import EditorContainer from "~/components/Editor";
 import { LoaderFunction } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import { db } from "~/service/db.server";

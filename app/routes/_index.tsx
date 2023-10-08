@@ -5,18 +5,25 @@ import {
   type V2_MetaFunction,
 } from "@remix-run/node";
 import { useEffect, useState } from "react";
-import { useFetcher, useLoaderData, useRevalidator } from "@remix-run/react";
+import Lottie from "lottie-react";
+import {
+  useFetcher,
+  useLoaderData,
+  useRevalidator,
+  useSearchParams,
+} from "@remix-run/react";
 import Button from "~/components/Button";
-import Editor from "~/components/Editor.client";
+import Editor from "~/components/Editor";
 import Sidebar from "~/components/Sidebar";
 import { getTextToDisplay } from "~/model/server.text";
 import checkUnknown from "~/lib/checkUnknown";
 import { createUserIfNotExists } from "~/model/server.user";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
-import { ClientOnly } from "remix-utils";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
 import ActiveUser from "~/components/ActiveUser";
+import lottie_plain from "~/animation-pilot.json";
+
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -49,7 +56,7 @@ export default function Index() {
   const socket = useSocket();
   const revalidate = useRevalidator();
   let [history, setHistory] = useState<string[]>([]);
-
+  let [searchParams] = useSearchParams();
   let id = text?.id;
   let textContent = text?.original_text.trim() || "";
   let html = insertHTMLonText(textContent);
@@ -75,6 +82,7 @@ export default function Index() {
     );
     socket?.emit("text-status-changed", { user });
     setActiveTime(0);
+    if (searchParams.get("history")) return;
     setHistory([...history, id]);
   };
   let undoTask = async () => {
@@ -98,7 +106,7 @@ export default function Index() {
     <div className="flex flex-col md:flex-row">
       <Sidebar user={user} text={text} history={history} />
 
-      <div className="flex-1 flex items-center flex-col md:mt-[10vh] ">
+      <div className="flex-1 flex items-center flex-col md:mt-[3vh] ">
         {user?.rejected_list?.length > 0 && (
           <div className="text-red-500 flex items-center gap-2 font-bold">
             <img
@@ -121,15 +129,19 @@ export default function Index() {
             <br />
           </div>
         ) : (
-          <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
+          <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
               <ActiveUser active={activeTime} setActive={setActiveTime} />
               <div>transcript</div>
             </div>
-            <ClientOnly fallback={null}>
-              {() => <Editor editor={editor!} />}
-            </ClientOnly>
             {!editor && <div>loading...</div>}
+            {fetcher.state !== "idle" ? (
+              <div className="w-full flex justify-center items-center">
+                <Lottie animationData={lottie_plain} loop={true} />
+              </div>
+            ) : (
+              <Editor editor={editor!} />
+            )}
           </div>
         )}
         {text && (
