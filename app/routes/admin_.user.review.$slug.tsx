@@ -46,11 +46,11 @@ function UserDetail() {
   const socket = useSocket();
   const [content, setContent] = useState("");
   const [selectedId, setSelectedId] = useState<number | undefined>(
-    currentText.id
+    currentText?.id
   );
   useEffect(() => {
-    setSelectedId(currentText.id);
-  }, [currentText.id]);
+    setSelectedId(currentText?.id);
+  }, [currentText?.id]);
   useEffect(() => {
     if (!annotator) return;
     let display = selectedId
@@ -115,35 +115,30 @@ function UserDetail() {
               transcript
             </div>
             {!editor && <div>loading...</div>}
-            {fetcher.state !== "idle" ? (
+            {fetcher.state !== "idle" && (
               <div className="w-full flex justify-center items-center">
-                <Lottie animationData={lottie_plain} loop={true} />
+                saving
               </div>
-            ) : (
-              <EditorContainer editor={editor!} />
             )}
+            <EditorContainer editor={editor!} />
           </div>
         )}
-        <ClientOnly fallback={null}>
-          {() => (
-            <div className="flex gap-2 fixed bottom-0 justify-center">
-              <Button
-                disabled={isButtonDisabled}
-                handleClick={saveText}
-                value="CONFIRM"
-                title="CONFIRM (a)"
-                shortCut="a"
-              />
-              <Button
-                disabled={isButtonDisabled}
-                handleClick={rejectTask}
-                value="REJECT"
-                title="REJECT (x)"
-                shortCut="x"
-              />
-            </div>
-          )}
-        </ClientOnly>
+        <div className="flex gap-2 fixed bottom-0 justify-center">
+          <Button
+            disabled={isButtonDisabled}
+            handleClick={saveText}
+            value="CONFIRM"
+            title="CONFIRM (a)"
+            shortCut="a"
+          />
+          <Button
+            disabled={isButtonDisabled}
+            handleClick={rejectTask}
+            value="REJECT"
+            title="REJECT (x)"
+            shortCut="x"
+          />
+        </div>
       </div>
     </div>
   );

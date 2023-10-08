@@ -5,7 +5,6 @@ import {
   type V2_MetaFunction,
 } from "@remix-run/node";
 import { useEffect, useState } from "react";
-import Lottie from "lottie-react";
 import {
   useFetcher,
   useLoaderData,
@@ -23,6 +22,7 @@ import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
 import ActiveUser from "~/components/ActiveUser";
 import lottie_plain from "~/animation-pilot.json";
+import Lottie from "lottie-react";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
@@ -135,13 +135,12 @@ export default function Index() {
               <div>transcript</div>
             </div>
             {!editor && <div>loading...</div>}
-            {fetcher.state !== "idle" ? (
+            {fetcher.state !== "idle" && (
               <div className="w-full flex justify-center items-center">
-                <Lottie animationData={lottie_plain} loop={true} />
+                saving...
               </div>
-            ) : (
-              <Editor editor={editor!} />
             )}
+            <Editor editor={editor!} />
           </div>
         )}
         {text && (
