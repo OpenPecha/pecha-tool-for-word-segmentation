@@ -1,20 +1,16 @@
-import { DataFunctionArgs, LoaderArgs, json, redirect } from "@remix-run/node";
+import { DataFunctionArgs, redirect } from "@remix-run/node";
 import { useFetcher } from "@remix-run/react";
-import { useEffect, useMemo, useState } from "react";
-import { LoaderFunction, useLoaderData } from "react-router";
-import checkUnknown from "~/lib/checkUnknown";
+import { useEffect, useState } from "react";
+import { useLoaderData } from "react-router";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { getUser } from "~/model/server.user";
 import AdminHistorySidebar from "~/components/AdminHistorySidebar";
-import { ClientOnly } from "remix-utils";
 import EditorContainer from "~/components/Editor";
 import Button from "~/components/Button";
 import { db } from "~/service/db.server";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
-import lottie_plain from "~/animation-pilot.json";
-import Lottie from "lottie-react";
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
@@ -110,35 +106,37 @@ function UserDetail() {
             Thank you . your work is complete ! 😊😊😊
           </div>
         ) : (
-          <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
-            <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
-              transcript
-            </div>
-            {!editor && <div>loading...</div>}
-            {fetcher.state !== "idle" && (
-              <div className="w-full flex justify-center items-center">
-                saving
+          <>
+            <div className="fixed bottom-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
+              <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2 capitalize pt-1 ">
+                transcript
               </div>
-            )}
-            <EditorContainer editor={editor!} />
-          </div>
+              {!editor && <div>loading...</div>}
+              {fetcher.state !== "idle" && (
+                <div className="w-full flex justify-center items-center">
+                  saving
+                </div>
+              )}
+              <EditorContainer editor={editor!} />
+            </div>
+            <div className="flex gap-2 fixed bottom-0 justify-center">
+              <Button
+                disabled={isButtonDisabled}
+                handleClick={saveText}
+                value="CONFIRM"
+                title="CONFIRM (a)"
+                shortCut="a"
+              />
+              <Button
+                disabled={isButtonDisabled}
+                handleClick={rejectTask}
+                value="REJECT"
+                title="REJECT (x)"
+                shortCut="x"
+              />
+            </div>
+          </>
         )}
-        <div className="flex gap-2 fixed bottom-0 justify-center">
-          <Button
-            disabled={isButtonDisabled}
-            handleClick={saveText}
-            value="CONFIRM"
-            title="CONFIRM (a)"
-            shortCut="a"
-          />
-          <Button
-            disabled={isButtonDisabled}
-            handleClick={rejectTask}
-            value="REJECT"
-            title="REJECT (x)"
-            shortCut="x"
-          />
-        </div>
       </div>
     </div>
   );

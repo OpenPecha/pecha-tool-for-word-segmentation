@@ -21,8 +21,6 @@ import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import { useSocket } from "~/components/contexts/SocketContext";
 import ActiveUser from "~/components/ActiveUser";
-import lottie_plain from "~/animation-pilot.json";
-import Lottie from "lottie-react";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
