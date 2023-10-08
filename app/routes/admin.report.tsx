@@ -2,7 +2,6 @@ import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { db } from "~/service/db.server";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import { Pie } from "react-chartjs-2";
 import style1 from "react-date-range/dist/styles.css"; // main style file
 import style2 from "react-date-range/dist/theme/default.css";
 import { DateRangePicker } from "react-date-range";
@@ -146,7 +145,7 @@ function report() {
           <select
             id="selectReviewer"
             onChange={handleReviewerChange}
-            value={params.get("reviewer")!}
+            value={params.get("reviewer")! || params.get("session")}
             className="m-6"
           >
             <option value="all">all</option>
@@ -207,24 +206,21 @@ function report() {
                   <div>
                     <div>Task: {user.taskCount}</div>
                     <div title="space count">Word: {user.word_count}</div>
-                    <div>Duration: {user.duration} minutes</div>
-                    {/* <div>Pay: ₹ {pay_cal(user.word_count, user.duration)}</div> */}
+                    <div>Pay: ₹ {pay_cal(user.taskCount)}</div>
                   </div>
                 </div>
               </div>
             );
           })}
         </div>
-        <div className="max-h-[300px] flex">
-          <Pie data={data} />
-        </div>
       </div>
     </div>
   );
 }
 
-function pay_cal(word, minute) {
-  let bill = 5 * minute + word * 0.4;
+function pay_cal(TASK: number) {
+  let PAY_PER_TASK = 6;
+  let bill = TASK * PAY_PER_TASK;
   return bill.toFixed(2);
 }
 
