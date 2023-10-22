@@ -13,16 +13,27 @@ export async function uploadData({
         version: { in: name },
       },
     });
-    console.log("existingRecord", existingRecord);
     if (!!existingRecord) {
       console.log("Record already exists");
       return { error: "Record already exists" };
     }
-    let UploadData = data?.map((item) => ({
-      version: item.version,
-      original_text: item.original_text,
-      batch: item.batch,
-    }));
+    let lastId = await db.text.findFirst({
+      orderBy: {
+        id: "desc",
+      },
+      select: { id: true },
+      take: 1,
+    });
+    let id = lastId?.id;
+    let UploadData = data?.map((item) => {
+      id += 1;
+      return {
+        id,
+        version: item.version,
+        original_text: item.original_text,
+        batch: item.batch,
+      };
+    });
     let uploaded = await db.text.createMany({
       data: UploadData,
     });
