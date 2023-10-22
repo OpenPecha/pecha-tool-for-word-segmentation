@@ -13,6 +13,7 @@ export async function uploadData({
         version: { in: name },
       },
     });
+    console.log("existingRecord", existingRecord);
     if (!!existingRecord) {
       console.log("Record already exists");
       return { error: "Record already exists" };

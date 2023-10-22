@@ -7,6 +7,7 @@ export const action: ActionFunction = async ({ request }) => {
   let name = formdata.get("name") as string;
   let parsed_Data = JSON.parse(data);
   let parsed_Name = JSON.parse(name);
+  console.log(name, "uploading");
   if (request.method === "POST") {
     let status = await uploadData({ name: parsed_Name, data: parsed_Data });
     return status;

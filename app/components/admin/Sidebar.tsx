@@ -1,6 +1,5 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import { NavLink, useLoaderData, useLocation } from "@remix-run/react";
-import SidebarLinkGroup from "./SidebarLinkGroup";
 import { toolname } from "~/const";
 import { BiSolidDashboard } from "react-icons/bi/index.js";
 import { Hamburger } from "../../assets/svgs";
