@@ -31,13 +31,13 @@ model User {
 }
 
 model Text {
-  id             Int      @id @default(autoincrement())
+  id             Int      @id() @default(autoincrement()) @unique(sort: Desc) 
   original_text  String
   modified_text  String?
   status         Status?
   modified_by    User?    @relation("UserModifiedText", fields: [modified_by_id], references: [id])
   modified_by_id String?
-  modified_on    DateTime?
+  modified_on    DateTime? @default(now())
   rejected_by    User[]   @relation("UserRejectedText")
   ignored_by     User[]   @relation("UserIgnoredText")
   createdAt      DateTime @default(now())

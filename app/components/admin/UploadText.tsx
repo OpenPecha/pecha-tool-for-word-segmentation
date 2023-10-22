@@ -45,7 +45,6 @@ function UploadText() {
       },
     });
   };
-  console.log(csvData);
   function reset() {
     setCsvData([]);
     setFileNames([]);

@@ -1,11 +1,9 @@
 import { User } from "@prisma/client";
 import { Link, useLoaderData, useOutletContext } from "@remix-run/react";
 import { useState } from "react";
-import { useOnlineList } from "../hooks/useOnlineList";
 import { timeAgo } from "~/lib/getFormattedDate";
 const UserListCard = () => {
   let { users } = useLoaderData();
-  const onlineUsers = useOnlineList();
   const current_user = useOutletContext();
   let reviewers = users.filter((user) => user.role === "REVIEWER");
   let isAdmin = current_user?.role === "ADMIN";
@@ -33,7 +31,6 @@ const UserListCard = () => {
         <h4 className="mb-6 text-xl font-semibold text-black dark:text-white">
           Annotators
         </h4>
-        <div className="text-gray-400">online :{onlineUsers.length}</div>
       </div>
       <div className="flex gap-2  items-center flex-1 mb-2 mx-2">
         <input
@@ -74,7 +71,6 @@ const UserListCard = () => {
 
 function EachUser({ user }) {
   let { groups } = useLoaderData();
-  const onlineUsers = useOnlineList();
   const current_user = useOutletContext();
   let currentBatch = user.assigned_batch.filter(
     (item) => !groups[item]?.reviewed && groups[item]?.approved
@@ -103,14 +99,7 @@ function EachUser({ user }) {
       <div className="flex flex-1 items-center justify-between px-2">
         <div className="w-full">
           <div className="font-medium text-black dark:text-white flex justify-between items-center w-full">
-            <div>
-              {onlineUsers?.includes(user?.username) && (
-                <span className="text-xs mr-2" title="online">
-                  🟢
-                </span>
-              )}
-              {user.nickname}
-            </div>
+            <div>{user.nickname}</div>
             <div className="text-xs ">{time_ago}</div>
           </div>
           <p className="flex justify-between items-center">

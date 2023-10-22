@@ -14,12 +14,10 @@ import React, { useEffect, useMemo, useState } from "react";
 import tailwindStyle from "./styles/tailwind.css";
 import globalStyle from "./styles/global.css";
 import drawwerStyle from "react-modern-drawer/dist/index.css";
-import { SocketProvider, connect } from "./components/contexts/SocketContext";
 
 import NProgress from "nprogress";
 import nProgressStyles from "nprogress/nprogress.css";
 
-import type { Socket } from "socket.io-client";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session") as string;
@@ -34,17 +32,8 @@ export const links: LinksFunction = () => [
 ];
 
 export default function App() {
-  const [socket, setSocket] = useState<Socket>();
   const { session } = useLoaderData();
-  useEffect(() => {
-    const socket = connect();
-    setSocket(socket);
-    socket.emit("user_login", session);
 
-    return () => {
-      socket.close();
-    };
-  }, []);
   let transition = useNavigation();
 
   let fetchers = useFetchers();
@@ -83,9 +72,7 @@ export default function App() {
         <Links />
       </head>
       <body className="m-0 overflow-hidden font-[20px]">
-        <SocketProvider socket={socket}>
-          <Outlet />
-        </SocketProvider>
+        <Outlet />
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

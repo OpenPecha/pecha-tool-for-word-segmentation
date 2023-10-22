@@ -15,7 +15,6 @@ import {
   useOutletContext,
   useRevalidator,
 } from "@remix-run/react";
-import { useSocket } from "~/components/contexts/SocketContext";
 import { toolname } from "~/const";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -60,17 +59,10 @@ export const meta: V2_MetaFunction = () => {
 };
 
 function Index() {
-  const socket = useSocket();
   const reval = useRevalidator();
   const current_user = useOutletContext();
   const { users } = useLoaderData();
   const reviewers = users.filter((user) => user.role === "REVIEWER");
-  useEffect(() => {
-    if (!socket) return;
-    socket.on("text-status-changed", (data) => {
-      if (data) reval.revalidate();
-    });
-  }, [socket]);
 
   return (
     <div className="mt-4 grid grid-cols-12 gap-4 md:mt-6 md:gap-6 2xl:mt-7.5 2xl:gap-7.5 ">

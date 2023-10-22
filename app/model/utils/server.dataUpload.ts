@@ -25,7 +25,7 @@ export async function uploadData({
     let uploaded = await db.text.createMany({
       data: UploadData,
     });
-    console.log("uploaded data: ");
+    console.log("uploaded data");
     return uploaded;
   } catch (e) {
     throw new Error("upload failed" + e);

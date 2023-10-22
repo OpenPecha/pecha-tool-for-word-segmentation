@@ -1,9 +1,9 @@
 /** @type {import('@remix-run/dev').AppConfig} */
 module.exports = {
-  ignoredRouteFiles: ["**/.*"],
+  cacheDirectory: "./node_modules/.cache/remix",
+  ignoredRouteFiles: ["**/.*", "**/*.test.{js,jsx,ts,tsx}"],
   // appDirectory: "app",
-  serverBuildPath: "server/build/index.js",
-  serverModuleFormat: "cjs",
+  serverModuleFormat: "esm",
   serverDependenciesToBundle: ["@uidotdev/usehooks"],
   future: {
     v2_dev: true,

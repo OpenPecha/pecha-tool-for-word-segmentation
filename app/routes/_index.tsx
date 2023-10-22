@@ -19,7 +19,6 @@ import checkUnknown from "~/lib/checkUnknown";
 import { createUserIfNotExists } from "~/model/server.user";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
-import { useSocket } from "~/components/contexts/SocketContext";
 import ActiveUser from "~/components/ActiveUser";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -51,7 +50,6 @@ export const meta: V2_MetaFunction = () => {
 export default function Index() {
   let fetcher = useFetcher();
   const { user, text, error } = useLoaderData();
-  const socket = useSocket();
   const revalidate = useRevalidator();
   let [history, setHistory] = useState<string[]>([]);
   let [searchParams] = useSearchParams();
@@ -62,15 +60,6 @@ export default function Index() {
 
   const [activeTime, setActiveTime] = useState(0); // in sec
 
-  useEffect(() => {
-    if (!socket) return;
-    socket.on("change-allow", (data) => {
-      if (data.user.id === user.id) revalidate.revalidate();
-    });
-    socket.on("reviewed", (data) => {
-      if (data.user.id === user.id) revalidate.revalidate();
-    });
-  }, [socket]);
   let saveText = async () => {
     let duration = activeTime;
     let modified_text = editor!.getText();
@@ -78,7 +67,6 @@ export default function Index() {
       { id, modified_text, userId: user.id, duration },
       { method: "POST", action: "/api/text" }
     );
-    socket?.emit("text-status-changed", { user });
     setActiveTime(0);
     if (searchParams.get("history")) return;
     setHistory([...history, id]);
@@ -92,7 +80,6 @@ export default function Index() {
       { id, userId: user.id, _action: "reject" },
       { method: "PATCH", action: "/api/text" }
     );
-    socket?.emit("text-status-changed", { user });
     setActiveTime(0);
   };
 

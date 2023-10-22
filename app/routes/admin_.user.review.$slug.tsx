@@ -10,7 +10,6 @@ import Button from "~/components/Button";
 import { db } from "~/service/db.server";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
-import { useSocket } from "~/components/contexts/SocketContext";
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
@@ -39,7 +38,6 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
 function UserDetail() {
   const fetcher = useFetcher();
   const { annotator, user, currentText } = useLoaderData() as any;
-  const socket = useSocket();
   const [content, setContent] = useState("");
   const [selectedId, setSelectedId] = useState<number | undefined>(
     currentText?.id
@@ -65,11 +63,7 @@ function UserDetail() {
   let editor = useEditorTiptap(newText);
 
   if (!editor) return null;
-  function text_reviewed() {
-    setTimeout(() => {
-      socket?.emit("reviewed", { annotator });
-    }, 1000);
-  }
+
   let saveText = () => {
     fetcher.submit(
       {
@@ -80,7 +74,6 @@ function UserDetail() {
       },
       { method: "POST", action: "/api/text" }
     );
-    text_reviewed();
   };
 
   let rejectTask = () => {
