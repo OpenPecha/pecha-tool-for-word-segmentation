@@ -1,9 +1,9 @@
 import { useFetcher } from "@remix-run/react";
 import { User } from "discord.js";
 import React from "react";
-import { FiEdit2 } from "react-icons/fi";
-import { TiTick } from "react-icons/ti";
-import { ImCross } from "react-icons/im";
+import { FiEdit2 } from "react-icons/fi/index.js";
+import { TiTick } from "react-icons/ti/index.js";
+import { ImCross } from "react-icons/im/index.js";
 import { memo } from "react";
 function AssignNickName({ user }: { user: any }) {
   const fetcher = useFetcher();

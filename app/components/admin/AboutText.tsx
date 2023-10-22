@@ -1,10 +1,10 @@
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import React, { useEffect, useState } from "react";
-import { BiSolidCloudDownload } from "react-icons/bi";
+import { BiSolidCloudDownload } from "react-icons/bi/index.js";
 import { downloadJsonlFile } from "~/lib/downloadfile";
 import UploadText from "./UploadText";
-import { MdDelete } from "react-icons/md";
-import { SlOptionsVertical } from "react-icons/sl";
+import { MdDelete } from "react-icons/md/index.js";
+import { SlOptionsVertical } from "react-icons/sl/index.js";
 type Text_Props = {
   version: string;
   category: string;

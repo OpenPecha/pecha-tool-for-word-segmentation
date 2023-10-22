@@ -1,7 +1,7 @@
 import { useFetcher, useOutletContext } from "@remix-run/react";
 import Select from "react-tailwindcss-select";
 import { User } from "@prisma/client";
-import { AiFillDelete } from "react-icons/ai";
+import { AiFillDelete } from "react-icons/ai/index.js";
 interface Option {
   value: string;
   label: string;

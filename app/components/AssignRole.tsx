@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Role } from "@prisma/client";
 import Select from "react-tailwindcss-select";
 import { useFetcher } from "react-router-dom";
-import { FiEdit2 } from "react-icons/fi";
+import { FiEdit2 } from "react-icons/fi/index.js";
 function AssignRole({
   annotator,
   isAdmin,

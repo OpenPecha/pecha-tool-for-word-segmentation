@@ -2,11 +2,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { NavLink, useLoaderData, useLocation } from "@remix-run/react";
 import SidebarLinkGroup from "./SidebarLinkGroup";
 import { toolname } from "~/const";
-import { BiSolidDashboard } from "react-icons/bi";
+import { BiSolidDashboard } from "react-icons/bi/index.js";
 import { Hamburger } from "../../assets/svgs";
-import { FiUsers } from "react-icons/fi";
-import { AiOutlineFileText } from "react-icons/ai";
-import { HiDocumentReport } from "react-icons/hi";
+import { FiUsers } from "react-icons/fi/index.js";
+import { AiOutlineFileText } from "react-icons/ai/index.js";
+import { HiDocumentReport } from "react-icons/hi/index.js";
 interface SidebarProps {
   sidebarOpen: boolean;
   setSidebarOpen: (arg: boolean) => void;
