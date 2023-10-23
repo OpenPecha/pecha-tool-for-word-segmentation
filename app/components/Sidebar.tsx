@@ -49,7 +49,7 @@ function Sidebar({ user, text, history }: userType) {
           <TextInfo>User : {user?.username.split("@")[0]}</TextInfo>
           <TextInfo>text id :{text?.id}</TextInfo>
           <TextInfo>Batch : {text?.batch}</TextInfo>
-          <TextInfo>Approved : {user?.text}</TextInfo>
+          <TextInfo>Approved : {user?.text?.length}</TextInfo>
           <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
           <TextInfo>Reviewed : {user?._count?.text}</TextInfo>
         </div>
@@ -65,12 +65,11 @@ function Sidebar({ user, text, history }: userType) {
                 icon={<Cross />}
               />
             ))}
-
-            {history?.map((text: string) => (
+            {user?.text?.map((text: string) => (
               <HistoryItem
                 user={user}
-                id={parseInt(text)}
-                key={text + "-accepted"}
+                id={parseInt(text?.id)}
+                key={text?.id + "-accepted"}
                 onClick={() => setOpenMenu(false)}
                 icon={
                   <div className="flex items-center justify-between flex-1">

@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { EditorContent, BubbleMenu, Editor } from "@tiptap/react";
+import { EditorContent, Editor } from "@tiptap/react";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import selectText from "~/lib/selectRange";
 
@@ -137,29 +137,7 @@ function EditorContainer({ editor }: { editor: Editor }) {
   };
   return (
     <div className="text-slate-600 h-[90%] m-auto bg-white max-h-[60dvh] overflow-y-scroll p-2 text-3xl">
-      <EditorContent editor={editor} />
-      {editor && (
-        <BubbleMenu
-          editor={editor}
-          tippyOptions={{ duration: 100 }}
-          shouldShow={(editor) => {
-            let { from } = editor;
-            let textLength = editor?.editor.getText().length;
-            let textContent = editor.state.doc.textBetween(from - 1, from, "");
-            if (from === 1 || from - 1 === textLength || textContent === " ")
-              return false;
-            if (editor.state.selection.from === editor.state.selection.to)
-              return true;
-            return false;
-          }}
-        >
-          <button
-            onClick={handleClick}
-            id="spaceButton"
-            style={{ display: "none" }}
-          ></button>
-        </BubbleMenu>
-      )}
+      {editor && <EditorContent editor={editor} />}
     </div>
   );
 }

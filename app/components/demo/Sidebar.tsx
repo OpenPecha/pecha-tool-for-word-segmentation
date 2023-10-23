@@ -54,7 +54,7 @@ function Sidebar({ user, text, setHistory }) {
           <div className="text-sm mb-2 font-bold">History</div>
           <div className="flex flex-col gap-2 max-h-[30vh] overflow-y-auto">
             {user &&
-              (user.rejected_list || user.text) &&
+              (user.rejected_list || user._count.text) &&
               (user?.rejected_list || [])
                 .sort(sortUpdate_reviewed)
                 .map((text: historyText) => (

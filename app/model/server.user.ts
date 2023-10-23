@@ -12,7 +12,9 @@ export const createUserIfNotExists = async (username: string) => {
       _count: {
         select: { text: { where: { reviewed: true } } }, //only count reviewed text
       },
-      text: { select: { id: true } },
+      text: {
+        where: { reviewed: { not: true } },
+      },
       categories: true,
       allow_assign: true,
       role: true,
@@ -47,7 +49,6 @@ export const createUserIfNotExists = async (username: string) => {
       },
     });
   }
-  user.text = user.text.length;
   return user;
 };
 

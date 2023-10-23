@@ -1,16 +1,6 @@
-import {
-  redirect,
-  type LinksFunction,
-  type LoaderFunction,
-  type V2_MetaFunction,
-} from "@remix-run/node";
-import { useEffect, useState } from "react";
-import {
-  useFetcher,
-  useLoaderData,
-  useRevalidator,
-  useSearchParams,
-} from "@remix-run/react";
+import { redirect, type LoaderFunction } from "@remix-run/node";
+import { useMemo, useState } from "react";
+import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import Button from "~/components/Button";
 import Editor from "~/components/Editor";
 import Sidebar from "~/components/Sidebar";
@@ -37,7 +27,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   }
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta = () => {
   return [
     { title: "Pecha Tools" },
     { name: "description", content: "Word segmentation" },
@@ -50,7 +40,6 @@ export const meta: V2_MetaFunction = () => {
 export default function Index() {
   let fetcher = useFetcher();
   const { user, text, error } = useLoaderData();
-  const revalidate = useRevalidator();
   let [history, setHistory] = useState<string[]>([]);
   let [searchParams] = useSearchParams();
   let id = text?.id;
@@ -124,9 +113,7 @@ export default function Index() {
               )}
               <div>transcript</div>
             </div>
-            {!editor && <div>loading...</div>}
-
-            <Editor editor={editor!} />
+            {!editor ? <div>loading...</div> : <Editor editor={editor!} />}
           </div>
         )}
         {text && (
