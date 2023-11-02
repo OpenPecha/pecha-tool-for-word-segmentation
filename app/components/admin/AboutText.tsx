@@ -1,5 +1,5 @@
-import { useFetcher, useLoaderData } from "@remix-run/react";
-import React, { useEffect, useState } from "react";
+import { useFetcher, useLoaderData, Await } from "@remix-run/react";
+import React, { useEffect, useState, Suspense } from "react";
 import { BiSolidCloudDownload } from "react-icons/bi/index.js";
 import { downloadJsonlFile } from "~/lib/downloadfile";
 import UploadText from "./UploadText";
@@ -17,9 +17,17 @@ function AboutText() {
   return (
     <>
       {user.role === "ADMIN" && <UploadText />}
-      {texts.map((text: Text_Props) => {
-        return <Text_Category text={text} key={text.version} />;
-      })}
+      <Suspense fallback={<div>Loading...</div>}>
+        <Await resolve={texts}>
+          {(data) => (
+            <div>
+              {data.map((text: Text_Props) => {
+                return <Text_Category text={text} key={text.version} />;
+              })}
+            </div>
+          )}
+        </Await>
+      </Suspense>
     </>
   );
 }

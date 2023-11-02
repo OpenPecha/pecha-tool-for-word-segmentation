@@ -104,12 +104,12 @@ export const getUniqueTextsGroup = async () => {
   }
 
   // Convert the Map to an array of objects
-  const result = Array.from(uniqueVersionCategories, ([version, category]) => ({
+  let result = Array.from(uniqueVersionCategories, ([version, category]) => ({
     version,
     category,
     count: versionCount[version] || 0,
     completed_count: reviewedCount[version] || 0,
   }));
-
+  result = result.filter((text) => text.count !== text.completed_count);
   return result;
 };
