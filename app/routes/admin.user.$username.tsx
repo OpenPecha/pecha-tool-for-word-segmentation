@@ -12,32 +12,33 @@ export const loader: LoaderFunction = async ({ request, params }) => {
   let user = await db.user.findUnique({
     where: { username },
     select: {
+      id: true,
       text: {
         where: { reviewed: { not: true } },
         select: {
-          id: true,
-          modified_text: true,
           batch: true,
         },
+        distinct: ["batch"],
       },
-      rejected_list: { select: { id: true } }, // Select specific fields or all (undefined)
       _count: {
         select: { text: { where: { reviewed: true } }, rejected_list: true },
       },
-      reviewer: true,
+      reviewer: {
+        select: {
+          username: true,
+        },
+      },
       username: true,
       role: true,
       picture: true,
       nickname: true,
+      categories: true,
+      allow_assign: true,
     },
   });
   let categories = await getCategories();
-  let groups = await getAprovedBatch();
 
-  let currentBatch = user?.text
-    .filter((item) => !groups[item.batch]?.reviewed)
-    .map((item) => item.batch);
-  currentBatch = Array.from(new Set(currentBatch));
+  let currentBatch = user?.text.map((item) => item.batch);
   return { user, categories, currentBatch };
 };
 
