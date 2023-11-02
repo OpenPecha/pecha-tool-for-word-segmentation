@@ -1,29 +1,42 @@
 import { User } from "@prisma/client";
-import {
-  LoaderFunction,
-  V2_MetaFunction,
-  json,
-  redirect,
-} from "@remix-run/node";
+import { LoaderFunction, json, redirect } from "@remix-run/node";
 import UserListCard from "~/components/admin/UserListCard";
-import { useEffect } from "react";
 import { getAprovedBatch } from "~/model/server.text";
 import { getUser, getUsers } from "~/model/server.user";
-import {
-  Outlet,
-  useLoaderData,
-  useOutletContext,
-  useRevalidator,
-} from "@remix-run/react";
+import { Outlet, useLoaderData, useOutletContext } from "@remix-run/react";
 import { toolname } from "~/const";
+import { db } from "~/service/db.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   if (!session) return redirect("/error");
-  let admin = await getUser(session);
-  let users: User[] = await getUsers();
-  let groups = await getAprovedBatch();
+  let admin = await db.user.findUnique({
+    where: { username: session },
+    select: {
+      id: true,
+      nickname: true,
+      username: true,
+      role: true,
+      picture: true,
+    },
+  });
+  let users: any[] = await db.user.findMany({
+    select: {
+      assigned_batch: true,
+      id: true,
+      nickname: true,
+      username: true,
+      role: true,
+      picture: true,
+      reviewer_id: true,
+      text: {
+        where: { reviewed: { not: true } },
+        select: { modified_on: true },
+        distinct: ["batch"],
+      },
+    },
+  });
   users = users.sort(
     (a, b) => b.assigned_batch.length - a.assigned_batch.length
   );
@@ -42,13 +55,23 @@ export const loader: LoaderFunction = async ({ request }) => {
         }
       });
   }
+  users = users.map((user) => {
+    return {
+      username: user?.username,
+      nickname: user?.nickname,
+      role: user?.role,
+      picture: user?.picture,
+      text: user?.text.length,
+      reviewer_id: user?.reviewer_id,
+      modified_on: user?.text?.find((item) => item.modified_on !== null),
+    };
+  });
   return json({
     users,
-    groups,
   });
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta = () => {
   return [
     { title: `Admin page | ${toolname}` },
     {
@@ -59,7 +82,6 @@ export const meta: V2_MetaFunction = () => {
 };
 
 function Index() {
-  const reval = useRevalidator();
   const current_user = useOutletContext();
   const { users } = useLoaderData();
   const reviewers = users.filter((user) => user.role === "REVIEWER");

@@ -70,12 +70,10 @@ const UserListCard = () => {
 };
 
 function EachUser({ user }) {
-  let { groups } = useLoaderData();
   const current_user = useOutletContext();
-  let currentBatch = user.assigned_batch.filter(
-    (item) => !groups[item]?.reviewed && groups[item]?.approved
-  );
-  let Time = user?.text.find((item) => item.modified_on !== null);
+
+  let remaining_count = user?.text;
+  let Time = user?.modified_on;
   let time_ago = timeAgo(Time?.modified_on);
   if (!user) return null;
   return (
@@ -109,9 +107,9 @@ function EachUser({ user }) {
           </p>
         </div>
 
-        {currentBatch.length > 0 && (
+        {remaining_count > 0 && (
           <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary">
-            <span className="text-xs text-white">{currentBatch.length}</span>
+            <span className="text-xs text-white">{remaining_count}</span>
           </div>
         )}
       </div>

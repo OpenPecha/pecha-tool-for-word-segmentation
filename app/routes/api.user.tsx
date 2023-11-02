@@ -27,7 +27,6 @@ export const action: ActionFunction = async ({ request }) => {
       return await updateUserCategory(id, category);
     case "change_allow_assign":
       return await updateUserAssign(id, allow === "true");
-
     case "change_reviewer":
       let reviewer_name = formdata.get("reviewer") as string;
       return await updateUserReviewer(id, reviewer_name);
