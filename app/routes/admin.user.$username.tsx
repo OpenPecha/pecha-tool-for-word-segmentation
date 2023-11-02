@@ -5,17 +5,39 @@ import AboutUser from "~/components/admin/AboutUser";
 import { getAprovedBatch } from "~/model/server.text";
 import { getUser, removeBatchFromUser } from "~/model/server.user";
 import { getCategories } from "~/model/utils/server.category";
+import { db } from "~/service/db.server";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   let username = params.username;
-  let user = await getUser(username!);
+  let user = await db.user.findUnique({
+    where: { username },
+    select: {
+      text: {
+        where: { reviewed: { not: true } },
+        select: {
+          id: true,
+          modified_text: true,
+          batch: true,
+        },
+      },
+      rejected_list: { select: { id: true } }, // Select specific fields or all (undefined)
+      _count: {
+        select: { text: { where: { reviewed: true } }, rejected_list: true },
+      },
+      reviewer: true,
+      username: true,
+      role: true,
+      picture: true,
+      nickname: true,
+    },
+  });
   let categories = await getCategories();
   let groups = await getAprovedBatch();
 
-  let currentBatch = user.assigned_batch.filter(
-    (item) => !groups[item]?.reviewed
-  );
-
+  let currentBatch = user?.text
+    .filter((item) => !groups[item.batch]?.reviewed)
+    .map((item) => item.batch);
+  currentBatch = Array.from(new Set(currentBatch));
   return { user, categories, currentBatch };
 };
 
