@@ -1,19 +1,13 @@
 import { ActionFunction, redirect } from "@remix-run/node";
-import { sendNotification } from "~/lib/server.sendDiscordNotification";
 import {
   changeCategory,
   deleteTextByVersion,
   getNumberOfReject,
   rejectText,
-  removeRejectText,
   saveText,
   updateTextRejectCount,
 } from "~/model/server.text";
-import {
-  getUserById,
-  remainingTextToApproved,
-  updateUserAssign,
-} from "~/model/server.user";
+import { updateUserAssign } from "~/model/server.user";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -21,7 +15,6 @@ export const action: ActionFunction = async ({ request }) => {
   let url = new URL(headerUrl);
   let session = url.searchParams.get("session") as string;
   let history = url.searchParams.get("history");
-  let text = null;
   let admin_id = formData.get("adminId") as string;
   const action = formData.get("_action") as string;
 
@@ -30,27 +23,14 @@ export const action: ActionFunction = async ({ request }) => {
     const userId = formData.get("userId") as string;
     const id = formData.get("id") as string;
     const time = formData.get("duration") as string;
-    await removeRejectText(parseInt(id), userId, "APPROVED");
-    text = await saveText(parseInt(id), modified_text, userId, admin_id, time);
-    let user = await getUserById(userId);
-    let admin = await getUserById(admin_id);
-    let { remaining_count, not_reviewed_count } = await remainingTextToApproved(
-      userId
+    let text = await saveText(
+      parseInt(id),
+      modified_text,
+      userId,
+      admin_id,
+      time
     );
-    if (remaining_count === 0 && !admin_id) {
-      sendNotification(
-        user?.username,
-        `A batch is ready to review by ${user?.nickname}`,
-        "info"
-      );
-    }
-    if (not_reviewed_count === 0 && !!admin_id) {
-      sendNotification(
-        admin?.username,
-        `batch reviewed, ${user?.nickname} will get new batch now`,
-        "success"
-      );
-    }
+    return text;
   }
   if (request.method === "PATCH") {
     const id = formData.get("id") as string;
@@ -61,13 +41,8 @@ export const action: ActionFunction = async ({ request }) => {
       if (numberOfReject !== 0 && numberOfReject % 3 === 0) {
         await updateUserAssign(userId, false);
       }
-      text = await rejectText(parseInt(id), userId);
-      let user = await getUserById(userId);
-      sendNotification(
-        user?.username,
-        `rejected, ${user?.nickname} please check for correction`,
-        "rejected"
-      );
+      let text = await rejectText(parseInt(id), userId);
+      return text;
     }
 
     if (action === "change_category") {
@@ -86,5 +61,5 @@ export const action: ActionFunction = async ({ request }) => {
   if (history) {
     return redirect(`/?session=${session}`);
   }
-  return text;
+  return null;
 };
