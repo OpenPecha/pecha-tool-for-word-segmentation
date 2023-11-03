@@ -2,7 +2,6 @@ import { ActionFunction, redirect } from "@remix-run/node";
 import {
   changeCategory,
   deleteTextByVersion,
-  getNumberOfReject,
   rejectText,
   saveText,
   updateTextRejectCount,
@@ -30,18 +29,21 @@ export const action: ActionFunction = async ({ request }) => {
       admin_id,
       time
     );
+    if (history) {
+      return redirect(`/?session=${session}`);
+    }
     return text;
   }
   if (request.method === "PATCH") {
     const id = formData.get("id") as string;
     const userId = formData.get("userId") as string;
     if (action === "reject") {
-      await updateTextRejectCount(parseInt(id));
-      let numberOfReject = await getNumberOfReject(parseInt(id));
+      let numberOfReject = await updateTextRejectCount(parseInt(id));
       if (numberOfReject !== 0 && numberOfReject % 3 === 0) {
         await updateUserAssign(userId, false);
       }
       let text = await rejectText(parseInt(id), userId);
+
       return text;
     }
 
@@ -49,8 +51,11 @@ export const action: ActionFunction = async ({ request }) => {
       const category = formData.get("category") as string;
       const version = formData.get("version") as string;
       console.log(category, version);
-      text = await changeCategory(version, category);
+      let text = await changeCategory(version, category);
       return text;
+    }
+    if (history) {
+      return redirect(`/?session=${session}`);
     }
   }
   if (request.method === "DELETE") {
@@ -58,8 +63,6 @@ export const action: ActionFunction = async ({ request }) => {
     let deletedText = await deleteTextByVersion(version);
     return deletedText;
   }
-  if (history) {
-    return redirect(`/?session=${session}`);
-  }
+
   return null;
 };

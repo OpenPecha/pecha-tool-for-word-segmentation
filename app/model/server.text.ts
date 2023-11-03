@@ -241,17 +241,7 @@ export async function getAprovedBatch() {
 
   return result;
 }
-export async function getNumberOfReject(id: number) {
-  try {
-    let text = await db.text.findUnique({
-      where: { id },
-      select: { reject_count: true },
-    });
-    return text?.reject_count || 0;
-  } catch (e) {
-    throw new Error(e);
-  }
-}
+
 export async function updateTextRejectCount(id: number) {
   try {
     let text = await db.text.update({
