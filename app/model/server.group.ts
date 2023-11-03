@@ -1,3 +1,4 @@
+import { PER_PAGE } from "~/components/admin/AboutText";
 import { db } from "~/service/db.server";
 
 export const getAllUniqueBatches = async (category: string[]) => {
@@ -67,7 +68,8 @@ export const getUnassignedBatch = async (category: string[]) => {
   }
 };
 
-export const getUniqueTextsGroup = async () => {
+export const getUniqueTextsGroup = async (skip: number) => {
+  let take = PER_PAGE;
   const textRecords = await db.text.findMany({
     select: {
       version: true,
@@ -77,39 +79,28 @@ export const getUniqueTextsGroup = async () => {
     orderBy: {
       updatedAt: "desc",
     },
+    distinct: ["version"],
+    take,
+    skip,
   });
+  return textRecords;
+};
 
-  // Create a Map to store unique versions and their categories
-  const uniqueVersionCategories = new Map();
-  const versionCount: any = {};
-  const reviewedCount: any = {};
-  // Iterate through the records and store unique version-category pairs
-  for (const record of textRecords) {
-    if (!uniqueVersionCategories.has(record.version)) {
-      uniqueVersionCategories.set(record.version, record.category);
-    }
-    let version = record.version;
-    if (!versionCount[version]) {
-      versionCount[version] = 1;
-    } else {
-      versionCount[version]++;
-    }
-    if (record.reviewed) {
-      if (!reviewedCount[version]) {
-        reviewedCount[version] = 1;
-      } else {
-        reviewedCount[version]++;
-      }
-    }
-  }
-
-  // Convert the Map to an array of objects
-  let result = Array.from(uniqueVersionCategories, ([version, category]) => ({
-    version,
-    category,
-    count: versionCount[version] || 0,
-    completed_count: reviewedCount[version] || 0,
-  }));
-  result = result.filter((text) => text.count !== text.completed_count);
-  return result;
+export const getGroupInfo = async (version: string) => {
+  const textRecords = await db.text.findMany({
+    where: {
+      version: version,
+    },
+    select: {
+      version: true,
+      category: true, // Include category in the query
+      reviewed: true,
+    },
+    orderBy: {
+      updatedAt: "desc",
+    },
+  });
+  let reviewed_count =
+    textRecords.filter((item) => item.reviewed === true).length ?? 0;
+  return { total: textRecords.length, reviewed: reviewed_count };
 };

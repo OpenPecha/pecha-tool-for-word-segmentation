@@ -1,33 +1,35 @@
-import { useFetcher, useLoaderData, Await } from "@remix-run/react";
+import {
+  useFetcher,
+  useLoaderData,
+  Await,
+  useSearchParams,
+} from "@remix-run/react";
 import React, { useEffect, useState, Suspense } from "react";
 import { BiSolidCloudDownload } from "react-icons/bi/index.js";
 import { downloadJsonlFile } from "~/lib/downloadfile";
 import UploadText from "./UploadText";
 import { MdDelete } from "react-icons/md/index.js";
 import { SlOptionsVertical } from "react-icons/sl/index.js";
+import Pagination from "../Pagination";
+import Progress from "../Progress";
 type Text_Props = {
   version: string;
   category: string;
   count: number;
   completed_count: number;
 };
-
+export const PER_PAGE = 12;
 function AboutText() {
   const { texts, user } = useLoaderData();
   return (
     <>
       {user.role === "ADMIN" && <UploadText />}
-      <Suspense fallback={<div>Loading...</div>}>
-        <Await resolve={texts}>
-          {(data) => (
-            <div>
-              {data.map((text: Text_Props) => {
-                return <Text_Category text={text} key={text.version} />;
-              })}
-            </div>
-          )}
-        </Await>
-      </Suspense>
+      <div>
+        {texts.map((text: Text_Props) => {
+          return <Text_Category text={text} key={text.version} />;
+        })}
+        <PaginationContainer />
+      </div>
     </>
   );
 }
@@ -39,6 +41,7 @@ function Text_Category({ text }: { text: Text_Props }) {
   const { user } = useLoaderData();
   const isAdmin = user?.role === "ADMIN";
   const fetcher = useFetcher();
+  const infoFetcher = useFetcher();
   function handleSubmit(e) {
     e.preventDefault();
     if (!isAdmin) return null;
@@ -56,18 +59,35 @@ function Text_Category({ text }: { text: Text_Props }) {
     );
     setHasChanges(false);
   }
-
+  function getInfo() {
+    infoFetcher.submit(
+      {
+        _action: "get_info",
+        version: text.version,
+      },
+      {
+        method: "POST",
+      }
+    );
+  }
   return (
     <form
       onSubmit={handleSubmit}
       className=" flex w-full px-2 justify-between mt-2"
     >
       <div className="flex items-center gap-2">
-        <h4 className=" font-bold text-sm">
+        <h4 className=" font-bold text-sm cursor-pointer" onClick={getInfo}>
           {text.version}{" "}
-          <div className="text-gray-600 text-xs float-center">
-            count:{text?.count} completed:{text?.completed_count}
-          </div>
+          {infoFetcher.state !== "idle" ? (
+            <span className="animate-pulse">...</span>
+          ) : null}
+          {infoFetcher?.data && (
+            <Progress
+              current={infoFetcher?.data?.reviewed}
+              max={infoFetcher?.data?.total}
+              showHeader={false}
+            />
+          )}
         </h4>
       </div>
       <input hidden name="_action" readOnly value="change_category"></input>
@@ -158,6 +178,24 @@ function TextSettings({ text }: { text: Text_Props }) {
         )}
       </li>
     </ul>
+  );
+}
+
+function PaginationContainer() {
+  let { count, texts } = useLoaderData();
+  const finalPage = Math.ceil(count / PER_PAGE);
+
+  return (
+    <div className="flex flex-col items-center ">
+      <Pagination
+        totalPages={finalPage}
+        pageParam="page"
+        className="w-full mt-3"
+      />
+      <span>
+        displaying {texts.length} item(s) of {count}
+      </span>
+    </div>
   );
 }
 
