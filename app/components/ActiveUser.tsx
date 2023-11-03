@@ -4,6 +4,7 @@ export default function ActiveUser({ active, setActive }) {
   const idle = useIdle(5000);
   let timer = null;
   useEffect(() => {
+    if (timer) clearInterval(timer);
     if (!idle) {
       timer = setInterval(() => {
         setActive((prev) => prev + 1);

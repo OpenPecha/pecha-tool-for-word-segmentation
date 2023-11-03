@@ -18,7 +18,7 @@ function Button({
   className,
 }: ButtonProps) {
   let classbtn =
-    "h-[100px] w-[100px]  cursor-pointer hover:opacity-80 disabled:opacity-50";
+    "h-[100px] w-[100px]  cursor-pointer hover:opacity-80 disabled:opacity-50 rounded-md";
   let innerValue: any = value;
   let btnRef = useRef(null);
   useEffect(() => {

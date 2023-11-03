@@ -103,21 +103,28 @@ export default function Index() {
             <br />
           </div>
         ) : (
-          <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
+          <div className="fixed top-[120px] md:relative md:top-0 md:mt-20 shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2  pt-1 ">
-              <ActiveUser active={activeTime} setActive={setActiveTime} />
+              {fetcher.state === "idle" && (
+                <ActiveUser active={activeTime} setActive={setActiveTime} />
+              )}
               {fetcher.state !== "idle" && (
                 <div className=" flex justify-center items-center">
                   saving...
                 </div>
               )}
-              <div>transcript</div>
             </div>
-            {!editor ? <div>loading...</div> : <Editor editor={editor!} />}
+            {!editor || isButtonDisabled ? (
+              <div className="flex justify-center items-center h-full p-10">
+                <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-gray-900 p-3"></div>
+              </div>
+            ) : (
+              <Editor editor={editor!} />
+            )}
           </div>
         )}
         {text && (
-          <div className="flex gap-2 fixed bottom-0 justify-center ">
+          <div className="flex gap-2 fixed bottom-0 md:relative md:mt-10 justify-center ">
             <Button
               disabled={isButtonDisabled}
               handleClick={saveText}
