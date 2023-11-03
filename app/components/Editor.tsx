@@ -1,12 +1,18 @@
 import { useEffect } from "react";
 import { EditorContent, Editor } from "@tiptap/react";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
-import selectText from "~/lib/selectRange";
 
 let select = 0;
 
 function EditorContainer({ editor }: { editor: Editor }) {
   let content = editor?.getText();
+  function selectText(element) {
+    const range = document.createRange();
+    range.selectNodeContents(element);
+    const selection = window?.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  }
   useEffect(() => {
     if (editor) {
       const content = editor?.getText();

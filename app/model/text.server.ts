@@ -1,6 +1,6 @@
 import { Status } from "@prisma/client";
 import { db } from "~/service/db.server";
-import { getUnassignedBatch } from "./server.group";
+import { getUnassignedBatch } from "./group.server";
 
 export async function checkAndAssignBatch(userId: string) {
   try {

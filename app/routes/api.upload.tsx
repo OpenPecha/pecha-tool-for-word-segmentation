@@ -1,5 +1,5 @@
 import { ActionFunction } from "@remix-run/node";
-import { uploadData } from "~/model/utils/server.dataUpload";
+import { uploadData } from "~/model/utils/dataUpload.server";
 
 export const action: ActionFunction = async ({ request }) => {
   let formdata = await request.formData();

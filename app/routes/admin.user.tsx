@@ -1,8 +1,5 @@
-import { User } from "@prisma/client";
 import { LoaderFunction, json, redirect } from "@remix-run/node";
 import UserListCard from "~/components/admin/UserListCard";
-import { getAprovedBatch } from "~/model/server.text";
-import { getUser, getUsers } from "~/model/server.user";
 import { Outlet, useLoaderData, useOutletContext } from "@remix-run/react";
 import { toolname } from "~/const";
 import { db } from "~/service/db.server";

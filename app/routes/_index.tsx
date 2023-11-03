@@ -1,12 +1,12 @@
 import { redirect, type LoaderFunction } from "@remix-run/node";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import Button from "~/components/Button";
 import Editor from "~/components/Editor";
 import Sidebar from "~/components/Sidebar";
-import { getTextToDisplay } from "~/model/server.text";
+import { getTextToDisplay } from "~/model/text.server";
 import checkUnknown from "~/lib/checkUnknown";
-import { createUserIfNotExists } from "~/model/server.user";
+import { createUserIfNotExists } from "~/model/user.server";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import ActiveUser from "~/components/ActiveUser";

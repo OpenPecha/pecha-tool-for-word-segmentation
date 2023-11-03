@@ -5,8 +5,8 @@ import {
   redirect,
 } from "@remix-run/node";
 import AboutText, { PER_PAGE } from "~/components/admin/AboutText";
-import { getGroupInfo, getUniqueTextsGroup } from "~/model/server.group";
-import { getLastBatch } from "~/model/server.text";
+import { getGroupInfo, getUniqueTextsGroup } from "~/model/group.server";
+import { getLastBatch } from "~/model/text.server";
 import { db } from "~/service/db.server";
 
 export const loader: LoaderFunction = async ({ request }) => {

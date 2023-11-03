@@ -3,7 +3,7 @@ import { useFetcher } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { useLoaderData } from "react-router";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
-import { getUser } from "~/model/server.user";
+import { getUser } from "~/model/user.server";
 import AdminHistorySidebar from "~/components/AdminHistorySidebar";
 import EditorContainer from "~/components/Editor";
 import Button from "~/components/Button";

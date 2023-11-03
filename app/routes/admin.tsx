@@ -2,8 +2,8 @@ import { useState } from "react";
 import Header from "~/components/admin/Header";
 import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import Sidebar from "~/components/admin/Sidebar";
-import { LoaderFunction, defer, json, redirect } from "@remix-run/node";
-import { getProgress } from "~/model/server.text";
+import { LoaderFunction, json, redirect } from "@remix-run/node";
+import { getProgress } from "~/model/text.server";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
 import { db } from "~/service/db.server";
 export const loader: LoaderFunction = async ({ request }) => {

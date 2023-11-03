@@ -5,8 +5,8 @@ import {
   rejectText,
   saveText,
   updateTextRejectCount,
-} from "~/model/server.text";
-import { updateUserAssign } from "~/model/server.user";
+} from "~/model/text.server";
+import { updateUserAssign } from "~/model/user.server";
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();

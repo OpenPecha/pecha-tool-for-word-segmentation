@@ -1,10 +1,8 @@
 import { ActionFunction, LoaderFunction } from "@remix-run/node";
 import { useFetcher, useLoaderData } from "@remix-run/react";
-import React from "react";
 import AboutUser from "~/components/admin/AboutUser";
-import { getAprovedBatch } from "~/model/server.text";
-import { getUser, removeBatchFromUser } from "~/model/server.user";
-import { getCategories } from "~/model/utils/server.category";
+import { removeBatchFromUser } from "~/model/user.server";
+import { getCategories } from "~/model/utils/category.server";
 import { db } from "~/service/db.server";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
