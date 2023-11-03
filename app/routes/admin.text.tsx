@@ -1,7 +1,7 @@
 import {
   ActionFunction,
   LoaderFunction,
-  defer,
+  json,
   redirect,
 } from "@remix-run/node";
 import AboutText, { PER_PAGE } from "~/components/admin/AboutText";
@@ -32,7 +32,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       distinct: ["version"],
     }),
   ]);
-  return defer({
+  return json({
     user,
     texts,
     lastbatch,
