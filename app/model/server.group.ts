@@ -74,7 +74,6 @@ export const getUniqueTextsGroup = async (skip: number) => {
     select: {
       version: true,
       category: true, // Include category in the query
-      reviewed: true,
     },
     orderBy: {
       updatedAt: "desc",
