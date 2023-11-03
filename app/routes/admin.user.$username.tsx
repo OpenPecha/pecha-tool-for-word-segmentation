@@ -9,35 +9,36 @@ import { db } from "~/service/db.server";
 
 export const loader: LoaderFunction = async ({ request, params }) => {
   let username = params.username;
-  let user = await db.user.findUnique({
-    where: { username },
-    select: {
-      id: true,
-      text: {
-        where: { reviewed: { not: true } },
-        select: {
-          batch: true,
+  const [user, categories] = await Promise.all([
+    db.user.findUnique({
+      where: { username },
+      select: {
+        id: true,
+        text: {
+          where: { reviewed: { not: true } },
+          select: {
+            batch: true,
+          },
+          distinct: ["batch"],
         },
-        distinct: ["batch"],
-      },
-      _count: {
-        select: { text: { where: { reviewed: true } }, rejected_list: true },
-      },
-      reviewer: {
-        select: {
-          username: true,
+        _count: {
+          select: { text: { where: { reviewed: true } }, rejected_list: true },
         },
+        reviewer: {
+          select: {
+            username: true,
+          },
+        },
+        username: true,
+        role: true,
+        picture: true,
+        nickname: true,
+        categories: true,
+        allow_assign: true,
       },
-      username: true,
-      role: true,
-      picture: true,
-      nickname: true,
-      categories: true,
-      allow_assign: true,
-    },
-  });
-  let categories = await getCategories();
-
+    }),
+    getCategories(),
+  ]);
   let currentBatch = user?.text.map((item) => item.batch);
   return { user, categories, currentBatch };
 };

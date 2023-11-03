@@ -3,15 +3,27 @@ import Header from "~/components/admin/Header";
 import { Outlet, useLoaderData, useLocation } from "@remix-run/react";
 import Sidebar from "~/components/admin/Sidebar";
 import { LoaderFunction, defer, json, redirect } from "@remix-run/node";
-import { getUser } from "~/model/server.user";
 import { getProgress } from "~/model/server.text";
 import { useRouteError, isRouteErrorResponse } from "@remix-run/react";
+import { db } from "~/service/db.server";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   if (!session) return redirect("/error");
-  let user = await getUser(session);
-  let progress = await getProgress();
+  const [user, progress] = await Promise.all([
+    db.user.findUnique({
+      where: {
+        username: session,
+      },
+      select: {
+        username: true,
+        id: true,
+        nickname: true,
+        picture: true,
+      },
+    }),
+    getProgress(),
+  ]);
   return json({
     user,
     progress,

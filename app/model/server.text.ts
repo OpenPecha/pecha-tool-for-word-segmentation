@@ -114,10 +114,11 @@ export async function getTextToDisplay(userId: string, history: any) {
 
 export async function getProgress() {
   try {
-    let total_count = await db.text.count();
-    let reviewed_count = await db.text.count({
-      where: { reviewed: true },
-    });
+    const [total_count, reviewed_count] = await Promise.all([
+      db.text.count(),
+      db.text.count({ where: { reviewed: true } }),
+    ]);
+
     return { total: total_count, reviewed: reviewed_count };
   } catch (e) {
     throw new Error(e);

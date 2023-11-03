@@ -20,34 +20,39 @@ export const loader = async ({ request }) => {
   let startDate = url.searchParams.get("startDate");
   let endDate = url.searchParams.get("endDate");
 
-  let users = await db.user.findMany({
-    where: {
-      reviewer:
-        reviewer === "all"
-          ? undefined
-          : reviewer
-          ? { username: reviewer }
-          : undefined,
-    },
-    select: {
-      username: true,
-      nickname: true,
-      text: {
-        where: {
-          reviewed: true,
-          updatedAt:
-            startDate && endDate
-              ? startDate !== endDate
-                ? { gte: new Date(startDate), lte: new Date(endDate) }
-                : new Date(startDate)
-              : undefined,
-        },
-        select: { word_count: true, updatedAt: true, duration: true },
+  const [users, reviewers] = await Promise.all([
+    db.user.findMany({
+      where: {
+        reviewer:
+          reviewer === "all"
+            ? undefined
+            : reviewer
+            ? { username: reviewer }
+            : undefined,
       },
-      role: true,
-    },
-  });
-  let reviewers = await db.user.findMany({ where: { role: "REVIEWER" } });
+      select: {
+        username: true,
+        nickname: true,
+        text: {
+          where: {
+            reviewed: true,
+            updatedAt:
+              startDate && endDate
+                ? startDate !== endDate
+                  ? { gte: new Date(startDate), lte: new Date(endDate) }
+                  : new Date(startDate)
+                : undefined,
+          },
+          select: { word_count: true, updatedAt: true, duration: true },
+        },
+        role: true,
+      },
+    }),
+    db.user.findMany({
+      where: { role: "REVIEWER" },
+      select: { username: true },
+    }),
+  ]);
 
   let usersDetail = users.map((user) => {
     const word_count = user.text.reduce(
@@ -99,7 +104,21 @@ function report() {
 
     const a = document.createElement("a");
     a.href = url;
-    a.download = "data.txt";
+    let start_date =
+      new Date(range.startDate).getMonth() +
+      1 +
+      "-" +
+      new Date(range.startDate).getDate() +
+      "-" +
+      new Date(range.startDate).getFullYear();
+    let end_date =
+      new Date(range.endDate).getMonth() +
+      1 +
+      "-" +
+      new Date(range.endDate).getDate() +
+      "-" +
+      new Date(range.endDate).getFullYear();
+    a.download = `${start_date}-${end_date}.txt`;
     document.body.appendChild(a);
     a.click();
 
@@ -125,18 +144,7 @@ function report() {
     });
     changeOpen();
   }
-  var randomColor = () => Math.floor(Math.random() * 16777215).toString(16);
-  const data = {
-    labels: usersDetail.map((user) => user.username),
-    datasets: [
-      {
-        data: usersDetail.map((user) => user.word_count),
-        backgroundColor: usersDetail.map((user) => `#${randomColor()}`),
-        borderColor: usersDetail.map((user) => `#${randomColor()}`),
-        borderWidth: 1,
-      },
-    ],
-  };
+
   return (
     <div className="mt-3 mx-8">
       <div className="flex justify-between items-center">
@@ -206,7 +214,6 @@ function report() {
                   <div>
                     <div>Task: {user.taskCount}</div>
                     <div title="space count">Word: {user.word_count}</div>
-                    <div>Pay: ₹ {pay_cal(user.taskCount)}</div>
                   </div>
                 </div>
               </div>
@@ -216,12 +223,6 @@ function report() {
       </div>
     </div>
   );
-}
-
-function pay_cal(TASK: number) {
-  let PAY_PER_TASK = 6;
-  let bill = TASK * PAY_PER_TASK;
-  return bill.toFixed(2);
 }
 
 export default report;

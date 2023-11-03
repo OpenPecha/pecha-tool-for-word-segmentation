@@ -11,37 +11,49 @@ export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   if (!session) return redirect("/error");
-  let admin = await db.user.findUnique({
-    where: { username: session },
-    select: {
-      id: true,
-      nickname: true,
-      username: true,
-      role: true,
-      picture: true,
-    },
-  });
-  let users: any[] = await db.user.findMany({
-    select: {
-      assigned_batch: true,
-      id: true,
-      nickname: true,
-      username: true,
-      role: true,
-      picture: true,
-      reviewer_id: true,
-      text: {
-        where: { reviewed: { not: true } },
-        select: { modified_on: true },
-        distinct: ["batch"],
+  const [admin, users] = await Promise.all([
+    db.user.findUnique({
+      where: { username: session },
+      select: {
+        id: true,
+        nickname: true,
+        username: true,
+        role: true,
+        picture: true,
       },
-    },
-  });
-  users = users.sort(
-    (a, b) => b.assigned_batch.length - a.assigned_batch.length
-  );
+    }),
+    db.user.findMany({
+      select: {
+        assigned_batch: true,
+        id: true,
+        nickname: true,
+        username: true,
+        role: true,
+        picture: true,
+        reviewer_id: true,
+        text: {
+          where: { reviewed: { not: true } },
+          select: { modified_on: true },
+          distinct: ["batch"],
+        },
+      },
+    }),
+  ]);
+  let sorted_user = users
+    .sort((a, b) => b.assigned_batch.length - a.assigned_batch.length)
+    .map((user) => {
+      return {
+        username: user?.username,
+        nickname: user?.nickname,
+        role: user?.role,
+        picture: user?.picture,
+        text: user?.text.length,
+        reviewer_id: user?.reviewer_id,
+        modified_on: user?.text?.find((item) => item.modified_on !== null),
+      };
+    });
   if (admin?.role !== "ADMIN") {
-    users = users
+    sorted_user = sorted_user
       .filter(
         (user) => user.reviewer_id === null || user.reviewer_id === admin?.id
       )
@@ -55,19 +67,8 @@ export const loader: LoaderFunction = async ({ request }) => {
         }
       });
   }
-  users = users.map((user) => {
-    return {
-      username: user?.username,
-      nickname: user?.nickname,
-      role: user?.role,
-      picture: user?.picture,
-      text: user?.text.length,
-      reviewer_id: user?.reviewer_id,
-      modified_on: user?.text?.find((item) => item.modified_on !== null),
-    };
-  });
   return json({
-    users,
+    users: sorted_user,
   });
 };
 
