@@ -1,7 +1,6 @@
 import { useFetcher, useLoaderData } from "@remix-run/react";
 import React from "react";
 import Papa from "papaparse";
-import { set } from "nprogress";
 
 type uploaddata = { batch: number; original_text: string; version: string };
 
@@ -70,7 +69,6 @@ function UploadText() {
       }
     }
   };
-
   const handleUpload = () => {
     if (csvData?.length < 1) return null;
     const value = JSON.stringify(csvData);
@@ -92,6 +90,8 @@ function UploadText() {
       reset();
     }
   };
+  if (!lastbatch) return null;
+
   return (
     <div className="float-right mb-2 flex gap-3 items-center">
       {dataUpload.data?.error && (

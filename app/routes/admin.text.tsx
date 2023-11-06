@@ -16,39 +16,33 @@ export const loader: LoaderFunction = async ({ request }) => {
   let skip = (currentPage - 1) * PER_PAGE;
 
   if (!session) return redirect("/error");
-  const [texts, user, lastbatch, count] = await db.$transaction([
-    db.text.findMany({
-      select: {
-        version: true,
-        category: true, // Include category in the query
-      },
-      orderBy: {
-        updatedAt: "desc",
-      },
-      distinct: ["version"],
-      take: PER_PAGE,
-      skip,
-    }),
-    db.user.findUnique({
-      where: { username: session },
-      select: {
-        id: true,
-        role: true,
-        username: true,
-      },
-    }),
-    db.text.findFirst({
-      select: {
-        batch: true,
-      },
-      orderBy: {
-        batch: "desc",
-      },
-    }),
-    db.text.findMany({
-      distinct: ["version"],
-    }),
-  ]);
+
+  let user = await db.user.findUnique({
+    where: { username: session },
+    select: {
+      id: true,
+      role: true,
+      username: true,
+    },
+  });
+
+  const texts = await db.text.findMany({
+    select: {
+      version: true,
+      batch: true,
+      category: true, // Include category in the query
+    },
+    orderBy: {
+      batch: "desc",
+    },
+    distinct: ["version"],
+    take: PER_PAGE,
+    skip,
+  });
+  const lastbatch = currentPage === 1 ? texts[0].batch : null;
+  const count = await db.text.findMany({
+    distinct: ["version"],
+  });
   return json({
     user,
     texts,

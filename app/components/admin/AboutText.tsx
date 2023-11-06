@@ -182,7 +182,7 @@ function TextSettings({ text }: { text: Text_Props }) {
 }
 
 function PaginationContainer() {
-  const { count } = useLoaderData();
+  let { count, texts } = useLoaderData();
   const finalPage = Math.ceil(count / PER_PAGE);
 
   return (
@@ -192,6 +192,9 @@ function PaginationContainer() {
         pageParam="page"
         className="w-full mt-3"
       />
+      <span>
+        displaying {texts.length} item(s) of {count}
+      </span>
     </div>
   );
 }
