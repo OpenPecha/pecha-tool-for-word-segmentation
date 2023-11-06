@@ -1,9 +1,4 @@
-import {
-  useFetcher,
-  useLoaderData,
-  Await,
-  useSearchParams,
-} from "@remix-run/react";
+import { useFetcher, useLoaderData } from "@remix-run/react";
 import React, { useEffect, useState, Suspense } from "react";
 import { BiSolidCloudDownload } from "react-icons/bi/index.js";
 import { downloadJsonlFile } from "~/lib/downloadfile";

@@ -40,9 +40,10 @@ export const loader: LoaderFunction = async ({ request }) => {
     skip,
   });
   const lastbatch = currentPage === 1 ? texts[0].batch : null;
-  const count = await db.text.findMany({
-    distinct: ["version"],
+  const count = await db.text.groupBy({
+    by: ["version"],
   });
+  console.log(count);
   return json({
     user,
     texts,

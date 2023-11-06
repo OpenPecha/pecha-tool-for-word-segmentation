@@ -1,26 +1,18 @@
-import { PER_PAGE } from "~/components/admin/AboutText";
 import { db } from "~/service/db.server";
 
 export const getAllUniqueBatches = async (category: string[]) => {
   try {
-    const texts = await db.text.findMany({
+    const texts = await db.text.groupBy({
+      by: ["batch"],
       where: {
         category: { in: category },
-      },
-      select: {
-        batch: true,
       },
       orderBy: {
         batch: "asc",
       },
     });
-
-    // Extracting the batch numbers
     const batches = texts.map((text) => text.batch);
-
-    // Getting unique batch numbers
-    const uniqueBatches = [...new Set(batches)];
-    return uniqueBatches;
+    return batches;
   } catch (error) {
     console.error("An error occurred while fetching unique batches:", error);
     throw error;
@@ -33,15 +25,14 @@ export const getAllAssignedBatches = async () => {
       select: {
         assigned_batch: true,
       },
+      distinct: ["assigned_batch"],
     });
 
     // Extracting the assigned batches
     const allBatches = users.flatMap((user) => user.assigned_batch);
 
     // Getting unique batch numbers
-    const uniqueAssignedBatches = [...new Set(allBatches)];
-
-    return uniqueAssignedBatches;
+    return allBatches;
   } catch (error) {
     console.error("An error occurred while fetching assigned batches:", error);
     throw error;
@@ -56,7 +47,11 @@ export const getUnassignedBatch = async (category: string[]) => {
     // Finding the batches that are not assigned
     const unassignedBatches = allBatches
       .filter((batch) => !assignedBatches.includes(batch))
-      .sort((a, b) => parseInt(a) - parseInt(b));
+      .sort((a, b) => {
+        if (typeof a === "string" && typeof b === "string")
+          return parseInt(a) - parseInt(b);
+        return 0;
+      });
 
     return unassignedBatches[0];
   } catch (error) {

@@ -1,4 +1,3 @@
-import { Status } from "@prisma/client";
 import { db } from "~/service/db.server";
 import { getUnassignedBatch } from "./group.server";
 
@@ -54,7 +53,7 @@ export async function checkAndAssignBatch(userId: string) {
     // 3. Assign the batch to the user
     if (!batchToAssign) return null;
     if (!user?.assigned_batch?.includes(batchToAssign)) {
-      const updatedUser = await db.user.update({
+      await db.user.update({
         where: { id: userId },
         data: {
           assigned_batch: {
@@ -139,32 +138,6 @@ export async function rejectText(id: number, userId: string) {
   });
   return text;
 }
-export async function removeRejectText(
-  id: number,
-  userId: string,
-  status: Status
-) {
-  let text = db.text.update({
-    where: {
-      id,
-    },
-    data: {
-      status,
-      rejected_by: { disconnect: { id: userId } },
-    },
-  });
-  let user = db.user.update({
-    where: {
-      id: userId,
-    },
-    data: {
-      text: {
-        connect: { id },
-      },
-    },
-  });
-  return text;
-}
 
 export function saveText(
   id: number,
@@ -207,41 +180,6 @@ export function saveText(
   }
 }
 
-export async function getAprovedBatch() {
-  let data = await db.text.findMany({
-    select: {
-      batch: true,
-    },
-  });
-  const uniqueGroups = new Set();
-  const result = {};
-  data.forEach((item) => {
-    uniqueGroups.add(item.batch);
-  });
-  let text_group = await db.text.findMany({
-    where: {
-      batch: { in: Array.from(uniqueGroups) },
-    },
-    select: {
-      id: true,
-      status: true,
-      batch: true,
-      ignored_by: true,
-      reviewed: true,
-    },
-  });
-  for (const item of uniqueGroups) {
-    let text = text_group.filter((t) => t.batch === item);
-    let approved = text.every((item) => item.status === "APPROVED");
-    let reviewed = text.every((item) => item.reviewed === true);
-    let rejected = text.some((item) => item.status === "REJECTED");
-
-    result[item] = { approved, rejected, reviewed };
-  }
-
-  return result;
-}
-
 export async function updateTextRejectCount(id: number) {
   try {
     let text = await db.text.update({
@@ -277,15 +215,4 @@ export async function deleteTextByVersion(version: string) {
   } catch (e) {
     throw new Error(e + "cannot delete");
   }
-}
-export async function getLastBatch() {
-  let batch = await db.text.findFirst({
-    select: {
-      batch: true,
-    },
-    orderBy: {
-      batch: "desc",
-    },
-  });
-  return batch?.batch || 0;
 }

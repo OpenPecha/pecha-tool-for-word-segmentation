@@ -14,6 +14,7 @@ export const createUserIfNotExists = async (username: string) => {
       },
       text: {
         where: { reviewed: { not: true } },
+        orderBy: { id: "desc" },
       },
       categories: true,
       allow_assign: true,
@@ -236,31 +237,6 @@ async function areAllTextsIgnoredOrReviewed(userId: string, batchId: number) {
   return allIgnoredOrReviewed;
 }
 
-export async function remainingTextToApproved(userId: string) {
-  let remains = await db.user.findUnique({
-    where: { id: userId },
-    select: { assigned_batch: true },
-  });
-  let lastbatch = remains?.assigned_batch.at(-1);
-  let text = await db.text.findMany({
-    where: {
-      batch: lastbatch,
-    },
-    select: { id: true, status: true, reviewed: true },
-  });
-  let remaining_count = text.filter((t) => t.status !== "APPROVED").length;
-  let not_reviewed_count = text.filter((t) => t.reviewed === false).length;
-
-  return { remaining_count, not_reviewed_count };
-}
-
-export async function getUserById(id: string | null) {
-  if (id === null) return null;
-  let item = await db.user.findUnique({
-    where: { id },
-  });
-  return item;
-}
 export async function updateUserRole(id: string, role: Role) {
   let item = await db.user.update({
     where: { id },
