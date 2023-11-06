@@ -5,8 +5,7 @@ import {
   redirect,
 } from "@remix-run/node";
 import AboutText, { PER_PAGE } from "~/components/admin/AboutText";
-import { getGroupInfo, getUniqueTextsGroup } from "~/model/group.server";
-import { getLastBatch } from "~/model/text.server";
+import { getGroupInfo } from "~/model/group.server";
 import { db } from "~/service/db.server";
 
 export const loader: LoaderFunction = async ({ request }) => {
@@ -17,8 +16,19 @@ export const loader: LoaderFunction = async ({ request }) => {
   let skip = (currentPage - 1) * PER_PAGE;
 
   if (!session) return redirect("/error");
-  const [texts, user, lastbatch, count] = await Promise.all([
-    getUniqueTextsGroup(skip),
+  const [texts, user, lastbatch, count] = await db.$transaction([
+    db.text.findMany({
+      select: {
+        version: true,
+        category: true, // Include category in the query
+      },
+      orderBy: {
+        updatedAt: "desc",
+      },
+      distinct: ["version"],
+      take: PER_PAGE,
+      skip,
+    }),
     db.user.findUnique({
       where: { username: session },
       select: {
@@ -27,7 +37,14 @@ export const loader: LoaderFunction = async ({ request }) => {
         username: true,
       },
     }),
-    getLastBatch(),
+    db.text.findFirst({
+      select: {
+        batch: true,
+      },
+      orderBy: {
+        batch: "desc",
+      },
+    }),
     db.text.findMany({
       distinct: ["version"],
     }),

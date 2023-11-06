@@ -68,23 +68,6 @@ export const getUnassignedBatch = async (category: string[]) => {
   }
 };
 
-export const getUniqueTextsGroup = async (skip: number) => {
-  let take = PER_PAGE;
-  const textRecords = await db.text.findMany({
-    select: {
-      version: true,
-      category: true, // Include category in the query
-    },
-    orderBy: {
-      updatedAt: "desc",
-    },
-    distinct: ["version"],
-    take,
-    skip,
-  });
-  return textRecords;
-};
-
 export const getGroupInfo = async (version: string) => {
   const textRecords = await db.text.findMany({
     where: {
