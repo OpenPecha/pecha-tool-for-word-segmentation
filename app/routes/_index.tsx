@@ -36,9 +36,9 @@ export const loader: LoaderFunction = async ({ request }) => {
         nickname: user.nickname,
         picture: user.picture,
         id: user.id,
-        text: user.text,
         _count: user._count,
         rejected_list: user.rejected_list,
+        role: user.role,
       },
       history,
     };

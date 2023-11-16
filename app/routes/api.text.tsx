@@ -36,7 +36,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     },
   });
   return defer({
-    text: wait(1000).then(() => text),
+    text: wait(200).then(() => text),
   });
 };
 
