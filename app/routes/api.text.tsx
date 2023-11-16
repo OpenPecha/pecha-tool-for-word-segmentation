@@ -1,4 +1,9 @@
-import { ActionFunction, redirect } from "@remix-run/node";
+import {
+  ActionFunction,
+  LoaderFunction,
+  defer,
+  redirect,
+} from "@remix-run/node";
 import {
   changeCategory,
   deleteTextByVersion,
@@ -7,6 +12,33 @@ import {
   updateTextRejectCount,
 } from "~/model/text.server";
 import { updateUserAssign } from "~/model/user.server";
+import { db } from "~/service/db.server";
+const wait = (ms: number) => new Promise((res) => setTimeout(res, ms));
+export const loader: LoaderFunction = async ({ request }) => {
+  let url = new URL(request.url);
+  let session = url.searchParams.get("session");
+  if (!session) redirect("https://pecha.tools");
+  let text = db.user.findUnique({
+    where: { username: session! },
+    select: {
+      rejected_list: {
+        select: { id: true },
+      },
+      text: {
+        where: { reviewed: { not: true } },
+        orderBy: { id: "desc" },
+        select: {
+          id: true,
+          status: true,
+          reviewed: true,
+        },
+      },
+    },
+  });
+  return defer({
+    text: wait(1000).then(() => text),
+  });
+};
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
@@ -33,7 +65,7 @@ export const action: ActionFunction = async ({ request }) => {
     if (history) {
       return redirect(`/?session=${session}`);
     }
-    return text;
+    return { status: "ok" };
   }
   if (request.method === "PATCH") {
     const id = formData.get("id") as string;
@@ -51,7 +83,6 @@ export const action: ActionFunction = async ({ request }) => {
     if (action === "change_category") {
       const category = formData.get("category") as string;
       const version = formData.get("version") as string;
-      console.log(category, version);
       let text = await changeCategory(version, category);
       return text;
     }

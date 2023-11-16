@@ -15,7 +15,7 @@ function EditorContainer({ editor, html }: { editor: Editor; html: string }) {
     const locationText = e.target.classList;
     const selection = e.target.innerText;
     const spaceToAddLocation =
-      parseInt(locationText[1].replace("s-", "")) + selection.length;
+      parseInt(locationText[1]?.replace("s-", "")) + selection.length;
     if (modifiedContent[spaceToAddLocation] === " ") {
       modifiedContent =
         modifiedContent.slice(0, spaceToAddLocation) +
@@ -67,7 +67,7 @@ function EditorContainer({ editor, html }: { editor: Editor; html: string }) {
     onSingleClick: handleSingleClick,
     onDoubleClick: handleDoubleClick,
     ref: buttonRef,
-    latency: 200,
+    latency: 250,
   });
 
   if (!editor) return;

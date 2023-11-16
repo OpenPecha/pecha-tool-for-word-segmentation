@@ -15,6 +15,11 @@ export const createUserIfNotExists = async (username: string) => {
       text: {
         where: { reviewed: { not: true } },
         orderBy: { id: "desc" },
+        select: {
+          id: true,
+          status: true,
+          reviewed: true,
+        },
       },
       categories: true,
       allow_assign: true,
@@ -24,6 +29,8 @@ export const createUserIfNotExists = async (username: string) => {
       picture: true,
       id: true,
       username: true,
+      assigned_batch: true,
+      ignored_list: true,
     },
   });
   if (!user) {

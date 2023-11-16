@@ -1,5 +1,11 @@
-import { Link, NavLink, useNavigate } from "@remix-run/react";
-import { useState } from "react";
+import {
+  Link,
+  NavLink,
+  useFetcher,
+  useNavigate,
+  Await,
+} from "@remix-run/react";
+import { useState, useEffect, Suspense } from "react";
 import TextInfo from "./TextInfo";
 import { HistoryItem } from "./History";
 import { Cross, Crossburger, Hamburger, Tick } from "../assets/svgs";
@@ -17,11 +23,16 @@ type userType = {
 };
 
 function Sidebar({ user, text, history }: userType) {
+  let fetcher = useFetcher();
+  useEffect(() => {
+    fetcher.load("/api/text?session=" + user?.username);
+  }, [user?.username, text.id]);
   let [openMenu, setOpenMenu] = useState(false);
   let navigate = useNavigate();
   const handleDashboradLink = () => {
     navigate(`/admin/user?session=${user?.username}`);
   };
+  if (!fetcher.data) return null;
   return (
     <div className="flex flex-col border-r">
       <div className=" flex px-2 py-3 capitalize bg-white dark:text-white dark:bg-gray-600 text-lg font-semibold items-center  gap-2 ">
@@ -53,31 +64,42 @@ function Sidebar({ user, text, history }: userType) {
           <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
           <TextInfo>Reviewed : {user?._count?.text}</TextInfo>
         </div>
+
         <div className="flex-1 border-t">
           <div className="text-sm mb-2 font-bold pl-2">History</div>
           <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
-            {user?.rejected_list?.map((text: historyText) => (
-              <HistoryItem
-                user={user}
-                id={text?.id}
-                key={text.id + "-rejected"}
-                onClick={() => setOpenMenu(false)}
-                icon={<Cross />}
-              />
-            ))}
-            {user?.text?.map((text: string) => (
-              <HistoryItem
-                user={user}
-                id={parseInt(text?.id)}
-                key={text?.id + "-accepted"}
-                onClick={() => setOpenMenu(false)}
-                icon={
-                  <div className="flex items-center justify-between flex-1">
-                    <Tick />
-                  </div>
-                }
-              />
-            ))}
+            <Suspense fallback={<div>Loading...</div>}>
+              <Await resolve={fetcher.data?.text}>
+                {(resolvedValue) => {
+                  return (
+                    <>
+                      {resolvedValue.rejected_list?.map((text: historyText) => (
+                        <HistoryItem
+                          user={user}
+                          id={text?.id}
+                          key={text.id + "-rejected"}
+                          onClick={() => setOpenMenu(false)}
+                          icon={<Cross />}
+                        />
+                      ))}
+                      {resolvedValue.text?.map((text: string) => (
+                        <HistoryItem
+                          user={user}
+                          id={parseInt(text?.id)}
+                          key={text?.id + "-accepted"}
+                          onClick={() => setOpenMenu(false)}
+                          icon={
+                            <div className="flex items-center justify-between flex-1">
+                              <Tick />
+                            </div>
+                          }
+                        />
+                      ))}
+                    </>
+                  );
+                }}
+              </Await>
+            </Suspense>
           </div>
         </div>
       </div>

@@ -22,7 +22,7 @@ model User {
   ignored_list   Text[]   @relation("UserIgnoredText")
   reviewed_list  Text[]  @relation("UserReviewedText")
   annotator_list User[]  @relation("UserReviewer")
-  assigned_batch Int[]    @default([])
+  assigned_batch Int[]     @default([])
   role           Role     @default(ANNOTATOR)
   reviewer       User?   @relation("UserReviewer", fields: [reviewer_id ], references: [id] )
   reviewer_id    String?

@@ -18,12 +18,6 @@ import drawwerStyle from "react-modern-drawer/dist/index.css";
 import NProgress from "nprogress";
 import nProgressStyles from "nprogress/nprogress.css";
 
-export const loader: LoaderFunction = async ({ request }) => {
-  let url = new URL(request.url);
-  let session = url.searchParams.get("session") as string;
-
-  return { session };
-};
 export const links: LinksFunction = () => [
   { rel: "stylesheet", href: tailwindStyle },
   { rel: "stylesheet", href: globalStyle },
@@ -32,8 +26,6 @@ export const links: LinksFunction = () => [
 ];
 
 export default function App() {
-  const { session } = useLoaderData();
-
   let transition = useNavigation();
 
   let fetchers = useFetchers();

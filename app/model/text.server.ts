@@ -1,21 +1,13 @@
 import { db } from "~/service/db.server";
 import { getUnassignedBatch } from "./group.server";
 
-export async function checkAndAssignBatch(userId: string) {
+export async function checkAndAssignBatch(user: any) {
+  if (!user) return null;
+
   try {
     let batchToAssign = null;
     // 1. Retrieve the user's current assigned batches (if any)
-    const user = await db.user.findUnique({
-      where: { id: userId },
-      select: {
-        username: true,
-        assigned_batch: true,
-        ignored_list: true,
-        categories: true,
-      },
-    });
     let assigned_batch = user?.assigned_batch;
-    if (!user) return null;
     if (assigned_batch?.length === 0) {
       batchToAssign = await getUnassignedBatch(user.categories);
     } else {
@@ -52,16 +44,7 @@ export async function checkAndAssignBatch(userId: string) {
     }
     // 3. Assign the batch to the user
     if (!batchToAssign) return null;
-    if (!user?.assigned_batch?.includes(batchToAssign)) {
-      await db.user.update({
-        where: { id: userId },
-        data: {
-          assigned_batch: {
-            set: [...(user?.assigned_batch || []), batchToAssign],
-          },
-        },
-      });
-    }
+    await assignBatchToUser(user, batchToAssign);
     return batchToAssign;
   } catch (error) {
     console.error(
@@ -72,7 +55,20 @@ export async function checkAndAssignBatch(userId: string) {
   }
 }
 
-export async function getTextToDisplay(userId: string, history: any) {
+async function assignBatchToUser(user: any, batchToAssign: number) {
+  if (!user.assigned_batch.includes(batchToAssign)) {
+    await db.user.update({
+      where: { id: user.id },
+      data: {
+        assigned_batch: {
+          set: [...(user.assigned_batch || []), batchToAssign],
+        },
+      },
+    });
+  }
+}
+
+export async function getTextToDisplay(user: any, history: any) {
   if (history) {
     const text = await db.text.findUnique({
       where: { id: parseInt(history) },
@@ -87,7 +83,7 @@ export async function getTextToDisplay(userId: string, history: any) {
       status: text?.status,
     };
   }
-  let batch = await checkAndAssignBatch(userId);
+  let batch = await checkAndAssignBatch(user);
 
   // remove batch if all the text in it is reviewed
 

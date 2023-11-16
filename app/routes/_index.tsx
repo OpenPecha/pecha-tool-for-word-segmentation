@@ -27,9 +27,21 @@ export const loader: LoaderFunction = async ({ request }) => {
     let user = await createUserIfNotExists(session);
     let text = null;
     if (user.allow_assign) {
-      text = await getTextToDisplay(user?.id, history);
+      text = await getTextToDisplay(user, history);
     }
-    return { text, user, history };
+    return {
+      text,
+      user: {
+        username: user.username,
+        nickname: user.nickname,
+        picture: user.picture,
+        id: user.id,
+        text: user.text,
+        _count: user._count,
+        rejected_list: user.rejected_list,
+      },
+      history,
+    };
   }
 };
 
@@ -73,7 +85,6 @@ export default function Index() {
       { id, userId: user.id, _action: "reject" },
       { method: "PATCH", action: "/api/text" }
     );
-    setActiveTime(0);
   };
 
   let isButtonDisabled = !text || text.reviewed || fetcher.state !== "idle";
