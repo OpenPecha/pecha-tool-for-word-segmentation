@@ -44,7 +44,7 @@ function UserDetail() {
   );
   useEffect(() => {
     setSelectedId(currentText?.id);
-  }, [currentText?.id]);
+  }, [currentText?.id, fetcher.data]);
   useEffect(() => {
     if (!annotator) return;
     let display = selectedId
@@ -81,7 +81,6 @@ function UserDetail() {
       { id: selectedId!, userId: annotator.id, _action: "reject", admin: true },
       { method: "PATCH", action: "/api/text" }
     );
-    text_reviewed();
   };
   let isButtonDisabled =
     editor?.getText()!.length < 1 || fetcher.state !== "idle";

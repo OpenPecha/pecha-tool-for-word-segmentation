@@ -39,8 +39,7 @@ export const loader: LoaderFunction = async ({ request }) => {
         _count: user._count,
         rejected_list: user.rejected_list,
         role: user.role,
-        approved_count:
-          user.text.length - user.rejected_list.length - user._count.text,
+        approved_count: user.text.length,
       },
     };
   }
