@@ -19,14 +19,13 @@ export type historyText = {
 type userType = {
   user: User & { text: any[]; rejected_list: any[] };
   text: Text;
-  history: string[];
 };
 
-function Sidebar({ user, text, history }: userType) {
+function Sidebar({ user, text }: userType) {
   let fetcher = useFetcher();
   useEffect(() => {
-    fetcher.load("/api/text?session=" + user?.username);
-  }, [text.id]);
+    if (text?.id) fetcher.load("/api/text?session=" + user?.username);
+  }, [text?.id]);
   let [openMenu, setOpenMenu] = useState(false);
   let navigate = useNavigate();
   const handleDashboradLink = () => {
@@ -67,7 +66,7 @@ function Sidebar({ user, text, history }: userType) {
         <div className="flex-1 border-t">
           <div className="text-sm mb-2 font-bold pl-2">History</div>
           <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
-            {!fetcher.data && <div>Loading...</div>}
+            {text?.id && !fetcher.data && <div>Loading...</div>}
             <Suspense fallback={<div>Loading...</div>}>
               <Await
                 resolve={fetcher.data?.text}
@@ -81,7 +80,7 @@ function Sidebar({ user, text, history }: userType) {
                           <HistoryItem
                             user={user}
                             id={text?.id}
-                            key={text.id + "-rejected"}
+                            key={text?.id + "-rejected"}
                             onClick={() => setOpenMenu(false)}
                             icon={<Cross />}
                           />

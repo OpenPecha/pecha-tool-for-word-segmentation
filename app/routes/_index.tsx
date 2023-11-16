@@ -40,7 +40,6 @@ export const loader: LoaderFunction = async ({ request }) => {
         rejected_list: user.rejected_list,
         role: user.role,
       },
-      history,
     };
   }
 };
@@ -59,7 +58,6 @@ export const meta = () => {
 export default function Index() {
   let fetcher = useFetcher();
   const { user, text, error } = useLoaderData();
-  let [history, setHistory] = useState<string[]>([]);
   let [searchParams] = useSearchParams();
   let id = text?.id;
   let textContent = text?.original_text ?? "";
@@ -74,7 +72,6 @@ export default function Index() {
       { method: "POST", action: "/api/text" }
     );
     if (searchParams.get("history")) return;
-    setHistory([...history, id]);
   };
   let undoTask = async () => {
     let temptext = checkUnknown(insertHTMLonText(text?.original_text));
@@ -93,7 +90,7 @@ export default function Index() {
 
   return (
     <div className="flex flex-col md:flex-row">
-      <Sidebar user={user} text={text} history={history} />
+      <Sidebar user={user} text={text} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[3vh] ">
         {user?.rejected_list?.length > 0 && (

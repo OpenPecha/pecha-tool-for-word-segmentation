@@ -1,4 +1,4 @@
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 interface HistoryItemProps {
   id: number;
   user: any;
@@ -14,7 +14,8 @@ interface AdminHistoryItemProps {
   selectedId: number;
 }
 function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
-  const { history } = useLoaderData();
+  const [searchParams] = useSearchParams();
+  let history = searchParams.get("history");
   if (disabled)
     return (
       <div className="px-2 dark:text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800">
