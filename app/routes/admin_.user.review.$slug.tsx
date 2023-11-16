@@ -60,7 +60,7 @@ function UserDetail() {
     }
   }, [selectedId]);
   let newText = insertHTMLonText(content);
-  let editor = useEditorTiptap(newText);
+  let editor = useEditorTiptap();
 
   if (!editor) return null;
 
@@ -111,7 +111,7 @@ function UserDetail() {
               </div>
               {!editor && <div>loading...</div>}
 
-              <EditorContainer editor={editor!} />
+              <EditorContainer editor={editor!} html={newText} />
             </div>
             <div className="flex gap-2 fixed bottom-0 justify-center">
               <Button

@@ -1,5 +1,5 @@
-import { Link, useLoaderData, useRevalidator } from "@remix-run/react";
-import { useState, useEffect } from "react";
+import { Link, useLoaderData } from "@remix-run/react";
+import { useState } from "react";
 import { historyText } from "./Sidebar";
 import TextInfo from "./TextInfo";
 import { AdminHistoryItem } from "./History";
@@ -65,7 +65,9 @@ function AdminHistorySidebar({
           <TextInfo>Reviewed :{user?._count.text}</TextInfo>
         </div>
         <div className="flex-1">
-          <div className="text-sm mb-2 font-bold">History</div>
+          <div className="text-sm mb-2 font-bold">
+            History total:{user.text.length}
+          </div>
           <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
             {user &&
               user?.text?.sort(sortUpdate_reviewed).map((text: historyText) => (

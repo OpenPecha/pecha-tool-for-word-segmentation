@@ -9,7 +9,7 @@ function EditorContainer({ editor, html }: { editor: Editor; html: string }) {
     if (editor) {
       editor?.commands.setContent(html);
     }
-  }, []);
+  }, [html]);
   const handleSingleClick = (e: any) => {
     let modifiedContent = editor?.getText();
     const locationText = e.target.classList;

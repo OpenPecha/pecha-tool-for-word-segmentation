@@ -17,7 +17,6 @@ import { createUserIfNotExists } from "~/model/user.server";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import ActiveUser from "~/components/ActiveUser";
-import { ClientOnly } from "remix-utils/client-only";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");

@@ -79,11 +79,12 @@ export const getUser = async (username: string) => {
       where: { username },
       include: {
         text: {
-          where: { NOT: { reviewed: true } },
           select: {
             id: true,
+            reviewed: true,
             modified_text: true,
           },
+          orderBy: { id: "desc" },
         },
         rejected_list: { select: { id: true } }, // Select specific fields or all (undefined)
         _count: {
