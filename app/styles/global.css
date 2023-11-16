@@ -19,11 +19,11 @@
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
 }
-
 .space {
+  pointer-events: none;
   background-color: hsla(39, 100%, 68%, 1);
-  word-spacing: 0.5ch;
-  margin-inline: 3px;
+  word-spacing: 1ch;
+  margin-inline: 8px;
   cursor: pointer;
   display: inline-block;
   transform: translateY(17px);
