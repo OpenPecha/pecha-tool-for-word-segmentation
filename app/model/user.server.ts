@@ -10,7 +10,13 @@ export const createUserIfNotExists = async (username: string) => {
     select: {
       rejected_list: { select: { id: true, reviewed: true, batch: true } },
       _count: {
-        select: { text: { where: { reviewed: true } } }, //only count reviewed text
+        select: {
+          text: {
+            where: {
+              reviewed: true,
+            },
+          },
+        }, //only count reviewed text
       },
       text: {
         where: { reviewed: { not: true } },
@@ -33,6 +39,7 @@ export const createUserIfNotExists = async (username: string) => {
       ignored_list: true,
     },
   });
+  console.log(user?._count);
   if (!user) {
     user = await db.user.create({
       data: {

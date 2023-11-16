@@ -58,7 +58,7 @@ function Sidebar({ user, text }: userType) {
           <TextInfo>User : {user?.username.split("@")[0]}</TextInfo>
           <TextInfo>text id :{text?.id}</TextInfo>
           <TextInfo>Batch : {text?.batch}</TextInfo>
-          <TextInfo>Approved : {user?.text?.length}</TextInfo>
+          <TextInfo>Approved : {user?.approved_count}</TextInfo>
           <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
           <TextInfo>Reviewed : {user?._count?.text}</TextInfo>
         </div>
