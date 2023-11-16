@@ -11,6 +11,7 @@ import { updateUserAssign } from "~/model/user.server";
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
   let headerUrl = request.headers.get("referer") as string;
+
   let url = new URL(headerUrl);
   let session = url.searchParams.get("session") as string;
   let history = url.searchParams.get("history");

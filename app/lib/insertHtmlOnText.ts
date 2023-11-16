@@ -2,7 +2,8 @@ import checkUnknown from "./checkUnknown";
 import { replaceSpacesWithHTMLTag } from "./utils";
 
 function insertHTMLonText(text: string) {
-  let split = splitText(text);
+  var outputText = text.replace(/  /g, " ");
+  let split = splitText(outputText);
   let length = 0;
   let textHTML = "";
   split.forEach((word, index) => {
@@ -15,7 +16,7 @@ function insertHTMLonText(text: string) {
   });
   let newText = checkUnknown(textHTML);
 
-  return newText;
+  return newText.trim();
 }
 
 function splitText(text: string) {

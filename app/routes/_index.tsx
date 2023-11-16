@@ -1,6 +1,13 @@
 import { redirect, type LoaderFunction } from "@remix-run/node";
 import { useState } from "react";
-import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
+import {
+  useFetcher,
+  useLoaderData,
+  useSearchParams,
+  isRouteErrorResponse,
+  useRouteError,
+} from "@remix-run/react";
+
 import Button from "~/components/Button";
 import Editor from "~/components/Editor";
 import Sidebar from "~/components/Sidebar";
@@ -10,7 +17,7 @@ import { createUserIfNotExists } from "~/model/user.server";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import ActiveUser from "~/components/ActiveUser";
-
+import { ClientOnly } from "remix-utils/client-only";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -37,26 +44,24 @@ export const meta = () => {
     },
   ];
 };
+
 export default function Index() {
   let fetcher = useFetcher();
   const { user, text, error } = useLoaderData();
   let [history, setHistory] = useState<string[]>([]);
   let [searchParams] = useSearchParams();
   let id = text?.id;
-  let textContent = text?.original_text.trim() || "";
+  let textContent = text?.original_text ?? "";
   let html = insertHTMLonText(textContent);
-  let editor = useEditorTiptap(html);
-
-  const [activeTime, setActiveTime] = useState(0); // in sec
+  let editor = useEditorTiptap();
 
   let saveText = async () => {
-    let duration = activeTime;
+    let duration = document?.querySelector("#activeTime")?.innerHTML ?? 0;
     let modified_text = editor!.getText();
     fetcher.submit(
-      { id, modified_text, userId: user.id, duration },
+      { id, modified_text, userId: user.id, duration: duration },
       { method: "POST", action: "/api/text" }
     );
-    setActiveTime(0);
     if (searchParams.get("history")) return;
     setHistory([...history, id]);
   };
@@ -105,9 +110,7 @@ export default function Index() {
         ) : (
           <div className="fixed top-[120px] md:relative md:top-0 md:mt-20 shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2  pt-1 ">
-              {fetcher.state === "idle" && (
-                <ActiveUser active={activeTime} setActive={setActiveTime} />
-              )}
+              {fetcher.state === "idle" && <ActiveUser />}
               {fetcher.state !== "idle" && (
                 <div className=" flex justify-center items-center">
                   saving...
@@ -119,7 +122,7 @@ export default function Index() {
                 <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-gray-900 p-3"></div>
               </div>
             ) : (
-              <Editor editor={editor!} />
+              <Editor editor={editor!} html={html} />
             )}
           </div>
         )}
@@ -152,4 +155,30 @@ export default function Index() {
       </div>
     </div>
   );
+}
+
+export function ErrorBoundary() {
+  const error = useRouteError();
+
+  if (isRouteErrorResponse(error)) {
+    return (
+      <div>
+        <h1>
+          {error.status} {error.statusText}
+        </h1>
+        <p>{error.data}</p>
+      </div>
+    );
+  } else if (error instanceof Error) {
+    return (
+      <div>
+        <h1>Error</h1>
+        <p>{error.message}</p>
+        <p>The stack trace is:</p>
+        <pre>{error.stack}</pre>
+      </div>
+    );
+  } else {
+    return <h1>Unknown Error</h1>;
+  }
 }

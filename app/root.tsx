@@ -10,7 +10,7 @@ import {
   useLoaderData,
   useNavigation,
 } from "@remix-run/react";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo } from "react";
 import tailwindStyle from "./styles/tailwind.css";
 import globalStyle from "./styles/global.css";
 import drawwerStyle from "react-modern-drawer/dist/index.css";

@@ -1,6 +1,8 @@
 import { useIdle } from "@uidotdev/usehooks";
-import { useEffect } from "react";
-export default function ActiveUser({ active, setActive }) {
+import { useEffect, useState } from "react";
+export default function ActiveUser() {
+  const [active, setActive] = useState(0); // in sec
+
   const idle = useIdle(5000);
   let timer = null;
   useEffect(() => {
@@ -12,5 +14,9 @@ export default function ActiveUser({ active, setActive }) {
     }
     return () => clearInterval(timer);
   }, [idle]);
-  return <div>Status: {!idle ? active + " Sec" : "idle"}</div>;
+  return (
+    <div>
+      Status(s): {!idle ? <span id="activeTime">{active}</span> : "idle"}
+    </div>
+  );
 }
