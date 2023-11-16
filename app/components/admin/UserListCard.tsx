@@ -49,10 +49,10 @@ const UserListCard = () => {
             value={selectedReviewer}
           >
             <option value={"All"}>All</option>
-            {reviewers.map((reviewer: User) => (
+            {reviewers.map((reviewer: User, index: number) => (
               <option
                 value={reviewer.username}
-                key={reviewer.id + "-key-selection"}
+                key={reviewer.id + "-key-" + index}
               >
                 {reviewer.username}
               </option>
@@ -62,7 +62,7 @@ const UserListCard = () => {
       )}
       <div>
         {list.map((user: any) => (
-          <EachUser key={user.id + "unique_key"} user={user} />
+          <EachUser user={user} />
         ))}
       </div>
     </div>
@@ -78,6 +78,7 @@ function EachUser({ user }) {
   if (!user) return null;
   return (
     <Link
+      key={user.id + "unique_key"}
       to={`/admin/user/${user.username}?session=` + current_user?.username}
       className={` cursor-pointer flex items-center gap-5 py-3 px-7.5 hover:bg-gray-3 dark:hover:bg-meta-4 hover:rounded-sm transition duration-300 ease-in-out hover:bg-green-300`}
     >

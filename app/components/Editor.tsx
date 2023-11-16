@@ -5,15 +5,19 @@ import useDoubleClick from "use-double-click";
 
 function EditorContainer({ editor, html }: { editor: Editor; html: string }) {
   const buttonRef = useRef(null);
+
   useEffect(() => {
     if (editor) {
       editor?.commands.setContent(html);
     }
   }, [html]);
+
   const handleSingleClick = (e: any) => {
     let modifiedContent = editor?.getText();
     const locationText = e.target.classList;
+
     const selection = e.target.innerText;
+    if (selection === " ") return null;
     const spaceToAddLocation =
       parseInt(locationText[1]?.replace("s-", "")) + selection.length;
     if (modifiedContent[spaceToAddLocation] === " ") {
@@ -33,7 +37,6 @@ function EditorContainer({ editor, html }: { editor: Editor; html: string }) {
     let modifiedContent = editor?.getText();
     const selection = e.target.innerText;
     const locationText = e.target.classList;
-
     const spaceToAddLocation =
       parseInt(locationText[1].replace("s-", "")) + selection.length;
     const condition = ["ར་", "ས་", "འི་", "།།", "།", "འང་"];
