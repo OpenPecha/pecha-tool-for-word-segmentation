@@ -77,38 +77,38 @@ export const Space = (setter) =>
           },
       };
     },
-    // addProseMirrorPlugins(this) {
-    //   return [
-    //     new Plugin({
-    //       props: {
-    //         handleClick: (view, pos, event) => {
-    //           const { schema, doc, tr } = view.state;
-    //           if (pos < 0 || pos > doc.content.size) {
-    //             return false;
-    //           }
-    //           const range = getMarkRange(doc.resolve(pos), schema.marks.Space);
-    //           if (!range) return false;
-    //           setter();
+    addProseMirrorPlugins(this) {
+      return [
+        new Plugin({
+          props: {
+            handleClick: (view, pos, event) => {
+              const { schema, doc, tr } = view.state;
+              if (pos < 0 || pos > doc.content.size) {
+                return false;
+              }
+              const range = getMarkRange(doc.resolve(pos), schema.marks.Space);
+              if (!range) return false;
+              setter();
 
-    //           const [$start, $end] = [
-    //             doc.resolve(range.from),
-    //             doc.resolve(range.to),
-    //           ];
-    //           view.dispatch(tr.setSelection(new TextSelection($start, $end)));
-    //           let content = this.editor.getText();
-    //           let modifiedContent =
-    //             content.substring(0, $start.pos - 1) +
-    //             content.substring($end.pos - 1);
-    //           let newText = insertHTMLonText(modifiedContent);
-    //           if (removeSpace(modifiedContent) === removeSpace(content)) {
-    //             this.editor.commands.setContent(newText);
-    //             this.editor.commands.unsetSpace();
-    //           }
-    //           return true;
-    //         },
-    //       },
-    //     }),
-    //   ];
-    // },
+              const [$start, $end] = [
+                doc.resolve(range.from),
+                doc.resolve(range.to),
+              ];
+              view.dispatch(tr.setSelection(new TextSelection($start, $end)));
+              let content = this.editor.getText();
+              let modifiedContent =
+                content.substring(0, $start.pos - 1) +
+                content.substring($end.pos - 1);
+              let newText = insertHTMLonText(modifiedContent);
+              if (removeSpace(modifiedContent) === removeSpace(content)) {
+                this.editor.commands.setContent(newText);
+                this.editor.commands.unsetSpace();
+              }
+              return true;
+            },
+          },
+        }),
+      ];
+    },
   });
 export declare const Highlight: Mark<optionType, any>;

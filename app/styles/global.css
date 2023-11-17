@@ -18,6 +18,10 @@
     user-select: none;
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   }
+  .seg {
+    line-height: 1.5rem;
+    font-size: large;
+  }
 }
 .space {
   pointer-events: none;

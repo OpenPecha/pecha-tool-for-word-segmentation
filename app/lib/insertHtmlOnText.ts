@@ -3,7 +3,7 @@ import { replaceSpacesWithHTMLTag } from "./utils";
 
 function insertHTMLonText(text: string) {
   var outputText = text.replace(/  /g, " ");
-  let split = splitText(outputText);
+  let split = splitText(outputText.trim());
   let length = 0;
   let textHTML = "";
   split.forEach((word, index) => {

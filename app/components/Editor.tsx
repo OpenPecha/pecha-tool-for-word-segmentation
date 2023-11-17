@@ -2,15 +2,19 @@ import { useEffect, memo, useRef, useCallback } from "react";
 import { EditorContent, Editor } from "@tiptap/react";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import useDoubleClick from "use-double-click";
+import { useLoaderData } from "@remix-run/react";
 
-function EditorContainer({ editor, html }: { editor: Editor; html: string }) {
+function EditorContainer({ editor }: { editor: Editor }) {
   const buttonRef = useRef(null);
-
+  const { text } = useLoaderData();
   useEffect(() => {
     if (editor) {
+      let textContent = text?.original_text ?? "";
+
+      let html = insertHTMLonText(textContent);
       editor?.commands.setContent(html);
     }
-  }, [html]);
+  }, [text]);
 
   const handleSingleClick = (e: any) => {
     let modifiedContent = editor?.getText();

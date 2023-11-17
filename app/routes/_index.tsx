@@ -61,8 +61,6 @@ export default function Index() {
   const { user, text, error } = useLoaderData();
   let [searchParams] = useSearchParams();
   let id = text?.id;
-  let textContent = text?.original_text ?? "";
-  let html = insertHTMLonText(textContent);
   let editor = useEditorTiptap();
 
   let saveText = async () => {
@@ -130,7 +128,7 @@ export default function Index() {
                 <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-gray-900 p-3"></div>
               </div>
             ) : (
-              <Editor editor={editor!} html={html} />
+              <Editor editor={editor!} />
             )}
           </div>
         )}
