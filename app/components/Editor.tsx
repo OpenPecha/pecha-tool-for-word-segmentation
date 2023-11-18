@@ -4,17 +4,19 @@ import insertHTMLonText from "~/lib/insertHtmlOnText";
 import useDoubleClick from "use-double-click";
 import { useLoaderData } from "@remix-run/react";
 
-function EditorContainer({ editor }: { editor: Editor }) {
+function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
   const buttonRef = useRef(null);
   const { text } = useLoaderData();
   useEffect(() => {
-    if (editor) {
+    if (editor && !html) {
       let textContent = text?.original_text ?? "";
-
       let html = insertHTMLonText(textContent);
       editor?.commands.setContent(html);
     }
-  }, [text]);
+    if (html) {
+      editor?.commands.setContent(html);
+    }
+  }, [text, html]);
 
   const handleSingleClick = (e: any) => {
     let modifiedContent = editor?.getText();
