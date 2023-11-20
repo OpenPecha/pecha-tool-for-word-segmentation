@@ -37,7 +37,11 @@ const Header = (props: {
         </div>
 
         <div className="hidden sm:block">
-          <Progress max={progress.total} current={progress.reviewed} />
+          <Progress
+            accepted={progress.accepted}
+            max={progress.total}
+            current={progress.reviewed}
+          />
         </div>
 
         <div className="flex items-center gap-3 2xsm:gap-7">
