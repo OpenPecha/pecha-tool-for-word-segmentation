@@ -1,5 +1,5 @@
 import { DataFunctionArgs, redirect } from "@remix-run/node";
-import { useFetcher } from "@remix-run/react";
+import { useFetcher, useSearchParams } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { useLoaderData } from "react-router";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
@@ -14,13 +14,30 @@ import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
-
+  let history = url.searchParams.get("adminhistory");
   const [user, annotator] = await Promise.all([
-    getUser(session!),
-    getUser(params.slug!),
+    await db.user.findUnique({
+      where: { username: session! },
+    }),
+    await db.user.findUnique({
+      where: { username: params.slug! },
+      include: {
+        text: {
+          select: {
+            id: true,
+            reviewed: true,
+          },
+          orderBy: { id: "desc" },
+        },
+        rejected_list: { select: { id: true } }, // Select specific fields or all (undefined)
+        _count: {
+          select: { text: { where: { reviewed: true } }, rejected_list: true },
+        },
+        reviewer: true,
+      },
+    }),
   ]);
   //check if user and admin are in same group
-
   if (annotator?.reviewer_id !== user?.id)
     return redirect("/?session=" + session);
 
@@ -32,34 +49,26 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     },
     orderBy: { id: "asc" },
   });
+  if (history) {
+    currentText = await db.text.findFirst({
+      where: {
+        id: parseInt(history),
+        modified_by_id: annotator?.id,
+      },
+    });
+  }
   return { user, annotator, currentText };
 };
 
 function UserDetail() {
   const fetcher = useFetcher();
+  const [searchParams] = useSearchParams();
+  let selectedId = parseInt(searchParams.get("adminhistory")!) ?? null;
   const { annotator, user, currentText } = useLoaderData() as any;
-  const [content, setContent] = useState("");
-  const [selectedId, setSelectedId] = useState<number | undefined>(
-    currentText?.id
-  );
-  useEffect(() => {
-    setSelectedId(currentText?.id);
-  }, [currentText?.id, fetcher.data]);
-  useEffect(() => {
-    if (!annotator) return;
-    let display = selectedId
-      ? annotator.text.find((d) => d.id === selectedId)
-      : annotator.text
-          .sort(sortUpdate_reviewed)
-          .find((d) => d.id === currentText?.id);
-    if (display) {
-      let show =
-        JSON.parse(display?.modified_text!)?.join(" ") ||
-        display?.original_text;
-      setContent(show);
-    }
-  }, [selectedId]);
-  let newText = insertHTMLonText(content);
+  let show =
+    (currentText && JSON.parse(currentText?.modified_text!)?.join(" ")) ||
+    currentText?.original_text;
+  let newText = currentText ? insertHTMLonText(show) : "";
   let editor = useEditorTiptap();
 
   if (!editor) return null;
@@ -67,7 +76,7 @@ function UserDetail() {
   let saveText = () => {
     fetcher.submit(
       {
-        id: selectedId!,
+        id: currentText.id!,
         modified_text: editor?.getText()!,
         userId: annotator.id,
         adminId: user?.id,
@@ -86,14 +95,10 @@ function UserDetail() {
     editor?.getText()!.length < 1 || fetcher.state !== "idle";
   return (
     <div className="flex flex-col md:flex-row">
-      <AdminHistorySidebar
-        user={annotator}
-        selectedId={selectedId!}
-        setSelectedId={setSelectedId}
-      />
+      <AdminHistorySidebar user={annotator} />
 
       <div className="flex-1 flex items-center flex-col md:mt-[10vh]">
-        {!currentText || !selectedId || !editor ? (
+        {!currentText || !editor ? (
           <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             Thank you . your work is complete ! 😊😊😊
           </div>

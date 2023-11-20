@@ -74,7 +74,7 @@ export const loader: LoaderFunction = async ({ request }) => {
         rejected_list: user.rejected_list,
         role: user.role,
         approved_count: user.text.length,
-        averageWordCount: wordCount._avg.word_count?.toFixed() ?? 0,
+        averageWordCount: Math.floor(wordCount?._avg?.word_count!) ?? 0,
       },
     };
   }

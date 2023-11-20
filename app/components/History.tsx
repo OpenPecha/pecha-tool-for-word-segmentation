@@ -11,7 +11,7 @@ interface AdminHistoryItemProps {
   onClick: () => void;
   icon: JSX.Element;
   reviewed: boolean;
-  selectedId: number;
+  selectedId: number | null;
 }
 function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
   const [searchParams] = useSearchParams();

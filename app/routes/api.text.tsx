@@ -47,6 +47,8 @@ export const action: ActionFunction = async ({ request }) => {
   let url = new URL(headerUrl);
   let session = url.searchParams.get("session") as string;
   let history = url.searchParams.get("history");
+  let adminhistory = url.searchParams.get("adminhistory");
+
   let admin_id = formData.get("adminId") as string;
   const action = formData.get("_action") as string;
 
@@ -64,6 +66,10 @@ export const action: ActionFunction = async ({ request }) => {
     );
     if (history) {
       return redirect(`/?session=${session}`);
+    }
+    if (adminhistory) {
+      let newURL = url.pathname + "?session=" + session;
+      return redirect(newURL);
     }
     return { status: "ok" };
   }

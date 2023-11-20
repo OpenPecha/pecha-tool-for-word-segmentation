@@ -1,4 +1,4 @@
-import { Link, useLoaderData } from "@remix-run/react";
+import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
 import { useState } from "react";
 import { historyText } from "./Sidebar";
 import TextInfo from "./TextInfo";
@@ -9,17 +9,12 @@ import { toolname } from "~/const";
 
 interface SidebarProps {
   user: any;
-  setSelectedId: (data: number | undefined) => void;
-  selectedId: number | undefined;
 }
 
-function AdminHistorySidebar({
-  user,
-  setSelectedId,
-  selectedId,
-}: SidebarProps) {
+function AdminHistorySidebar({ user }: SidebarProps) {
   const data = useLoaderData();
   const [openMenu, setOpenMenu] = useState(false);
+  const [searchParams, setSeachParams] = useSearchParams();
 
   const SidebarHeader = () => (
     <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden">
@@ -31,6 +26,7 @@ function AdminHistorySidebar({
       </div>
     </div>
   );
+  let selectedId = parseInt(searchParams.get("history")!) ?? null;
   return (
     <div className="flex flex-col">
       <div
@@ -76,11 +72,14 @@ function AdminHistorySidebar({
                   key={text.id + "-accepted"}
                   onClick={() => {
                     setOpenMenu(false);
-                    setSelectedId(text?.id);
+                    setSeachParams((p) => {
+                      p.set("adminhistory", text?.id);
+                      return p;
+                    });
                   }}
                   icon={<Tick />}
                   reviewed={text?.reviewed!}
-                  selectedId={selectedId!}
+                  selectedId={data?.currentText?.id}
                 />
               ))}
           </div>

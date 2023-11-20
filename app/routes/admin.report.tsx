@@ -36,7 +36,7 @@ export const loader = async ({ request }) => {
         text: {
           where: {
             reviewed: true,
-            updatedAt:
+            modified_on:
               startDate && endDate
                 ? startDate !== endDate
                   ? { gte: new Date(startDate), lte: new Date(endDate) }
