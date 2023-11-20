@@ -25,6 +25,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect("https://pecha.tools");
   } else {
     let user = await createUserIfNotExists(session);
+    console.log(user);
+
     let text = null;
     if (user.allow_assign) {
       text = await getTextToDisplay(user, history);
@@ -32,6 +34,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (!user.allow_assign && history) {
       text = await getTextToDisplay(user, history);
     }
+    console.log(text);
     return {
       text,
       user: {
