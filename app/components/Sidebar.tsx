@@ -24,8 +24,8 @@ type userType = {
 function Sidebar({ user, text }: userType) {
   let fetcher = useFetcher();
   useEffect(() => {
-    if (text?.id) fetcher.load("/api/text?session=" + user?.username);
-  }, [text?.id]);
+    fetcher.load("/api/text?session=" + user?.username);
+  }, [text?.id, user]);
   let [openMenu, setOpenMenu] = useState(false);
   let navigate = useNavigate();
   const handleDashboradLink = () => {

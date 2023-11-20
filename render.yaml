@@ -20,4 +20,4 @@ services:
 
 databases:
   - name: word-segmentation-pg
-    plan: starter
+    plan: standard

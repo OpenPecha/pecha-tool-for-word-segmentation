@@ -39,7 +39,6 @@ export const createUserIfNotExists = async (username: string) => {
       ignored_list: true,
     },
   });
-  console.log(user?._count);
   if (!user) {
     user = await db.user.create({
       data: {

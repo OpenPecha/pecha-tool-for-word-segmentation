@@ -43,7 +43,6 @@ export const loader: LoaderFunction = async ({ request }) => {
   const count = await db.text.groupBy({
     by: ["version"],
   });
-  console.log(count);
   return json({
     user,
     texts,

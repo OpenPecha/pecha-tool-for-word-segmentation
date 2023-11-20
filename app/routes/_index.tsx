@@ -29,6 +29,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (user.allow_assign) {
       text = await getTextToDisplay(user, history);
     }
+    if (!user.allow_assign && history) {
+      text = await getTextToDisplay(user, history);
+    }
     return {
       text,
       user: {
