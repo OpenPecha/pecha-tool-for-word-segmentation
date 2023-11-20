@@ -1,14 +1,15 @@
 type Props = {
   current: number;
   max: number;
+  accepted: number;
   showHeader?: boolean;
 };
 
-function Progress({ current, max, showHeader = true }: Props) {
+function Progress({ current, max, accepted, showHeader = true }: Props) {
   return (
     <div
-      className="tooltip tooltip-bottom flex flex-col"
-      data-tip={`${current} / ${max}`}
+      className="tooltip  tooltip-bottom flex flex-col"
+      data-tip={`accepted: ${accepted} / reviewed: ${current} / total: ${max}`}
     >
       {showHeader && <div className="self-start">Progress</div>}
       <progress

@@ -3,47 +3,43 @@ import { getUnassignedBatch } from "./group.server";
 
 export async function checkAndAssignBatch(user: any) {
   if (!user) return null;
-
   try {
-    let batchToAssign = null;
     // 1. Retrieve the user's current assigned batches (if any)
     let assigned_batch = user?.assigned_batch;
-    if (assigned_batch?.length === 0) {
-      batchToAssign = await getUnassignedBatch(user.categories);
-    } else {
-      let textsInBatch = await db.text.findMany({
-        where: {
-          batch: { in: user.assigned_batch },
-        },
-        select: {
-          status: true,
-          modified_text: true,
-          batch: true,
-          reviewed: true,
-        },
-      });
-      for (const batch of user.assigned_batch) {
-        let batchList = textsInBatch.filter((item) => item.batch === batch);
-        // If there is any text with a null modified_text, return false
-        if (batchList.some((text) => text.modified_text === null)) {
-          return batch;
-        }
-        if (
-          batchList.some(
-            (text) => text.status === null || text.status === "PENDING"
-          )
-        ) {
-          return batch;
-        }
-      }
-      //check if all assigned batch is accepted
 
-      if (!batchToAssign) {
-        batchToAssign = await getUnassignedBatch(user.categories);
+    if (assigned_batch?.length === 0)
+      return await getUnassignedBatch(user.categories);
+
+    let textsInBatch = await db.text.findMany({
+      where: {
+        batch: { in: user.assigned_batch },
+      },
+      select: {
+        status: true,
+        modified_text: true,
+        batch: true,
+        reviewed: true,
+      },
+    });
+    for (const batch of user.assigned_batch) {
+      let batchList = textsInBatch.filter((item) => item.batch === batch);
+      // If there is any text with a null modified_text, return false
+      if (batchList.some((text) => text.modified_text === null)) {
+        return batch;
+      }
+      if (
+        batchList.some(
+          (text) => text.status === null || text.status === "PENDING"
+        )
+      ) {
+        return batch;
       }
     }
+    //check if all assigned batch is accepted
+
+    let batchToAssign = await getUnassignedBatch(user.categories);
     // 3. Assign the batch to the user
-    if (!batchToAssign) return null;
+    if (!batchToAssign) throw new Error("No batch to assign");
     await assignBatchToUser(user, batchToAssign);
     return batchToAssign;
   } catch (error) {
@@ -84,8 +80,6 @@ export async function getTextToDisplay(user: any, history: any) {
     };
   }
   let batch = await checkAndAssignBatch(user);
-
-  // remove batch if all the text in it is reviewed
 
   let text = await db.text.findFirst({
     where: {

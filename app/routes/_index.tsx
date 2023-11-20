@@ -25,16 +25,18 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect("https://pecha.tools");
   } else {
     let user = await createUserIfNotExists(session);
-    console.log(user);
 
     let text = null;
     if (user.allow_assign) {
-      text = await getTextToDisplay(user, history);
+      try {
+        text = await getTextToDisplay(user, history);
+      } catch (e) {
+        return { error: e.message };
+      }
     }
     if (!user.allow_assign && history) {
       text = await getTextToDisplay(user, history);
     }
-    console.log(text);
     return {
       text,
       user: {
@@ -91,8 +93,6 @@ export default function Index() {
 
   let isButtonDisabled = !text || text.reviewed || fetcher.state !== "idle";
 
-  if (error) return <div>{error}</div>;
-
   return (
     <div className="flex flex-col md:flex-row">
       <Sidebar user={user} text={text} />
@@ -110,11 +110,17 @@ export default function Index() {
         )}
         {!text ? (
           <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm text-center py-4">
-            {!user.allow_assign && (
+            {error ? (
               <div className="font-bold first-letter:uppercase first-letter:text-red-400">
-                A single work must have been rejected 3 times or more . please
-                contact admin .
+                {error} . please contact admin .
               </div>
+            ) : (
+              !user.allow_assign && (
+                <div className="font-bold first-letter:uppercase first-letter:text-red-400">
+                  A single work must have been rejected 3 times or more . please
+                  contact admin .
+                </div>
+              )
             )}
             Thank you . your work is complete ! 😊😊😊
             <br />

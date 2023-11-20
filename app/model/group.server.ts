@@ -26,6 +26,7 @@ export const getAllAssignedBatches = async () => {
         assigned_batch: true,
       },
       distinct: ["assigned_batch"],
+      orderBy: { id: "asc" },
     });
 
     // Extracting the assigned batches
@@ -45,13 +46,9 @@ export const getUnassignedBatch = async (category: string[]) => {
     const assignedBatches = await getAllAssignedBatches();
 
     // Finding the batches that are not assigned
-    const unassignedBatches = allBatches
-      .filter((batch) => !assignedBatches.includes(batch))
-      .sort((a, b) => {
-        if (typeof a === "string" && typeof b === "string")
-          return parseInt(a) - parseInt(b);
-        return 0;
-      });
+    const unassignedBatches = allBatches.filter(
+      (batch) => !assignedBatches.includes(batch)
+    );
 
     return unassignedBatches[0];
   } catch (error) {
@@ -72,12 +69,21 @@ export const getGroupInfo = async (version: string) => {
       version: true,
       category: true, // Include category in the query
       reviewed: true,
+      modified_text: true,
     },
     orderBy: {
       updatedAt: "desc",
     },
   });
+  console.log(textRecords);
   let reviewed_count =
     textRecords.filter((item) => item.reviewed === true).length ?? 0;
-  return { total: textRecords.length, reviewed: reviewed_count };
+
+  let accepted_count =
+    textRecords.filter((item) => item.modified_text !== null).length ?? 0;
+  return {
+    total: textRecords.length,
+    reviewed: reviewed_count,
+    accepted_count,
+  };
 };

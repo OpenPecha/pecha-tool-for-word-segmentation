@@ -81,6 +81,7 @@ function Text_Category({ text }: { text: Text_Props }) {
               current={infoFetcher?.data?.reviewed}
               max={infoFetcher?.data?.total}
               showHeader={false}
+              accepted={infoFetcher?.data?.accepted_count}
             />
           )}
         </h4>
