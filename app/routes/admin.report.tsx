@@ -76,6 +76,7 @@ export const loader = async ({ request }) => {
       word_count,
       duration,
       taskCount,
+      averageWordCount: (word_count / taskCount).toFixed(2),
     };
   });
   return { usersDetail, reviewers };
@@ -214,6 +215,7 @@ function report() {
                   <div>
                     <div>Task: {user.taskCount}</div>
                     <div title="space count">Word: {user.word_count}</div>
+                    <div>average word per task: {user.averageWordCount}</div>
                   </div>
                 </div>
               </div>

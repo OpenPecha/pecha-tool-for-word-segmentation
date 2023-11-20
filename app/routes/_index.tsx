@@ -38,10 +38,26 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (!user.allow_assign && history) {
       text = await getTextToDisplay(user, history);
     }
+    const today = new Date();
+    let startOfMonth;
+
+    if (today.getDate() >= 26) {
+      // If today is 26th or later, consider this month
+      startOfMonth = new Date(today.getFullYear(), today.getMonth(), 26);
+    } else {
+      // If today is earlier than 26th, consider last month
+      startOfMonth = new Date(today.getFullYear(), today.getMonth() - 1, 26);
+    }
+
     const wordCount = await db.text.aggregate({
       where: {
         modified_by_id: user.id,
         modified_text: { not: null }, // Filter out texts that are not modified
+        modified_on: {
+          gte: startOfMonth,
+          lte: today,
+        },
+        reviewed: true,
       },
       _avg: {
         word_count: true,
@@ -58,7 +74,7 @@ export const loader: LoaderFunction = async ({ request }) => {
         rejected_list: user.rejected_list,
         role: user.role,
         approved_count: user.text.length,
-        averageWordCount: wordCount._avg.word_count?.toFixed(2) ?? 0,
+        averageWordCount: wordCount._avg.word_count?.toFixed() ?? 0,
       },
     };
   }
