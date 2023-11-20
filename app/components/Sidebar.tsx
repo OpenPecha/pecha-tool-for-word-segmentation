@@ -25,7 +25,7 @@ function Sidebar({ user, text }: userType) {
   let fetcher = useFetcher();
   useEffect(() => {
     fetcher.load("/api/text?session=" + user?.username);
-  }, [text?.id, user]);
+  }, [text?.id]);
   let [openMenu, setOpenMenu] = useState(false);
   let navigate = useNavigate();
   const handleDashboradLink = () => {
