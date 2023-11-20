@@ -17,6 +17,7 @@ import { createUserIfNotExists } from "~/model/user.server";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import ActiveUser from "~/components/ActiveUser";
+import { db } from "~/service/db.server";
 export const loader: LoaderFunction = async ({ request }) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
@@ -37,6 +38,15 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (!user.allow_assign && history) {
       text = await getTextToDisplay(user, history);
     }
+    const wordCount = await db.text.aggregate({
+      where: {
+        modified_by_id: user.id,
+        modified_text: { not: null }, // Filter out texts that are not modified
+      },
+      _avg: {
+        word_count: true,
+      },
+    });
     return {
       text,
       user: {
@@ -48,6 +58,7 @@ export const loader: LoaderFunction = async ({ request }) => {
         rejected_list: user.rejected_list,
         role: user.role,
         approved_count: user.text.length,
+        averageWordCount: wordCount._avg.word_count?.toFixed(2) ?? 0,
       },
     };
   }

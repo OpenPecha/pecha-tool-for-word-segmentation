@@ -61,6 +61,7 @@ function Sidebar({ user, text }: userType) {
           <TextInfo>Approved : {user?.approved_count}</TextInfo>
           <TextInfo>Rejected :{user?.rejected_list?.length}</TextInfo>
           <TextInfo>Reviewed : {user?._count?.text}</TextInfo>
+          <TextInfo>Average word per task: {user?.averageWordCount}</TextInfo>
         </div>
 
         <div className="flex-1 border-t">
