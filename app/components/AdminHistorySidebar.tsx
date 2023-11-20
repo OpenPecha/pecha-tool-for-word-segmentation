@@ -55,7 +55,7 @@ function AdminHistorySidebar({ user }: SidebarProps) {
             DASHBOARD
           </Link>
           <TextInfo>User : {user?.username}</TextInfo>
-          <TextInfo>text id :{selectedId}</TextInfo>
+          <TextInfo>text id :{data?.currentText?.id}</TextInfo>
           <TextInfo>Approved :{user?.text?.length}</TextInfo>
           <TextInfo>Rejected :{user?._count.rejected_list}</TextInfo>
           <TextInfo>Reviewed :{user?._count.text}</TextInfo>

@@ -8,7 +8,6 @@ import AdminHistorySidebar from "~/components/AdminHistorySidebar";
 import EditorContainer from "~/components/Editor";
 import Button from "~/components/Button";
 import { db } from "~/service/db.server";
-import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
@@ -21,7 +20,7 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
     }),
     await db.user.findUnique({
       where: { username: params.slug! },
-      include: {
+      select: {
         text: {
           select: {
             id: true,
@@ -33,7 +32,9 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
         _count: {
           select: { text: { where: { reviewed: true } }, rejected_list: true },
         },
-        reviewer: true,
+        reviewer_id: true,
+        id: true,
+        username: true,
       },
     }),
   ]);
