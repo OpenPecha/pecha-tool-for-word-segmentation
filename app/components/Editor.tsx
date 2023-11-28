@@ -84,7 +84,10 @@ function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
   return (
     <div
       ref={buttonRef}
-      className="text-slate-600 h-[90%] m-auto bg-white max-h-[60dvh] overflow-y-scroll p-2 text-3xl pointer-events-auto"
+      className="text-slate-600 
+      h-[90%] 
+      m-auto font-monlam
+      bg-white max-h-[60dvh] overflow-y-scroll p-2 text-2xl pointer-events-auto"
     >
       {editor && <EditorContent editor={editor} />}
     </div>

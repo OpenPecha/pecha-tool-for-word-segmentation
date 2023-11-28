@@ -1,26 +1,21 @@
 @import url("https://fonts.googleapis.com/css2?family=Lato:wght@300&family=Roboto+Condensed&display=swap");
 
+@font-face {
+  font-family: "Monlam";
+  src: url("/font/MonlamTBslim.woff2") format("woff2"),
+    url("/font/MonlamTBslim.woff") format("woff"),
+    url("/font/MonlamTBslim.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --purple: #583fcf;
   --normal-btn: #b9b9b9;
   --success-btn: #4fd364;
   --cancel-btn: #f74c4a;
-  --space-height: 16px;
-}
-@media only screen and (max-width: 600px) {
-  body {
-    /* disable selection */
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    user-select: none;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-  }
-  .seg {
-    line-height: 1.5rem;
-  }
+  --space-height: 20px;
 }
 .space {
   pointer-events: none;
@@ -29,9 +24,10 @@
   margin-inline: 8px;
   cursor: pointer;
   display: inline-block;
-  transform: translateY(17px);
+  position: relative;
+  top: 10px;
   border: 1px solid gray;
-  width: 15px;
+  width: 20px;
   height: var(--space-height);
 }
 
@@ -45,6 +41,9 @@
 body {
   font-family: "Lato", "Trebuchet MS", Roboto, Helvetica, Arial, sans-serif;
 }
+.ProseMirror {
+  line-height: normal;
+}
 
 .ProseMirror::selection {
   background-color: yellow;
@@ -54,4 +53,20 @@ body {
 }
 button:disabled {
   opacity: 0.3;
+}
+
+@media only screen and (max-width: 600px) {
+  body {
+    /* disable selection */
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+  }
+  .seg {
+    margin-bottom: 5px;
+  }
 }
