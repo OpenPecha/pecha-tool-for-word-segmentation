@@ -139,6 +139,7 @@ export function saveText(
 ) {
   let isReviewer = !!adminId;
   let duration = time ? parseFloat(time) : null;
+  let word_count = text.split(" ").filter((word) => !word.includes("།")).length;
   if (!isReviewer) {
     return db.text.update({
       where: {
@@ -152,7 +153,7 @@ export function saveText(
         rejected_by: { disconnect: { id: userId } },
         duration,
         modified_on: new Date(),
-        word_count: text.split(" ").length,
+        word_count,
       },
     });
   } else {
