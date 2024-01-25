@@ -61,8 +61,6 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
 
 function UserDetail() {
   const fetcher = useFetcher();
-  const [searchParams] = useSearchParams();
-  let selectedId = parseInt(searchParams.get("adminhistory")!) ?? null;
   const { annotator, user, currentText } = useLoaderData() as any;
   let show =
     (currentText && JSON.parse(currentText?.modified_text!)?.join(" ")) ||
