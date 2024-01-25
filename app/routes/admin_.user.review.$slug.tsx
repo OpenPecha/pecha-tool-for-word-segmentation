@@ -86,7 +86,12 @@ function UserDetail() {
 
   let rejectTask = () => {
     fetcher.submit(
-      { id: selectedId!, userId: annotator.id, _action: "reject", admin: true },
+      {
+        id: currentText.id!,
+        userId: annotator.id,
+        _action: "reject",
+        admin: true,
+      },
       { method: "PATCH", action: "/api/text" }
     );
   };

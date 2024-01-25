@@ -82,7 +82,10 @@ export const action: ActionFunction = async ({ request }) => {
         await updateUserAssign(userId, false);
       }
       let text = await rejectText(parseInt(id), userId);
-
+      if (adminhistory) {
+        let newURL = url.pathname + "?session=" + session;
+        return redirect(newURL);
+      }
       return text;
     }
 
