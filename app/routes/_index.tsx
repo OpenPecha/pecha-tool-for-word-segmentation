@@ -26,7 +26,9 @@ export const loader: LoaderFunction = async ({ request }) => {
     return redirect("https://pecha.tools");
   } else {
     let user = await createUserIfNotExists(session);
-
+    if (user.role === "ADMIN" || user.role === "REVIEWER") {
+      return redirect(`/admin/user?session=${user?.username}`);
+    }
     let text = null;
     if (user.allow_assign) {
       try {
