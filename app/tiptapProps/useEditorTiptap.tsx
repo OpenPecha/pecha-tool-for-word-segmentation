@@ -1,5 +1,6 @@
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
 import { editorProps } from "~/tiptapProps/events";
 import { Character } from "~/tiptapProps/extension/character";
 import { Space } from "~/tiptapProps/extension/space";
@@ -15,5 +16,6 @@ export const useEditorTiptap = () => {
     },
     []
   );
+
   return editor;
 };

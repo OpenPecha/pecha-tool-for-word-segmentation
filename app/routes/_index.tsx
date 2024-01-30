@@ -29,7 +29,12 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (user.role === "ADMIN" || user.role === "REVIEWER") {
       return redirect(`/admin/user?session=${user?.username}`);
     }
-    let text = await getTextToDisplay(user, history);
+    let text = null;
+    try {
+      text = await getTextToDisplay(user, history);
+    } catch (e) {
+      return { error: "no Batch to assign", user };
+    }
 
     const today = new Date();
     let startOfMonth;
@@ -68,6 +73,7 @@ export const loader: LoaderFunction = async ({ request }) => {
         role: user.role,
         approved_count: user.text.length,
         averageWordCount: Math.floor(wordCount?._avg?.word_count!) ?? 0,
+        allow_assign: user.allow_assign,
       },
     };
   }
@@ -89,7 +95,7 @@ export default function Index() {
   const { user, text, error } = useLoaderData();
   let [searchParams] = useSearchParams();
   let id = text?.id;
-  let editor = useEditorTiptap();
+  let editor = text ? useEditorTiptap() : null;
 
   let saveText = async () => {
     let duration = document?.querySelector("#activeTime")?.innerHTML ?? 0;
@@ -112,7 +118,7 @@ export default function Index() {
   };
 
   let isButtonDisabled = !text || text.reviewed || fetcher.state !== "idle";
-
+  let isSaving = fetcher.state !== "idle";
   return (
     <div className="flex flex-col md:flex-row">
       <Sidebar user={user} text={text} />
@@ -147,20 +153,14 @@ export default function Index() {
         ) : (
           <div className="fixed top-[120px] md:relative md:top-0 md:mt-20 shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2  pt-1 ">
-              {fetcher.state === "idle" && <ActiveUser />}
-              {fetcher.state !== "idle" && (
+              {!isSaving && <ActiveUser />}
+              {isSaving && (
                 <div className=" flex justify-center items-center">
                   saving...
                 </div>
               )}
             </div>
-            {!editor || isButtonDisabled ? (
-              <div className="flex justify-center items-center h-full p-10">
-                <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-gray-900 p-3"></div>
-              </div>
-            ) : (
-              <Editor editor={editor!} />
-            )}
+            {!editor || isSaving ? <Loading /> : <Editor editor={editor} />}
           </div>
         )}
         {text && (
@@ -218,4 +218,12 @@ export function ErrorBoundary() {
   } else {
     return <h1>Unknown Error</h1>;
   }
+}
+
+function Loading() {
+  return (
+    <div className="flex justify-center items-center h-full p-10">
+      <div className="animate-spin rounded-full h-20 w-20 border-b-2 border-gray-900 p-3"></div>
+    </div>
+  );
 }
