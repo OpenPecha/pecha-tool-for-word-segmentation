@@ -65,6 +65,7 @@ async function assignBatchToUser(user: any, batchToAssign: number) {
 }
 
 export async function getTextToDisplay(user: any, history: any) {
+  if (!user.allow_assign) return null;
   if (history) {
     const text = await db.text.findUnique({
       where: { id: parseInt(history) },

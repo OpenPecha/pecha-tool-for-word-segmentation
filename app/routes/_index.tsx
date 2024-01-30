@@ -29,17 +29,8 @@ export const loader: LoaderFunction = async ({ request }) => {
     if (user.role === "ADMIN" || user.role === "REVIEWER") {
       return redirect(`/admin/user?session=${user?.username}`);
     }
-    let text = null;
-    if (user.allow_assign) {
-      try {
-        text = await getTextToDisplay(user, history);
-      } catch (e) {
-        return { error: e.message };
-      }
-    }
-    if (!user.allow_assign && history) {
-      text = await getTextToDisplay(user, history);
-    }
+    let text = await getTextToDisplay(user, history);
+
     const today = new Date();
     let startOfMonth;
 
@@ -137,20 +128,19 @@ export default function Index() {
             SOME OF YOUR WORK IS REJECTED
           </div>
         )}
+        {error && (
+          <div className="font-bold first-letter:uppercase first-letter:text-red-400">
+            {error} . please contact admin .
+          </div>
+        )}
+        {!user.allow_assign && (
+          <div className="font-bold first-letter:uppercase first-letter:text-red-400">
+            A single work must have been rejected 3 times or more. maybe system
+            blocked your work. please contact admin .
+          </div>
+        )}
         {!text ? (
           <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm text-center py-4">
-            {error ? (
-              <div className="font-bold first-letter:uppercase first-letter:text-red-400">
-                {error} . please contact admin .
-              </div>
-            ) : (
-              !user.allow_assign && (
-                <div className="font-bold first-letter:uppercase first-letter:text-red-400">
-                  A single work must have been rejected 3 times or more . please
-                  contact admin .
-                </div>
-              )
-            )}
             Thank you . your work is complete ! 😊😊😊
             <br />
           </div>
