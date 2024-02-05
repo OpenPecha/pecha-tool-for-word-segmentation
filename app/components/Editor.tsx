@@ -3,20 +3,11 @@ import { EditorContent, Editor } from "@tiptap/react";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import useDoubleClick from "use-double-click";
 import { useLoaderData } from "@remix-run/react";
+import { cleanText } from "~/const";
 
 function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
   const buttonRef = useRef(null);
   const { text } = useLoaderData();
-  useEffect(() => {
-    if (editor && !html) {
-      let textContent = text?.original_text ?? "";
-      let html = insertHTMLonText(textContent);
-      editor?.commands.setContent(html);
-    }
-    if (html) {
-      editor?.commands.setContent(html);
-    }
-  }, [text, html]);
 
   const handleSingleClick = (e: any) => {
     let modifiedContent = editor?.getText();
@@ -79,7 +70,16 @@ function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
     latency: 250,
   });
 
-  if (!editor) return;
+  useEffect(() => {
+    if (editor && !html) {
+      let textContent = cleanText(text?.original_text) ?? "";
+      let html = insertHTMLonText(textContent);
+      editor?.commands.setContent(html);
+    }
+    if (html) {
+      editor?.commands.setContent(html);
+    }
+  }, [text, html]);
 
   return (
     <div

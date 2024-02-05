@@ -93,9 +93,8 @@ export const meta = () => {
 export default function Index() {
   let fetcher = useFetcher();
   const { user, text, error } = useLoaderData();
-  let [searchParams] = useSearchParams();
   let id = text?.id;
-  let editor = text ? useEditorTiptap() : null;
+  let editor = useEditorTiptap();
 
   let saveText = async () => {
     let duration = document?.querySelector("#activeTime")?.innerHTML ?? 0;
@@ -104,7 +103,6 @@ export default function Index() {
       { id, modified_text, userId: user.id, duration: duration },
       { method: "POST", action: "/api/text" }
     );
-    if (searchParams.get("history")) return;
   };
   let undoTask = async () => {
     let temptext = checkUnknown(insertHTMLonText(text?.original_text));

@@ -71,7 +71,7 @@ export const action: ActionFunction = async ({ request }) => {
       let newURL = url.pathname + "?session=" + session;
       return redirect(newURL);
     }
-    return { status: "ok" };
+    return { status: "ok", text };
   }
   if (request.method === "PATCH") {
     const id = formData.get("id") as string;
@@ -82,6 +82,9 @@ export const action: ActionFunction = async ({ request }) => {
         await updateUserAssign(userId, false);
       }
       let text = await rejectText(parseInt(id), userId);
+      if (history) {
+        return redirect(`/?session=${session}`);
+      }
       if (adminhistory) {
         let newURL = url.pathname + "?session=" + session;
         return redirect(newURL);

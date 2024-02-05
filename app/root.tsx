@@ -30,12 +30,6 @@ export default function App() {
 
   let fetchers = useFetchers();
 
-  /**
-   * This gets the state of every fetcher active on the app and combine it with
-   * the state of the global transition (Link and Form), then use them to
-   * determine if the app is idle or if it's loading.
-   * Here we consider both loading and submitting as loading.
-   */
   let state = useMemo<"idle" | "loading">(
     function getGlobalState() {
       let states = [
@@ -49,10 +43,7 @@ export default function App() {
   );
 
   React.useEffect(() => {
-    // and when it's something else it means it's either submitting a form or
-    // waiting for the loaders of the next location so we start it
     if (state === "loading") NProgress.start();
-    // when the state is idle then we can to complete the progress bar
     if (state === "idle") NProgress.done();
   }, [transition.state]);
   return (
@@ -68,23 +59,6 @@ export default function App() {
         <ScrollRestoration />
         <Scripts />
         <LiveReload />
-      </body>
-    </html>
-  );
-}
-
-export function ErrorBoundary({ error }) {
-  console.error(error);
-  return (
-    <html>
-      <head>
-        <title>Oh no!</title>
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {/* add the UI you want your users to see */}
-        <Scripts />
       </body>
     </html>
   );
