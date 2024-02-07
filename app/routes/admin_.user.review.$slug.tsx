@@ -12,6 +12,8 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   let history = url.searchParams.get("adminhistory");
+  let load = url.searchParams.get("load") as string;
+  let take = load ? parseInt(load) : 20;
   const [user, annotator] = await Promise.all([
     await db.user.findUnique({
       where: { username: session! },
@@ -20,11 +22,15 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
       where: { username: params.slug! },
       select: {
         text: {
+          where: {
+            status: "APPROVED",
+          },
           select: {
             id: true,
             reviewed: true,
           },
           orderBy: { id: "desc" },
+          take,
         },
         rejected_list: { select: { id: true } }, // Select specific fields or all (undefined)
         _count: {
@@ -46,11 +52,12 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
       modified_by_id: annotator?.id,
       status: "APPROVED",
     },
-    orderBy: { id: "asc" },
+    orderBy: { id: "desc" },
   });
   if (history) {
     currentText = await db.text.findFirst({
       where: {
+        status: "APPROVED",
         id: parseInt(history),
         modified_by_id: annotator?.id,
       },

@@ -1,68 +1,106 @@
 import { db } from "~/service/db.server";
-import { getUnassignedBatch } from "./group.server";
+// import { getUnassignedBatch } from "./group.server";
 
-export async function checkAndAssignBatch(user: any) {
-  if (!user) return null;
-  try {
-    // 1. Retrieve the user's current assigned batches (if any)
-    let assigned_batch = user?.assigned_batch;
+// export async function checkAndAssignBatch(user: any) {
+//   if (!user) return null;
+//   try {
+//     // 1. Retrieve the user's current assigned batches (if any)
+//     let assigned_batch = user?.assigned_batch;
 
-    if (assigned_batch?.length === 0)
-      return await getUnassignedBatch(user.categories);
+//     if (assigned_batch?.length === 0)
+//       return await getUnassignedBatch(user.categories);
 
-    let textsInBatch = await db.text.findMany({
-      where: {
-        batch: { in: user.assigned_batch },
-      },
-      select: {
-        status: true,
-        modified_text: true,
-        batch: true,
-        reviewed: true,
-      },
-    });
-    for (const batch of user.assigned_batch) {
-      let batchList = textsInBatch.filter((item) => item.batch === batch);
-      // If there is any text with a null modified_text, return false
-      if (batchList.some((text) => text.modified_text === null)) {
-        return batch;
-      }
-      if (
-        batchList.some(
-          (text) => text.status === null || text.status === "PENDING"
-        )
-      ) {
-        return batch;
-      }
-    }
-    //check if all assigned batch is accepted
+//     let textsInBatch = await db.text.findMany({
+//       where: {
+//         batch: { in: user.assigned_batch },
+//       },
+//       select: {
+//         status: true,
+//         modified_text: true,
+//         batch: true,
+//         reviewed: true,
+//       },
+//     });
+//     for (const batch of user.assigned_batch) {
+//       let batchList = textsInBatch.filter((item) => item.batch === batch);
+//       // If there is any text with a null modified_text, return false
+//       if (batchList.some((text) => text.modified_text === null)) {
+//         return batch;
+//       }
+//       if (
+//         batchList.some(
+//           (text) => text.status === null || text.status === "PENDING"
+//         )
+//       ) {
+//         return batch;
+//       }
+//     }
+//     //check if all assigned batch is accepted
 
-    let batchToAssign = await getUnassignedBatch(user.categories);
-    // 3. Assign the batch to the user
-    if (!batchToAssign) throw new Error("No batch to assign");
-    await assignBatchToUser(user, batchToAssign);
-    return batchToAssign;
-  } catch (error) {
-    console.error(
-      "An error occurred while checking and assigning batch:",
-      error
-    );
-    throw error;
-  }
-}
+//     let batchToAssign = await getUnassignedBatch(user.categories);
+//     // 3. Assign the batch to the user
+//     if (!batchToAssign) throw new Error("No batch to assign");
+//     await assignBatchToUser(user, batchToAssign);
+//     return batchToAssign;
+//   } catch (error) {
+//     console.error(
+//       "An error occurred while checking and assigning batch:",
+//       error
+//     );
+//     throw error;
+//   }
+// }
 
-async function assignBatchToUser(user: any, batchToAssign: number) {
-  if (!user.assigned_batch.includes(batchToAssign)) {
-    await db.user.update({
-      where: { id: user.id },
-      data: {
-        assigned_batch: {
-          set: [...(user.assigned_batch || []), batchToAssign],
-        },
-      },
-    });
-  }
-}
+// async function assignBatchToUser(user: any, batchToAssign: number) {
+//   if (!user.assigned_batch.includes(batchToAssign)) {
+//     await db.user.update({
+//       where: { id: user.id },
+//       data: {
+//         assigned_batch: {
+//           set: [...(user.assigned_batch || []), batchToAssign],
+//         },
+//       },
+//     });
+//   }
+// }
+
+// export async function getTextToDisplay(user: any, history: any) {
+// if (!user.allow_assign) return null;
+// if (history) {
+//   const text = await db.text.findUnique({
+//     where: { id: parseInt(history) },
+//   });
+//   let show = text?.modified_text
+//     ? JSON.parse(text?.modified_text).join(" ")
+//     : text?.original_text;
+//   return {
+//     ...text,
+//     id: text?.id,
+//     original_text: show,
+//     status: text?.status,
+//   };
+// }
+// let batch = await checkAndAssignBatch(user);
+
+// let text = await db.text.findFirst({
+//   where: {
+//     batch: batch,
+//     OR: [{ status: null }, { status: "PENDING" }],
+//   },
+//   orderBy: {
+//     id: "asc",
+//   },
+//   select: {
+//     id: true,
+//     original_text: true,
+//     modified_text: true,
+//     status: true,
+//     batch: true,
+//   },
+// });
+// if (!text) return null;
+// return text;
+// }
 
 export async function getTextToDisplay(user: any, history: any) {
   if (!user.allow_assign) return null;
@@ -80,11 +118,10 @@ export async function getTextToDisplay(user: any, history: any) {
       status: text?.status,
     };
   }
-  let batch = await checkAndAssignBatch(user);
-
+  //assign a non modified text to a user
   let text = await db.text.findFirst({
     where: {
-      batch: batch,
+      modified_by_id: user?.id,
       OR: [{ status: null }, { status: "PENDING" }],
     },
     orderBy: {
@@ -95,10 +132,34 @@ export async function getTextToDisplay(user: any, history: any) {
       original_text: true,
       modified_text: true,
       status: true,
-      batch: true,
     },
   });
-  if (!text) return null;
+  if (!text) {
+    let textToAssign = await db.text.findFirst({
+      where: {
+        modified_by_id: null,
+        OR: [{ status: null }, { status: "PENDING" }],
+      },
+      orderBy: {
+        id: "asc",
+      },
+    });
+    if (!textToAssign) return null;
+    text = await db.text.update({
+      where: {
+        id: textToAssign.id,
+      },
+      data: {
+        modified_by_id: user.id,
+      },
+      select: {
+        id: true,
+        original_text: true,
+        modified_text: true,
+        status: true,
+      },
+    });
+  }
   return text;
 }
 

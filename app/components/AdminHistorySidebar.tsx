@@ -15,7 +15,16 @@ function AdminHistorySidebar({ user }: SidebarProps) {
   const data = useLoaderData();
   const [openMenu, setOpenMenu] = useState(false);
   const [searchParams, setSeachParams] = useSearchParams();
-
+  function loadmore() {
+    let currentLoad = searchParams.get("load")
+      ? parseInt(searchParams.get("load") as string)
+      : 20;
+    let newnumber = `${parseInt(currentLoad) + 20}`;
+    setSeachParams((p) => {
+      p.set("load", newnumber);
+      return p;
+    });
+  }
   const SidebarHeader = () => (
     <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden">
       <Link to={`/admin?session=${data.user.username}`}>
@@ -26,7 +35,6 @@ function AdminHistorySidebar({ user }: SidebarProps) {
       </div>
     </div>
   );
-  let selectedId = parseInt(searchParams.get("history")!) ?? null;
   return (
     <div className="flex flex-col">
       <div
@@ -35,7 +43,7 @@ function AdminHistorySidebar({ user }: SidebarProps) {
       >
         <Hamburger />
         <Link
-          to={`/admin/metabase?session=${data.user.username}`}
+          to={`/admin/metabase?session=${data?.user.username}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
           {toolname}
@@ -59,11 +67,11 @@ function AdminHistorySidebar({ user }: SidebarProps) {
           <TextInfo>Approved :{user?.text?.length}</TextInfo>
           <TextInfo>Rejected :{user?._count.rejected_list}</TextInfo>
           <TextInfo>Reviewed :{user?._count.text}</TextInfo>
+          <button type="button" onClick={loadmore}>
+            load more history
+          </button>
         </div>
         <div className="flex-1">
-          <div className="text-sm mb-2 font-bold">
-            History total:{user.text.length}
-          </div>
           <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
             {user &&
               user?.text?.sort(sortUpdate_reviewed).map((text: historyText) => (
