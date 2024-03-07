@@ -95,7 +95,7 @@ export default function Index() {
   const { user, text, error } = useLoaderData();
   let id = text?.id;
   let editor = useEditorTiptap();
-
+  let original_text = text?.original_text?.replaceAll("?", "");
   let saveText = async () => {
     let duration = document?.querySelector("#activeTime")?.innerHTML ?? 0;
     let modified_text = editor!.getText();
@@ -105,7 +105,7 @@ export default function Index() {
     );
   };
   let undoTask = async () => {
-    let temptext = checkUnknown(insertHTMLonText(text?.original_text));
+    let temptext = checkUnknown(insertHTMLonText(original_text));
     editor?.commands.setContent(temptext);
   };
   let rejectTask = async () => {

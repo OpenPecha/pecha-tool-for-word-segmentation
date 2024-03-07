@@ -72,7 +72,8 @@ function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
 
   useEffect(() => {
     if (editor && !html) {
-      let textContent = cleanText(text?.original_text) ?? "";
+      let data = text?.original_text?.replaceAll("?", "");
+      let textContent = cleanText(data) ?? "";
       let html = insertHTMLonText(textContent);
       editor?.commands.setContent(html);
     }
