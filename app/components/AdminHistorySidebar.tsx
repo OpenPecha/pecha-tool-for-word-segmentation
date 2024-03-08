@@ -1,5 +1,10 @@
-import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
-import { useState } from "react";
+import {
+  Link,
+  useLoaderData,
+  useNavigation,
+  useSearchParams,
+} from "@remix-run/react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { historyText } from "./Sidebar";
 import TextInfo from "./TextInfo";
 import { AdminHistoryItem } from "./History";
@@ -25,6 +30,39 @@ function AdminHistorySidebar({ user }: SidebarProps) {
       return p;
     });
   }
+  let transaction = useNavigation();
+  const lastItemRef = useRef(null);
+  const [hasFetched, setHasFetched] = useState(false);
+  const items = user?.text;
+  const prevLengthRef = useRef(items.length);
+  useEffect(() => {
+    // Reset hasFetched to false if the length of items changes (indicating new items)
+    if (items.length !== prevLengthRef.current) {
+      setHasFetched(false);
+      prevLengthRef.current = items.length;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !hasFetched) {
+          loadmore();
+          setHasFetched(true);
+        }
+      },
+      {
+        rootMargin: "100px",
+      }
+    );
+
+    if (lastItemRef.current) {
+      observer.observe(lastItemRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [items.length, loadmore, hasFetched]);
+
   const SidebarHeader = () => (
     <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden">
       <Link to={`/admin?session=${data.user.username}`}>
@@ -74,22 +112,28 @@ function AdminHistorySidebar({ user }: SidebarProps) {
         <div className="flex-1">
           <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
             {user &&
-              user?.text?.sort(sortUpdate_reviewed).map((text: historyText) => (
-                <AdminHistoryItem
-                  id={text?.id}
-                  key={text.id + "-accepted"}
-                  onClick={() => {
-                    setOpenMenu(false);
-                    setSeachParams((p) => {
-                      p.set("adminhistory", text?.id);
-                      return p;
-                    });
-                  }}
-                  icon={<Tick />}
-                  reviewed={text?.reviewed!}
-                  selectedId={data?.currentText?.id}
-                />
-              ))}
+              user?.text
+                ?.sort(sortUpdate_reviewed)
+                .map((text: historyText, index: number) => (
+                  <div
+                    key={text.id + "-accepted"}
+                    ref={index === user?.text.length - 1 ? lastItemRef : null}
+                  >
+                    <AdminHistoryItem
+                      id={text?.id}
+                      onClick={() => {
+                        setOpenMenu(false);
+                        setSeachParams((p) => {
+                          p.set("adminhistory", text?.id);
+                          return p;
+                        });
+                      }}
+                      icon={<Tick />}
+                      reviewed={text?.reviewed!}
+                      selectedId={data?.currentText?.id}
+                    />
+                  </div>
+                ))}
           </div>
         </div>
       </div>
