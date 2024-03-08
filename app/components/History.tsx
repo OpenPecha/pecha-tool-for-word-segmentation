@@ -44,7 +44,7 @@ function AdminHistoryItem({
 }: AdminHistoryItemProps) {
   return (
     <div
-      className="dark:text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800"
+      className="dark:text-white flex gap-3 cursor-pointer hover:border-2 pl-2 border-purple-800"
       style={{
         background: selectedId == id ? "rgba(1,1,1,0.4)" : "",
       }}

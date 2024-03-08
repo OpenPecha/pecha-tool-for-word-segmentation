@@ -105,7 +105,11 @@ function AdminHistorySidebar({ user }: SidebarProps) {
           <TextInfo>Approved :{user?.text?.length}</TextInfo>
           <TextInfo>Rejected :{user?._count.rejected_list}</TextInfo>
           <TextInfo>Reviewed :{user?._count.text}</TextInfo>
-          <button type="button" onClick={loadmore}>
+          <button
+            type="button"
+            className="p-2 bg-gray-300 rounded-md font-bold font-Inter text-black"
+            onClick={loadmore}
+          >
             load more history
           </button>
         </div>
@@ -117,6 +121,7 @@ function AdminHistorySidebar({ user }: SidebarProps) {
                 .map((text: historyText, index: number) => (
                   <div
                     key={text.id + "-accepted"}
+                    className="px-3"
                     ref={index === user?.text.length - 1 ? lastItemRef : null}
                   >
                     <AdminHistoryItem
