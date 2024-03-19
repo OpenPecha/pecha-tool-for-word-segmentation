@@ -38,7 +38,6 @@
     "react-icons": "4.11.0",
     "react-modern-drawer": "^1.2.2",
     "react-tailwindcss-select": "^1.8.5",
-    "remix-utils": "^7.1.0",
     "ts-node": "^10.9.1",
     "use-double-click": "^1.0.5",
     "webhook-discord": "^3.7.8"
