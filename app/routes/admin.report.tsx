@@ -1,11 +1,13 @@
-import { useLoaderData, useSearchParams } from "@remix-run/react";
-import { useState } from "react";
+import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
+import { useEffect, useState } from "react";
 import { db } from "~/service/db.server";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 import style1 from "react-date-range/dist/styles.css"; // main style file
 import style2 from "react-date-range/dist/theme/default.css";
 import { DateRangePicker } from "react-date-range";
 import { LinksFunction } from "@remix-run/node";
+
+import ExportExcelButton from "~/components/Excel";
 import useModal from "~/components/hooks/useModal";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
@@ -86,9 +88,10 @@ function report() {
   let { usersDetail, reviewers } = useLoaderData();
   let [params, setParams] = useSearchParams();
   let { Modal, Toggle_Modal, changeOpen } = useModal();
+  let detailfetcher = useFetcher();
   const [range, setRange] = useState({
-    startDate: new Date(),
-    endDate: new Date(),
+    startDate: new Date(params.get("startDate")) || new Date(),
+    endDate: new Date(params.get("endDate")) || new Date(),
     key: "selection",
   });
   function handleReviewerChange(e) {
@@ -146,6 +149,22 @@ function report() {
     changeOpen();
   }
 
+  function fetchDetailData() {
+    let formdata = new FormData();
+    formdata.append("data", JSON.stringify(range));
+
+    detailfetcher.submit(formdata, {
+      action: "/api/report",
+      method: "POST",
+    });
+  }
+
+  useEffect(() => {
+    if (detailfetcher.data) {
+      console.log(detailfetcher.data);
+    }
+  }, [detailfetcher.data]);
+
   return (
     <div className="mt-3 mx-8">
       <div className="flex justify-between items-center">
@@ -199,6 +218,15 @@ function report() {
             </div>
           </div>
         </Modal>
+        <div>
+          <button
+            className="bg-green-600 px-2  rounded hover:bg-green-700 text-white"
+            onClick={fetchDetailData}
+          >
+            fetch Detailed Work
+          </button>
+          <ExportExcelButton data={detailfetcher.data} fileName="UsersData" />
+        </div>
       </div>
 
       <div className="divider"></div>
