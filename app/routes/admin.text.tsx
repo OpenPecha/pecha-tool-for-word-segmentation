@@ -39,7 +39,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     take: PER_PAGE,
     skip,
   });
-  const lastbatch = currentPage === 1 ? texts[0].batch : null;
+  const lastbatch = currentPage === 1 ? texts[0]?.batch : null;
   const count = await db.text.groupBy({
     by: ["version"],
   });

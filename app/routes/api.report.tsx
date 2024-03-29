@@ -12,10 +12,13 @@ export const action: ActionFunction = async ({ request }) => {
   const records = await db.text.findMany({
     select: {
       id: true,
-      modified_by: true,
+      modified_by: {
+        select: {
+          nickname: true,
+        },
+      },
       original_text: true,
       modified_text: true,
-      reviewed_by: true,
       status: true,
       updatedAt: true,
       duration: true,
@@ -26,8 +29,11 @@ export const action: ActionFunction = async ({ request }) => {
         gte: startDate, // greater than or equal to startDate
         lte: endDate, // less than or equal to endDate
       },
+      reviewed: true,
     },
   });
-
-  return records;
+  let new_record = records.map((item) => {
+    return { ...item, modified_by: item.modified_by?.nickname };
+  });
+  return new_record;
 };

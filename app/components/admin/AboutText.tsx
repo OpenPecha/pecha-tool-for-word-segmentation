@@ -16,6 +16,7 @@ type Text_Props = {
 export const PER_PAGE = 12;
 function AboutText() {
   const { texts, user } = useLoaderData();
+  console.log(user);
   return (
     <>
       {user.role === "ADMIN" && <UploadText />}

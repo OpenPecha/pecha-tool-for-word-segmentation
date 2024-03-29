@@ -90,7 +90,6 @@ function UploadText() {
       reset();
     }
   };
-  if (!lastbatch) return null;
 
   return (
     <div className="float-right mb-2 flex gap-3 items-center">

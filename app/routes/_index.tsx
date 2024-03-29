@@ -96,7 +96,7 @@ export default function Index() {
   let id = text?.id;
   let editor = useEditorTiptap();
   let original_text = text?.original_text?.replaceAll("?", "");
-  original_text = original_text.replaceAll("\u0F37", "");
+  original_text = original_text?.replaceAll("\u0F37", "");
 
   let saveText = async () => {
     let duration = document?.querySelector("#activeTime")?.innerHTML ?? 0;
