@@ -9,6 +9,7 @@ import { LinksFunction } from "@remix-run/node";
 
 import ExportExcelButton from "~/components/Excel";
 import useModal from "~/components/hooks/useModal";
+import getWeeklyWordCount from "~/model/weeklyreport.server";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const links: LinksFunction = () => [
@@ -41,7 +42,7 @@ export const loader = async ({ request }) => {
             modified_on:
               startDate && endDate
                 ? startDate !== endDate
-                  ? { gte: new Date(startDate), lte: new Date(endDate) }
+                  ? { gte: new Date(startDate), lt: new Date(endDate) }
                   : new Date(startDate)
                 : undefined,
           },
@@ -81,11 +82,13 @@ export const loader = async ({ request }) => {
       averageWordCount: (word_count / taskCount).toFixed(2),
     };
   });
-  return { usersDetail, reviewers };
+  let weeklyReport = await getWeeklyWordCount();
+
+  return { usersDetail, reviewers, weeklyReport };
 };
 
 function report() {
-  let { usersDetail, reviewers } = useLoaderData();
+  let { usersDetail, reviewers, weeklyReport } = useLoaderData();
   let [params, setParams] = useSearchParams();
   let { Modal, Toggle_Modal, changeOpen } = useModal();
   let detailfetcher = useFetcher();
@@ -218,18 +221,15 @@ function report() {
             </div>
           </div>
         </Modal>
-        <div>
-          <button
-            className="bg-green-600 px-2  rounded hover:bg-green-700 text-white"
-            onClick={fetchDetailData}
-          >
-            fetch Detailed Work
-          </button>
-          <ExportExcelButton data={detailfetcher.data} fileName="UsersData" />
-        </div>
       </div>
 
       <div className="divider"></div>
+      <div className="mb-3">
+        total wordCount:{" "}
+        {usersDetail.reduce((total, item) => {
+          return total + item.word_count;
+        }, 0)}
+      </div>
       <div className="flex">
         <div className="flex flex-1 gap-3 flex-wrap">
           {usersDetail.map((user) => {
@@ -251,6 +251,46 @@ function report() {
           })}
         </div>
       </div>
+      <WordCountList data={weeklyReport} />
+    </div>
+  );
+}
+
+function WordCountList({ data }) {
+  const downloadCsv = () => {
+    let csvContent = "data:text/csv;charset=utf-8,";
+    csvContent += "Date,Total Word Count\r\n"; // Column headers
+    data.forEach((item) => {
+      csvContent += `${item.date},${item.totalWordCount}\r\n`; // Data rows
+    });
+
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "WordCountData.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-5">
+      <ul className="list-disc space-y-2">
+        {data.map((entry, index) => (
+          <li key={index} className="bg-gray-100 p-3 rounded-md shadow">
+            <span className="font-bold">Date: </span>
+            {entry.date}
+            <span className="font-bold">, Total Word Count: </span>
+            {entry.totalWordCount.toLocaleString()}
+          </li>
+        ))}
+      </ul>
+      <button
+        onClick={downloadCsv}
+        className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      >
+        Download CSV
+      </button>
     </div>
   );
 }
