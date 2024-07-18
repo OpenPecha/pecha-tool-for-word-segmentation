@@ -21,4 +21,5 @@ services:
 
 databases:
   - name: word-segmentation-pg-v2
+    region: Singapore
     plan: starter
