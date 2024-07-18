@@ -2,7 +2,7 @@ services:
   - type: web
     name: word-segmentation v2
     env: node
-    plan: standard
+    plan: starter
     region: Singapore
     # Update the following line with your Strapi GitHub repo
     repo: https://github.com/OpenPecha/pecha-tool-for-word-segmentation
@@ -21,4 +21,4 @@ services:
 
 databases:
   - name: word-segmentation-pg-v2
-    plan: standard
+    plan: starter
