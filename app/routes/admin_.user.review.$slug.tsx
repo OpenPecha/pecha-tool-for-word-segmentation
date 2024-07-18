@@ -1,5 +1,5 @@
 import { DataFunctionArgs, redirect } from "@remix-run/node";
-import { useFetcher, useSearchParams } from "@remix-run/react";
+import { useFetcher, useRevalidator } from "@remix-run/react";
 import { useLoaderData } from "react-router";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
 import AdminHistorySidebar from "~/components/AdminHistorySidebar";
@@ -7,64 +7,95 @@ import EditorContainer from "~/components/Editor";
 import Button from "~/components/Button";
 import { db } from "~/service/db.server";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
+import { useRef } from "react";
 
 export const loader = async ({ request, params }: DataFunctionArgs) => {
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
+  let trashed = url.searchParams.get("trashed");
+  let detail = url.searchParams.get("detail");
+
   let history = url.searchParams.get("adminhistory");
   let load = url.searchParams.get("load") as string;
   let take = load ? parseInt(load) : 20;
-  const [user, annotator] = await Promise.all([
-    await db.user.findUnique({
-      where: { username: session! },
-    }),
-    await db.user.findUnique({
-      where: { username: params.slug! },
-      select: {
-        text: {
-          where: {
-            status: "APPROVED",
-            reviewed: true,
+  const user = await db.user.findUnique({
+    where: { username: session! },
+    select: {
+      id: true,
+      username: true,
+    },
+  });
+  const annotator = detail
+    ? await db.user.findUnique({
+        where: { username: params.slug! },
+        select: {
+          text: {
+            where: {
+              status: "APPROVED",
+              original_text: { not: "" },
+            },
+            select: {
+              id: true,
+              reviewed: true,
+              status: true,
+            },
+            orderBy: { updatedAt: "desc" },
+            take,
           },
-          select: {
-            id: true,
-            reviewed: true,
+          username: true,
+          rejected_list: { select: { id: true, status: true } }, // Select specific fields or all (undefined)
+          _count: {
+            select: {
+              text: { where: { reviewed: true } },
+              rejected_list: true,
+            },
           },
-          orderBy: { updatedAt: "desc" },
-          take,
+          reviewer_id: true,
+          id: true,
         },
-        rejected_list: { select: { id: true } }, // Select specific fields or all (undefined)
-        _count: {
-          select: { text: { where: { reviewed: true } }, rejected_list: true },
+      })
+    : await db.user.findUnique({
+        where: { username: params.slug! },
+      });
+
+  let trashedtask = trashed
+    ? await db.text.findMany({
+        where: {
+          OR: [
+            { modified_by: { username: params.slug! } },
+            { reviewed_by: { username: session! } },
+          ],
+          status: "TRASHED",
         },
-        reviewer_id: true,
-        id: true,
-        username: true,
-      },
-    }),
-  ]);
+        orderBy: { updatedAt: "desc" },
+      })
+    : [];
   //check if user and admin are in same group
   if (annotator?.reviewer_id !== user?.id)
     return redirect("/?session=" + session);
-
-  let currentText = await db.text.findFirst({
-    where: {
-      reviewed: false,
-      modified_by_id: annotator?.id,
-      status: "APPROVED",
-    },
-    orderBy: { id: "desc" },
-  });
+  let currentText;
   if (history) {
     currentText = await db.text.findFirst({
       where: {
-        status: "APPROVED",
         id: parseInt(history),
-        modified_by_id: annotator?.id,
+        OR: [
+          { modified_by_id: annotator?.id, status: "APPROVED" },
+          { modified_by_id: annotator?.id, status: "TRASHED" },
+        ],
       },
     });
+  } else {
+    currentText = await db.text.findFirst({
+      where: {
+        reviewed: false,
+        modified_by_id: annotator?.id,
+        status: "APPROVED",
+        original_text: { not: "" },
+      },
+      orderBy: { id: "asc" },
+    });
   }
-  return { user, annotator, currentText };
+  return { user, annotator, currentText, trashedtask };
 };
 
 function UserDetail() {
@@ -75,32 +106,58 @@ function UserDetail() {
     currentText?.original_text;
   let newText = currentText ? insertHTMLonText(show) : "";
   let editor = useEditorTiptap();
-
+  const submit_fetcher = useFetcher();
+  const revalidate = useRevalidator();
+  let interval = useRef();
   if (!editor) return null;
+  let submit_url = "/api/text";
+  function saveText() {
+    let current_text = editor!.getText();
+    let modified_text = JSON.stringify(current_text.split(" "));
+    interval.current = setTimeout(() => {
+      revalidate.revalidate();
+    }, 4000);
+    let formData = new FormData();
+    formData.append("id", currentText?.id!);
+    formData.append("reviewed_text", modified_text);
+    formData.append("userId", annotator.id);
+    formData.append("adminId", user?.id);
+    submit_fetcher.submit(formData, {
+      method: "POST",
+      action: submit_url,
+    });
+  }
 
-  let saveText = () => {
-    fetcher.submit(
-      {
-        id: currentText.id!,
-        modified_text: editor?.getText()!,
-        userId: annotator.id,
-        adminId: user?.id,
-      },
-      { method: "POST", action: "/api/text" }
-    );
-  };
+  function rejectTask() {
+    let formData = new FormData();
+    formData.append("id", currentText?.id!);
+    formData.append("userId", annotator.id);
+    formData.append("_action", "reject");
+    formData.append("admin", true);
+    interval.current = setTimeout(() => {
+      revalidate.revalidate();
+    }, 4000);
+    submit_fetcher.submit(formData, {
+      method: "PATCH",
+      action: submit_url,
+    });
+  }
+  function trashTask() {
+    let id = currentText?.id!;
+    let formData = new FormData();
+    formData.append("id", id);
+    formData.append("_action", "trash");
+    formData.append("userId", user.id);
+    formData.append("isReviewer", true);
+    interval.current = setTimeout(() => {
+      revalidate.revalidate();
+    }, 4000);
+    submit_fetcher.submit(formData, {
+      method: "PATCH",
+      action: submit_url,
+    });
+  }
 
-  let rejectTask = () => {
-    fetcher.submit(
-      {
-        id: currentText.id!,
-        userId: annotator.id,
-        _action: "reject",
-        admin: true,
-      },
-      { method: "PATCH", action: "/api/text" }
-    );
-  };
   let isButtonDisabled =
     editor?.getText()!.length < 1 || fetcher.state !== "idle";
   return (
@@ -141,6 +198,13 @@ function UserDetail() {
                 value="REJECT"
                 title="REJECT (x)"
                 shortCut="x"
+              />
+              <Button
+                disabled={isButtonDisabled}
+                handleClick={trashTask}
+                value="TRASH"
+                title="TRASH (delete)"
+                shortCut="Delete"
               />
             </div>
           </>

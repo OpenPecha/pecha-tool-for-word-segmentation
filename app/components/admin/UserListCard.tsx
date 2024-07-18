@@ -62,7 +62,7 @@ const UserListCard = () => {
       )}
       <div>
         {list.map((user: any) => (
-          <EachUser user={user} />
+          <EachUser user={user} key={user.id} />
         ))}
       </div>
     </div>
@@ -71,7 +71,6 @@ const UserListCard = () => {
 
 function EachUser({ user }) {
   const current_user = useOutletContext();
-
   let remaining_count = user?.text;
   let Time = user?.modified_on;
   let time_ago = timeAgo(Time?.modified_on);
@@ -82,10 +81,10 @@ function EachUser({ user }) {
       to={`/admin/user/${user.username}?session=` + current_user?.username}
       className={` cursor-pointer flex items-center gap-5 py-3 px-7.5 hover:bg-gray-3 dark:hover:bg-meta-4 hover:rounded-sm transition duration-300 ease-in-out hover:bg-green-300`}
     >
-      {user.picture ? (
+      {user?.picture ? (
         <div className="avatar ml-2">
           <div className="w-[40px] rounded-full">
-            <img src={user.picture} alt="" />
+            <img src={user?.picture} alt="" />
           </div>
         </div>
       ) : (

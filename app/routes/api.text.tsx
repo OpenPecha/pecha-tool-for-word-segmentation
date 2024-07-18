@@ -7,8 +7,10 @@ import {
 import {
   changeCategory,
   deleteTextByVersion,
+  delete_modified,
   rejectText,
   saveText,
+  trashText,
   updateTextRejectCount,
 } from "~/model/text.server";
 import { updateUserAssign } from "~/model/user.server";
@@ -42,9 +44,13 @@ export const loader: LoaderFunction = async ({ request }) => {
 
 export const action: ActionFunction = async ({ request }) => {
   const formData = await request.formData();
-  let headerUrl = request.headers.get("referer") as string;
+  let headerUrl =
+    request.headers.get("referer") || ("http://localhost:3000" as string);
 
   let url = new URL(headerUrl);
+  let detail = url.searchParams.get("detail");
+  let trashed = url.searchParams.get("trashed");
+
   let session = url.searchParams.get("session") as string;
   let history = url.searchParams.get("history");
   let adminhistory = url.searchParams.get("adminhistory");
@@ -54,21 +60,36 @@ export const action: ActionFunction = async ({ request }) => {
 
   if (request.method === "POST") {
     const modified_text = formData.get("modified_text") as string;
+    const reviewed_text = formData.get("reviewed_text") as string;
     const userId = formData.get("userId") as string;
     const id = formData.get("id") as string;
     const time = formData.get("duration") as string;
     let text = await saveText(
       parseInt(id),
       modified_text,
+      reviewed_text,
       userId,
       admin_id,
       time
     );
     if (history) {
-      return redirect(`/?session=${session}`);
+      let url = `/?session=${session}`;
+      if (detail) {
+        url += "&detail=true";
+      }
+      if (trashed) {
+        url += "&trashed=true";
+      }
+      return redirect(url);
     }
     if (adminhistory) {
       let newURL = url.pathname + "?session=" + session;
+      if (detail) {
+        newURL += "&detail=true";
+      }
+      if (trashed) {
+        newURL += "&trashed=true";
+      }
       return redirect(newURL);
     }
     return { status: "ok", text };
@@ -87,11 +108,23 @@ export const action: ActionFunction = async ({ request }) => {
       }
       if (adminhistory) {
         let newURL = url.pathname + "?session=" + session;
+        if (detail) {
+          newURL += "&detail=true";
+        }
+        if (trashed) {
+          newURL += "&trashed=true";
+        }
         return redirect(newURL);
       }
       return text;
     }
-
+    if (action === "undo") {
+      await delete_modified({ id });
+    }
+    if (action === "trash") {
+      let isReviewer = formData.get("isReviewer") as string;
+      await trashText(parseInt(id), userId, !!isReviewer);
+    }
     if (action === "change_category") {
       const category = formData.get("category") as string;
       const version = formData.get("version") as string;
@@ -99,6 +132,9 @@ export const action: ActionFunction = async ({ request }) => {
       return text;
     }
     if (history) {
+      if (detail) {
+        return redirect(`/?session=${session}&detail=true`);
+      }
       return redirect(`/?session=${session}`);
     }
   }

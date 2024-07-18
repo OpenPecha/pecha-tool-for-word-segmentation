@@ -1,5 +1,6 @@
 import { useRef, useEffect } from "react";
 import { Ignore, Right, Undo, Wrong } from "../assets/svgs";
+import { BiTrashAlt } from "react-icons/bi/index.js";
 interface ButtonProps {
   handleClick: () => void;
   value: string;
@@ -45,6 +46,12 @@ function Button({
     case "UNDO":
       innerValue = <Undo />;
       classbtn += " bg-[--normal-btn]";
+      break;
+    case "TRASH":
+      innerValue = (
+        <BiTrashAlt className={"h-[70px] w-auto mx-auto fill-white"} />
+      );
+      classbtn += " bg-[--trash-btn] ";
       break;
   }
   return (

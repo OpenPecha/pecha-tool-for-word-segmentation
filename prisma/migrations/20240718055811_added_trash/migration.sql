@@ -1,19 +1,22 @@
 -- CreateEnum
-CREATE TYPE "Status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
+CREATE TYPE "Status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED', 'TRASHED');
 
 -- CreateEnum
-CREATE TYPE "Role" AS ENUM ('USER', 'ANNOTATOR', 'ADMIN');
+CREATE TYPE "Role" AS ENUM ('USER', 'ANNOTATOR', 'ADMIN', 'REVIEWER');
 
 -- CreateTable
 CREATE TABLE "User" (
     "id" TEXT NOT NULL,
     "username" TEXT NOT NULL,
+    "picture" TEXT,
     "nickname" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "assigned_batch" INTEGER[] DEFAULT ARRAY[]::INTEGER[],
     "role" "Role" NOT NULL DEFAULT 'ANNOTATOR',
+    "reviewer_id" TEXT,
     "allow_assign" BOOLEAN DEFAULT false,
+    "categories" TEXT[] DEFAULT ARRAY[]::TEXT[],
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
 );
@@ -23,14 +26,20 @@ CREATE TABLE "Text" (
     "id" SERIAL NOT NULL,
     "original_text" TEXT NOT NULL,
     "modified_text" TEXT,
+    "reviewed_text" TEXT,
     "status" "Status",
     "modified_by_id" TEXT,
+    "modified_on" TIMESTAMP(3) DEFAULT CURRENT_TIMESTAMP,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "batch" INTEGER DEFAULT 0,
+    "batch" SERIAL,
     "version" TEXT DEFAULT '',
-    "reviewed" BOOLEAN DEFAULT false,
+    "reviewed" BOOLEAN,
     "reviewed_by_id" TEXT,
+    "reject_count" INTEGER DEFAULT 0,
+    "category" TEXT DEFAULT 'gen',
+    "duration" DOUBLE PRECISION DEFAULT 0,
+    "word_count" INTEGER DEFAULT 0,
 
     CONSTRAINT "Text_pkey" PRIMARY KEY ("id")
 );
@@ -54,6 +63,9 @@ CREATE UNIQUE INDEX "User_username_key" ON "User"("username");
 CREATE UNIQUE INDEX "User_nickname_key" ON "User"("nickname");
 
 -- CreateIndex
+CREATE UNIQUE INDEX "Text_id_key" ON "Text"("id" DESC);
+
+-- CreateIndex
 CREATE UNIQUE INDEX "_UserRejectedText_AB_unique" ON "_UserRejectedText"("A", "B");
 
 -- CreateIndex
@@ -64,6 +76,9 @@ CREATE UNIQUE INDEX "_UserIgnoredText_AB_unique" ON "_UserIgnoredText"("A", "B")
 
 -- CreateIndex
 CREATE INDEX "_UserIgnoredText_B_index" ON "_UserIgnoredText"("B");
+
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_reviewer_id_fkey" FOREIGN KEY ("reviewer_id") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Text" ADD CONSTRAINT "Text_modified_by_id_fkey" FOREIGN KEY ("modified_by_id") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;

@@ -1,32 +1,46 @@
 import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { FiTrash } from "react-icons/fi/index.js";
 interface HistoryItemProps {
   id: number;
   user: any;
   onClick: () => void;
   icon: JSX.Element;
   disabled?: boolean;
+  currentId: number;
 }
 interface AdminHistoryItemProps {
   id: number;
   onClick: () => void;
   icon: JSX.Element;
   reviewed: boolean;
-  selectedId: number | null;
+  selectedId: number;
+  trashed: boolean;
 }
-function HistoryItem({ id, user, onClick, icon, disabled }: HistoryItemProps) {
-  const [searchParams] = useSearchParams();
-  let history = searchParams.get("history");
+function HistoryItem({
+  id,
+  user,
+  onClick,
+  icon,
+  disabled,
+  currentId,
+}: HistoryItemProps) {
+  const { history } = useLoaderData();
+  const [param] = useSearchParams();
+  let showDetail = param.get("detail") === "true" ?? false;
+  let link = showDetail
+    ? `/?session=${user.username}&history=${id}&detail=true`
+    : `/?session=${user.username}&history=${id}`;
   if (disabled)
     return (
-      <div className="px-2 dark:text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800">
+      <div className="px-2 text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800">
         {id} {icon}
       </div>
     );
   return (
     <Link
-      to={`/?session=${user.username}&history=${id}`}
+      to={link}
       className={`px-2 flex gap-3 items-center ${
-        history == id ? "bg-gray-400 dark:bg-gray-700" : ""
+        history == id ? "bg-gray-700" : ""
       }`}
       onClick={onClick}
     >
@@ -41,10 +55,11 @@ function AdminHistoryItem({
   icon,
   reviewed,
   selectedId,
+  trashed,
 }: AdminHistoryItemProps) {
   return (
     <div
-      className="dark:text-white flex gap-3 cursor-pointer hover:border-2 pl-2 border-purple-800"
+      className="text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800"
       style={{
         background: selectedId == id ? "rgba(1,1,1,0.4)" : "",
       }}
@@ -52,6 +67,7 @@ function AdminHistoryItem({
     >
       {id}
       {reviewed ? icon : null}
+      {trashed ? <FiTrash /> : null}
     </div>
   );
 }
@@ -65,7 +81,7 @@ function DemoHistoryItem({
 }: HistoryItemProps) {
   if (disabled)
     return (
-      <div className="dark:text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800">
+      <div className="text-white flex gap-3 cursor-pointer hover:border-2 border-purple-800">
         {id} {icon}
       </div>
     );

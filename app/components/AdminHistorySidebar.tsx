@@ -1,16 +1,12 @@
-import {
-  Link,
-  useLoaderData,
-  useNavigation,
-  useSearchParams,
-} from "@remix-run/react";
-import { useEffect, useRef, useState, useTransition } from "react";
+import { Link, useLoaderData, useSearchParams } from "@remix-run/react";
+import { useEffect, useRef, useState } from "react";
 import { historyText } from "./Sidebar";
 import TextInfo from "./TextInfo";
 import { AdminHistoryItem } from "./History";
 import { sortUpdate_reviewed } from "~/lib/sortReviewedUpdate";
 import { Hamburger, Tick } from "../assets/svgs";
 import { toolname } from "~/const";
+import { Checkbox } from "flowbite-react";
 
 interface SidebarProps {
   user: any;
@@ -24,22 +20,40 @@ function AdminHistorySidebar({ user }: SidebarProps) {
     let currentLoad = searchParams.get("load")
       ? parseInt(searchParams.get("load") as string)
       : 20;
-    let newnumber = `${parseInt(currentLoad) + 20}`;
+    let updatedLoad = `${currentLoad + 20}`;
     setSeachParams((p) => {
-      p.set("load", newnumber);
+      p.set("load", updatedLoad);
       return p;
     });
   }
-  let transaction = useNavigation();
   const lastItemRef = useRef(null);
   const [hasFetched, setHasFetched] = useState(false);
   const items = user?.text;
-  const prevLengthRef = useRef(items.length);
+  const prevLengthRef = useRef(items?.length);
+
+  let showTrashed = searchParams.get("trashed") === "true" ?? false;
+  function setShowTrashed(e) {
+    setSeachParams((prev) => {
+      !!e ? prev.set("trashed", "true") : prev.delete("trashed");
+      return prev;
+    });
+  }
+
+  function handleShowDetail(e) {
+    let value = e.target.checked;
+    setSeachParams((prev) => {
+      value ? prev.set("detail", "true") : prev.delete("detail");
+      return prev;
+    });
+  }
+  let showDetail = searchParams.get("detail") === "true" ?? false;
+
   useEffect(() => {
+    if (!items?.length) return;
     // Reset hasFetched to false if the length of items changes (indicating new items)
-    if (items.length !== prevLengthRef.current) {
+    if (items?.length !== prevLengthRef.current) {
       setHasFetched(false);
-      prevLengthRef.current = items.length;
+      prevLengthRef.current = items?.length;
     }
 
     const observer = new IntersectionObserver(
@@ -61,7 +75,7 @@ function AdminHistorySidebar({ user }: SidebarProps) {
     return () => {
       observer.disconnect();
     };
-  }, [items.length, loadmore, hasFetched]);
+  }, [items?.length, loadmore, hasFetched]);
 
   const SidebarHeader = () => (
     <div className="flex bg-[#384451] px-2 py-3 items-center justify-between md:hidden">
@@ -73,6 +87,10 @@ function AdminHistorySidebar({ user }: SidebarProps) {
       </div>
     </div>
   );
+  function handleTrashView(e) {
+    let view = e.target.checked;
+    setShowTrashed(!!view);
+  }
   return (
     <div className="flex flex-col">
       <div
@@ -95,34 +113,71 @@ function AdminHistorySidebar({ user }: SidebarProps) {
         <div className="px-2 flex gap-2 flex-col border-b-2 border-b-[#384451] mb-3 pb-2 mt-2 ">
           <SidebarHeader />
           <Link
-            to={`/admin/user?session=${data?.user.username}`}
+            to={`/admin/user?session=${data.user.username}`}
             className="decoration-0 text-white bg-gray-500 h-fit px-2 py-1 "
           >
             DASHBOARD
           </Link>
           <TextInfo>User : {user?.username}</TextInfo>
           <TextInfo>text id :{data?.currentText?.id}</TextInfo>
-          <TextInfo>Approved :{user?.text?.length}</TextInfo>
-          <TextInfo>Rejected :{user?._count.rejected_list}</TextInfo>
-          <TextInfo>Reviewed :{user?._count.text}</TextInfo>
-          <button
-            type="button"
-            className="p-2 bg-gray-300 rounded-md font-bold font-Inter text-black"
-            onClick={loadmore}
-          >
-            load more history
-          </button>
+          <TextInfo>
+            Show detail :{" "}
+            <Checkbox checked={showDetail} onChange={handleShowDetail} />
+          </TextInfo>
+          {showDetail && (
+            <>
+              <TextInfo>Approved :{user?.text?.length}</TextInfo>
+              <TextInfo>Rejected :{user?._count?.rejected_list}</TextInfo>
+              <TextInfo>Reviewed :{user?._count?.text}</TextInfo>
+              <TextInfo>
+                Show trashed :{" "}
+                <Checkbox checked={showTrashed} onChange={handleTrashView} />
+              </TextInfo>
+              <button
+                type="button"
+                className="p-2 bg-gray-300 rounded-md font-bold font-Inter text-black"
+                onClick={loadmore}
+              >
+                load more history
+              </button>
+            </>
+          )}
         </div>
         <div className="flex-1">
           <div className="flex flex-col gap-2 max-h-fit overflow-y-auto">
-            {user &&
+            {showTrashed &&
+              data?.trashedtask.map((text: historyText, index: number) => (
+                <div
+                  key={text.id + "-accepted"}
+                  className="px-3"
+                  ref={index === user?.text?.length - 1 ? lastItemRef : null}
+                >
+                  <AdminHistoryItem
+                    id={text?.id}
+                    onClick={() => {
+                      setOpenMenu(false);
+                      setSeachParams((p) => {
+                        p.set("adminhistory", text?.id);
+                        return p;
+                      });
+                    }}
+                    icon={<Tick />}
+                    reviewed={text?.reviewed!}
+                    selectedId={data?.currentText?.id}
+                    trashed={text.status === "TRASHED"}
+                  />
+                </div>
+              ))}
+
+            {showDetail &&
+              user &&
               user?.text
                 ?.sort(sortUpdate_reviewed)
                 .map((text: historyText, index: number) => (
                   <div
                     key={text.id + "-accepted"}
                     className="px-3"
-                    ref={index === user?.text.length - 1 ? lastItemRef : null}
+                    ref={index === user?.text?.length - 1 ? lastItemRef : null}
                   >
                     <AdminHistoryItem
                       id={text?.id}
@@ -136,6 +191,7 @@ function AdminHistorySidebar({ user }: SidebarProps) {
                       icon={<Tick />}
                       reviewed={text?.reviewed!}
                       selectedId={data?.currentText?.id}
+                      trashed={text.status === "TRASHED"}
                     />
                   </div>
                 ))}

@@ -17,6 +17,7 @@ export async function uploadData({
       console.log("Record already exists");
       return { error: "Record already exists" };
     }
+    let count = await db.text.count();
     let lastId = await db.text.findFirst({
       orderBy: {
         id: "desc",
@@ -24,7 +25,7 @@ export async function uploadData({
       select: { id: true },
       take: 1,
     });
-    let id = lastId?.id;
+    let id = count !== 0 && lastId?.id ? lastId?.id : 0;
     let UploadData = data?.map((item) => {
       id += 1;
       return {

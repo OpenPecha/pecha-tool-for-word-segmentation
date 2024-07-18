@@ -51,7 +51,7 @@ export const createUserIfNotExists = async (username: string) => {
       },
     });
   }
-  if (!user.picture) {
+  if (!user?.picture) {
     //get user detail from api
     let api = "https://pecha.tools/api/user/?email=" + username;
     let response = await fetch(api);
@@ -59,7 +59,7 @@ export const createUserIfNotExists = async (username: string) => {
     await db.user.update({
       where: { username },
       data: {
-        picture: data.picture,
+        picture: data?.picture,
       },
     });
   }

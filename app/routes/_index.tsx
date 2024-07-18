@@ -11,7 +11,7 @@ import {
 import Button from "~/components/Button";
 import Editor from "~/components/Editor";
 import Sidebar from "~/components/Sidebar";
-import { getTextToDisplay } from "~/model/text.server";
+import { getMonthlyWordCount, getTextToDisplay } from "~/model/text.server";
 import checkUnknown from "~/lib/checkUnknown";
 import { createUserIfNotExists } from "~/model/user.server";
 import insertHTMLonText from "~/lib/insertHtmlOnText";
@@ -19,62 +19,43 @@ import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import ActiveUser from "~/components/ActiveUser";
 import { db } from "~/service/db.server";
 export const loader: LoaderFunction = async ({ request }) => {
+  let { NODE_ENV } = process.env;
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
+  let detail = url.searchParams.get("detail");
   let history = url.searchParams.get("history") || null;
+  let activeWork = await db.system.findFirst();
+
   if (!session) {
     return redirect("https://pecha.tools");
   } else {
-    let user = await createUserIfNotExists(session);
-    if (user.role === "ADMIN" || user.role === "REVIEWER") {
-      return redirect(`/admin/user?session=${user?.username}`);
-    }
+    let user = await createUserIfNotExists(session, detail);
     let text = null;
-    try {
-      text = await getTextToDisplay(user, history);
-    } catch (e) {
-      return { error: "no Batch to assign", user };
+    if (user?.role === "ADMIN" || user?.role === "REVIEWER") {
+      return redirect(`/admin/user/?session=${user.username}`);
+    }
+    if (user?.role === "OWNER") {
+      return redirect(`/owner?session=${user.username}`);
+    }
+    if (activeWork?.status === "Activated") {
+      return { activeWork };
+    }
+    if (user?.allow_assign) {
+      text = await getTextToDisplay(user?.id, history);
+      if (text?.error) {
+        return { error: text.error.message };
+      }
     }
 
-    const today = new Date();
-    let startOfMonth;
-
-    if (today.getDate() >= 26) {
-      // If today is 26th or later, consider this month
-      startOfMonth = new Date(today.getFullYear(), today.getMonth(), 26);
-    } else {
-      // If today is earlier than 26th, consider last month
-      startOfMonth = new Date(today.getFullYear(), today.getMonth() - 1, 26);
-    }
-
-    const wordCount = await db.text.aggregate({
-      where: {
-        modified_by_id: user.id,
-        modified_text: { not: null }, // Filter out texts that are not modified
-        modified_on: {
-          gte: startOfMonth,
-          lte: today,
-        },
-        reviewed: true,
-      },
-      _avg: {
-        word_count: true,
-      },
-    });
+    let monthlyData = await getMonthlyWordCount(user?.id);
+    let current_time = Date.now();
     return {
       text,
-      user: {
-        username: user.username,
-        nickname: user.nickname,
-        picture: user.picture,
-        id: user.id,
-        _count: user._count,
-        rejected_list: user.rejected_list,
-        role: user.role,
-        approved_count: user.text.length,
-        averageWordCount: Math.floor(wordCount?._avg?.word_count!) ?? 0,
-        allow_assign: user.allow_assign,
-      },
+      user,
+      NODE_ENV,
+      history,
+      current_time,
+      monthlyData,
     };
   }
 };
@@ -100,10 +81,20 @@ export default function Index() {
 
   let saveText = async () => {
     let duration = document?.querySelector("#activeTime")?.innerHTML ?? 0;
-    let modified_text = editor!.getText();
+
+    let text = editor!.getText();
+    let modified_text = JSON.stringify(text.split(" "));
+
     fetcher.submit(
       { id, modified_text, userId: user.id, duration: duration },
       { method: "POST", action: "/api/text" }
+    );
+  };
+  let trashTask = async () => {
+    let id = text.id;
+    fetcher.submit(
+      { id, _action: "trash", userId: user.id },
+      { method: "PATCH", action: "/api/text" }
     );
   };
   let undoTask = async () => {
@@ -116,7 +107,6 @@ export default function Index() {
       { method: "PATCH", action: "/api/text" }
     );
   };
-
   let isButtonDisabled = !text || text.reviewed || fetcher.state !== "idle";
   let isSaving = fetcher.state !== "idle";
   return (
@@ -179,7 +169,13 @@ export default function Index() {
               title="REJECT (x)"
               shortCut="x"
             />
-
+            <Button
+              disabled={isButtonDisabled}
+              handleClick={trashTask}
+              value="TRASH"
+              title="TRASH (delete)"
+              shortCut="Delete"
+            />
             <Button
               disabled={isButtonDisabled}
               handleClick={undoTask}
