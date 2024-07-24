@@ -7,7 +7,6 @@ import {
   Scripts,
   ScrollRestoration,
   useFetchers,
-  useLoaderData,
   useNavigation,
 } from "@remix-run/react";
 import React, { useMemo } from "react";
@@ -24,6 +23,8 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: drawwerStyle },
   { rel: "stylesheet", href: nProgressStyles },
 ];
+
+export const WORD_PER_WEEK = 354_000 / 10;
 
 export default function App() {
   let transition = useNavigation();

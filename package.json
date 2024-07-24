@@ -3,7 +3,7 @@
   "author": "Tenzin Kunsang",
   "private": true,
   "sideEffects": false,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "build": "remix build",
     "dev": "remix dev --manual -c \"node server.js\"",

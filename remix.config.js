@@ -1,8 +1,8 @@
 /** @type {import('@remix-run/dev').AppConfig} */
-export default {
-  ignoredRouteFiles: ["**/.*"],
+// const { createRoutesFromFolders } = require("@remix-run/v1-route-convention");
+module.exports = {
   // appDirectory: "app",
-  serverModuleFormat: "esm",
+  serverModuleFormat: "cjs",
   serverDependenciesToBundle: [
     "@uidotdev/usehooks",
     /^remix-utils.*/,
@@ -15,6 +15,14 @@ export default {
     "time-span",
     "convert-hrtime",
     "is-regexp",
+    "react-date-range",
   ],
+  ignoredRouteFiles: ["**/.*"],
   tailwind: true,
+  browserNodeBuiltinsPolyfill: {
+    modules: {
+      path: true,
+      util: true,
+    },
+  },
 };

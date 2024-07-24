@@ -18,6 +18,7 @@ import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import ActiveUser from "~/components/ActiveUser";
 import { db } from "~/service/db.server";
+import { WORD_PER_WEEK } from "~/root";
 export const loader: LoaderFunction = async ({ request }) => {
   let { NODE_ENV } = process.env;
   let url = new URL(request.url);
@@ -42,6 +43,7 @@ export const loader: LoaderFunction = async ({ request }) => {
     }
     if (user?.allow_assign) {
       text = await getTextToDisplay(user?.id, history);
+
       if (text?.error) {
         return { error: text.error.message };
       }
@@ -125,11 +127,11 @@ export default function Index() {
           </div>
         )}
         {error && (
-          <div className="font-bold first-letter:uppercase first-letter:text-red-400">
+          <div className="fixed top-16 font-bold first-letter:uppercase first-letter:text-red-400">
             {error} . please contact admin .
           </div>
         )}
-        {!user.allow_assign && (
+        {!user?.allow_assign && (
           <div className="font-bold first-letter:uppercase first-letter:text-red-400">
             A single work must have been rejected 3 times or more. maybe system
             blocked your work. please contact admin .

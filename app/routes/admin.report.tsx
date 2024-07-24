@@ -2,20 +2,10 @@ import { useFetcher, useLoaderData, useSearchParams } from "@remix-run/react";
 import { useEffect, useState } from "react";
 import { db } from "~/service/db.server";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
-import style1 from "react-date-range/dist/styles.css"; // main style file
-import style2 from "react-date-range/dist/theme/default.css";
-import { DateRangePicker } from "react-date-range";
-import { LinksFunction } from "@remix-run/node";
 
-import ExportExcelButton from "~/components/Excel";
 import useModal from "~/components/hooks/useModal";
 import getWeeklyWordCount from "~/model/weeklyreport.server";
 ChartJS.register(ArcElement, Tooltip, Legend);
-
-export const links: LinksFunction = () => [
-  { rel: "stylesheet", href: style1 },
-  { rel: "stylesheet", href: style2 },
-];
 
 export const loader = async ({ request }) => {
   let url = new URL(request.url);
@@ -202,7 +192,6 @@ function report() {
         </div>
         <Modal>
           <div className="flex">
-            <DateRangePicker ranges={[range]} onChange={handleSelect} />
             <div className="flex flex-col flex-1 justify-center items-center gap-3">
               <button
                 className="ml-4 btn-md bg-green-300 rounded w-full hover:bg-green-400"

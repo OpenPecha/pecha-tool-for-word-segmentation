@@ -1,6 +1,7 @@
 import { Status } from "@prisma/client";
 import { db } from "~/service/db.server";
 import { getUnassignedBatch } from "./group.server";
+import { WORD_PER_WEEK } from "~/root";
 
 export async function checkAndAssignBatch(userId: string) {
   try {
@@ -114,6 +115,10 @@ export async function getTextToDisplay(userId: string, history: any) {
   });
   if (!unassignedWork) {
     return { error: { message: "no text available" } };
+  }
+  let countCheck = await checkWordLimit(userId);
+  if (countCheck) {
+    return { error: { message: countCheck } };
   }
   let assignText = await db.text.update({
     where: {
@@ -377,4 +382,44 @@ export async function getMonthlyWordCount(userId: string) {
   });
 
   return monthlyData;
+}
+
+export async function checkWordLimit(userId: string) {
+  const WORD_LIMIT = WORD_PER_WEEK;
+  // Get the start and end dates for the current week
+  const now = new Date();
+  const startOfWeekDate = getStartOfWeek(new Date(now)); // Start of the current week (Monday)
+  const endOfWeekDate = getEndOfWeek(startOfWeekDate); // End of the current week (Sunday)
+
+  // Query total word count for the user within the current week
+  const totalWordCount = await db.text.aggregate({
+    _sum: {
+      word_count: true,
+    },
+    where: {
+      modified_by_id: userId,
+      modified_on: {
+        gte: startOfWeekDate,
+        lte: endOfWeekDate,
+      },
+    },
+  });
+
+  const currentWordCount = totalWordCount._sum.word_count || 0;
+
+  // Check if the user has reached the word limit
+  if (currentWordCount >= WORD_LIMIT)
+    return `You have reached the word limit of ${WORD_LIMIT} words for this week. try after ${endOfWeekDate}`;
+
+  return false;
+}
+
+function getStartOfWeek(date) {
+  const day = date.getDay();
+  const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
+  return new Date(date.setDate(diff));
+}
+
+function getEndOfWeek(startOfWeek) {
+  return new Date(startOfWeek.getTime() + 6 * 24 * 60 * 60 * 1000);
 }
