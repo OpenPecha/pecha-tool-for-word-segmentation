@@ -1,7 +1,7 @@
 import { Status } from "@prisma/client";
 import { db } from "~/service/db.server";
 import { getUnassignedBatch } from "./group.server";
-import { WORD_PER_WEEK } from "~/root";
+import { WORD_PER_MONTH } from "~/root";
 
 export async function checkAndAssignBatch(userId: string) {
   try {
@@ -74,7 +74,8 @@ export async function checkAndAssignBatch(userId: string) {
   }
 }
 
-export async function getTextToDisplay(userId: string, history: any) {
+export async function getTextToDisplay(user: any, history: any) {
+  let userId = user.id;
   if (history) {
     const text = await db.text.findUnique({
       where: { id: parseInt(history) },
@@ -101,13 +102,15 @@ export async function getTextToDisplay(userId: string, history: any) {
     },
   });
   if (RemainingWork) return RemainingWork;
-
   let unassignedWork = await db.text.findFirst({
     where: {
       modified_by_id: null,
       modified_text: null,
       original_text: { not: "" },
       OR: [{ status: "PENDING" }, { status: null }],
+      category: {
+        in: user.categories,
+      },
     },
     orderBy: {
       id: "asc",
@@ -242,7 +245,7 @@ export function saveText(
         status: "APPROVED",
         rejected_by: { disconnect: { id: userId } },
         duration,
-        modified_on: new Date(),
+        modified_on: new Date().toISOString(),
         word_count,
       },
     });
@@ -385,18 +388,20 @@ export async function getMonthlyWordCount(userId: string) {
 }
 
 export async function checkWordLimit(userId: string) {
-  const WORD_LIMIT = WORD_PER_WEEK;
-  // Get the start and end dates for the current week
-  const now = new Date();
-  const startOfWeekDate = getStartOfWeek(new Date(now)); // Start of the current week (Monday)
-  const endOfWeekDate = getEndOfWeek(startOfWeekDate); // End of the current week (Sunday)
-  const startOfWeekDateIST = convertToIST(startOfWeekDate);
-  const endOfWeekDateIST = convertToIST(endOfWeekDate);
+  const WORD_LIMIT = WORD_PER_MONTH;
 
+  // Get the start and end dates for the current month (starting on the 24th)
+  const now = new Date();
+  const startOfMonthDate = getStartOfMonth(now);
+  const endOfMonthDate = getEndOfMonth(startOfMonthDate);
+
+  const startOfMonthDateIST = convertToIST(startOfMonthDate);
+  const endOfMonthDateIST = convertToIST(endOfMonthDate);
   // Convert dates to UTC for database querying
-  const startOfWeekDateUTC = startOfWeekDate.toISOString();
-  const endOfWeekDateUTC = endOfWeekDate.toISOString();
-  // Query total word count for the user within the current week
+  const startOfMonthDateUTC = startOfMonthDate.toISOString();
+  const endOfMonthDateUTC = endOfMonthDate.toISOString();
+
+  // Query total word count for the user within the current month
   const totalWordCount = await db.text.aggregate({
     _sum: {
       word_count: true,
@@ -404,36 +409,45 @@ export async function checkWordLimit(userId: string) {
     where: {
       modified_by_id: userId,
       modified_on: {
-        gte: startOfWeekDateUTC,
-        lte: endOfWeekDateUTC,
+        gte: startOfMonthDateUTC,
+        lte: endOfMonthDateUTC,
       },
     },
   });
-  const currentWordCount = totalWordCount._sum.word_count || 0;
 
+  const currentWordCount = totalWordCount._sum.word_count || 0;
   // Check if the user has reached the word limit
   if (currentWordCount >= WORD_LIMIT)
-    return `You have reached the word limit of ${WORD_LIMIT} words for this week. try after ${endOfWeekDateIST}`;
+    return `You have reached the word limit of ${WORD_LIMIT} words for this month. Try after ${endOfMonthDateIST}`;
 
   return false;
 }
 
-function getStartOfWeek(date: Date): Date {
-  const day = date.getDay();
-  const diff = (day + 6) % 7; // Calculate difference to get Monday
-  const monday = new Date(date);
-  monday.setDate(date.getDate() - diff);
-  monday.setHours(0, 0, 0, 0); // Set to 12 AM
-  return monday;
+function getStartOfMonth(date: Date): Date {
+  const day = date.getDate();
+  let startOfMonth: Date;
+
+  if (day >= 24) {
+    // If today is on or after the 24th, the start of the month is the 24th of the current month
+    startOfMonth = new Date(date.getFullYear(), date.getMonth(), 24);
+  } else {
+    // If today is before the 24th, the start of the month is the 24th of the previous month
+    startOfMonth = new Date(date.getFullYear(), date.getMonth() - 1, 24);
+  }
+
+  startOfMonth.setHours(0, 0, 0, 0); // Set to 12 AM
+  return startOfMonth;
 }
 
-// Function to get end of the week (Sunday 11:59 PM)
-function getEndOfWeek(date: Date): Date {
-  const startOfWeek = getStartOfWeek(date);
-  const endOfWeek = new Date(startOfWeek);
-  endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to Sunday
-  endOfWeek.setHours(23, 59, 59, 999); // Set to 11:59 PM
-  return endOfWeek;
+function getEndOfMonth(startOfMonthDate: Date): Date {
+  // End of month is the 23rd of the next month
+  const endOfMonth = new Date(
+    startOfMonthDate.getFullYear(),
+    startOfMonthDate.getMonth() + 1,
+    23
+  );
+  endOfMonth.setHours(23, 59, 59, 999); // Set to 11:59 PM
+  return endOfMonth;
 }
 
 function convertToIST(date: Date): string {

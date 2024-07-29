@@ -18,7 +18,6 @@ import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import ActiveUser from "~/components/ActiveUser";
 import { db } from "~/service/db.server";
-import { WORD_PER_WEEK } from "~/root";
 export const loader: LoaderFunction = async ({ request }) => {
   let { NODE_ENV } = process.env;
   let url = new URL(request.url);
@@ -30,7 +29,7 @@ export const loader: LoaderFunction = async ({ request }) => {
   if (!session) {
     return redirect("https://pecha.tools");
   } else {
-    let user = await createUserIfNotExists(session, detail);
+    let user = await createUserIfNotExists(session);
     let text = null;
     if (user?.role === "ADMIN" || user?.role === "REVIEWER") {
       return redirect(`/admin/user/?session=${user.username}`);
@@ -42,7 +41,7 @@ export const loader: LoaderFunction = async ({ request }) => {
       return { activeWork };
     }
     if (user?.allow_assign) {
-      text = await getTextToDisplay(user?.id, history);
+      text = await getTextToDisplay(user, history);
       if (text?.error) {
         return { error: text.error.message };
       }

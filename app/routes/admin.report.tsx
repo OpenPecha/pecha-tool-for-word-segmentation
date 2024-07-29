@@ -33,8 +33,11 @@ export const loader = async ({ request }) => {
             modified_on:
               startDate && endDate
                 ? startDate !== endDate
-                  ? { gte: new Date(startDate), lt: new Date(endDate) }
-                  : new Date(startDate)
+                  ? {
+                      gte: new Date(startDate).toISOString(),
+                      lt: new Date(endDate).toISOString(),
+                    }
+                  : new Date(startDate).toISOString()
                 : undefined,
           },
           select: { word_count: true, updatedAt: true, duration: true },

@@ -24,7 +24,7 @@ export const links: LinksFunction = () => [
   { rel: "stylesheet", href: nProgressStyles },
 ];
 const numberOfUser = 10;
-export const WORD_PER_WEEK = 354_000 / numberOfUser;
+export const WORD_PER_MONTH = 1_510_000 / numberOfUser;
 
 export default function App() {
   let transition = useNavigation();

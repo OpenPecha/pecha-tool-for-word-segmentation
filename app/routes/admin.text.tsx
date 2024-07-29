@@ -43,8 +43,14 @@ export const loader: LoaderFunction = async ({ request }) => {
   const count = await db.text.groupBy({
     by: ["version"],
   });
+  const annotators = await db.user.findMany({
+    where: {
+      NOT: { reviewer_id: null },
+    },
+  });
   return json({
     user,
+    annotators,
     texts,
     lastbatch,
     count: count.length,

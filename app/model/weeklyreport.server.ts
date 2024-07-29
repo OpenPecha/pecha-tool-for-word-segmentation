@@ -65,8 +65,8 @@ async function generateWeeklyWordCountData() {
         },
         where: {
           modified_on: {
-            gt: start,
-            lte: end,
+            gt: start.toISOString(),
+            lte: end.toISOString(),
           },
         },
       });

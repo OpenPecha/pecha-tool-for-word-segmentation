@@ -62,7 +62,10 @@ const UserListCard = () => {
       )}
       <div>
         {list.map((user: any) => (
-          <EachUser user={user} key={user.id} />
+          <EachUser
+            user={user}
+            key={user.username + Math.random().toString()}
+          />
         ))}
       </div>
     </div>
@@ -77,7 +80,6 @@ function EachUser({ user }) {
   if (!user) return null;
   return (
     <Link
-      key={user.id + "unique_key"}
       to={`/admin/user/${user.username}?session=` + current_user?.username}
       className={` cursor-pointer flex items-center gap-5 py-3 px-7.5 hover:bg-gray-3 dark:hover:bg-meta-4 hover:rounded-sm transition duration-300 ease-in-out hover:bg-green-300`}
     >
