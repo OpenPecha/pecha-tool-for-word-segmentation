@@ -4,7 +4,8 @@ import { db } from "~/service/db.server";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from "chart.js";
 
 import useModal from "~/components/hooks/useModal";
-import getWeeklyWordCount from "~/model/weeklyreport.server";
+import generateWeeklyWordCountData from "~/model/weeklyreport.server";
+import LineChart from "~/components/Chartweeklyreport";
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 export const loader = async ({ request }) => {
@@ -72,8 +73,7 @@ export const loader = async ({ request }) => {
       averageWordCount: (word_count / taskCount).toFixed(2),
     };
   });
-  let weeklyReport = await getWeeklyWordCount();
-
+  let weeklyReport = await generateWeeklyWordCountData();
   return { usersDetail, reviewers, weeklyReport };
 };
 
@@ -122,9 +122,7 @@ function report() {
     // Clean up by revoking the Object URL
     URL.revokeObjectURL(url);
   }
-  function handleSelect(ranges) {
-    setRange(ranges.selection);
-  }
+
   function handleSubmitDate() {
     setParams((prev) => {
       prev.set("startDate", range?.startDate);
@@ -140,16 +138,6 @@ function report() {
       return prev;
     });
     changeOpen();
-  }
-
-  function fetchDetailData() {
-    let formdata = new FormData();
-    formdata.append("data", JSON.stringify(range));
-
-    detailfetcher.submit(formdata, {
-      action: "/api/report",
-      method: "POST",
-    });
   }
 
   useEffect(() => {
@@ -214,7 +202,7 @@ function report() {
 
       <div className="divider"></div>
       <div className="mb-3">
-        total wordCount:{" "}
+        total wordCount:
         {usersDetail.reduce((total, item) => {
           return total + item.word_count;
         }, 0)}
@@ -240,46 +228,7 @@ function report() {
           })}
         </div>
       </div>
-      <WordCountList data={weeklyReport} />
-    </div>
-  );
-}
-
-function WordCountList({ data }) {
-  const downloadCsv = () => {
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Date,Total Word Count\r\n"; // Column headers
-    data.forEach((item) => {
-      csvContent += `${item.date},${item.totalWordCount}\r\n`; // Data rows
-    });
-
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "WordCountData.csv");
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto p-5">
-      <ul className="list-disc space-y-2">
-        {data.map((entry, index) => (
-          <li key={index} className="bg-gray-100 p-3 rounded-md shadow">
-            <span className="font-bold">Date: </span>
-            {entry.date}
-            <span className="font-bold">, Total Word Count: </span>
-            {entry.totalWordCount.toLocaleString()}
-          </li>
-        ))}
-      </ul>
-      <button
-        onClick={downloadCsv}
-        className="mt-4 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-      >
-        Download CSV
-      </button>
+      <LineChart data={weeklyReport} />
     </div>
   );
 }

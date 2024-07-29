@@ -1,58 +1,73 @@
 import { db } from "~/service/db.server";
 
-async function getWordCountsByWeek(dates) {
-  const wordCounts = await Promise.all(
-    dates.map(async (date) => {
-      const startDate = new Date(date);
-      const endDate = new Date(date);
-      endDate.setDate(startDate.getDate() + 7); // Set end date to one week after start date
-
-      const total = await db.text.aggregate({
-        _sum: {
-          word_count: true,
-        },
-        where: {
-          reviewed: true,
-          modified_on: {
-            gte: startDate,
-            lt: endDate, // Use 'lt' to exclude the end date itself
-          },
-        },
-      });
-
-      return {
-        date: date,
-        totalWordCount: total._sum.word_count || 0, // Handle cases where there might be no data
-      };
-    })
-  );
-
-  return wordCounts;
+function getStartOfCurrentWeek() {
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const diff = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // Monday is the start of the week
+  const startOfWeek = new Date(today.setDate(today.getDate() - diff));
+  startOfWeek.setHours(0, 0, 0, 0); // Set to 12 AM
+  return startOfWeek;
 }
 
-async function getWeeklyWordCount() {
-  function generateWeeklyDates(startDate, endDate) {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const oneWeek = 7 * 24 * 60 * 60 * 1000; // milliseconds in one week
-    const dates = [];
+function generateWeeklyDates(startDate, weeks) {
+  const dates = [];
+  const oneWeek = 7 * 24 * 60 * 60 * 1000; // milliseconds in one week
 
-    // Adjust start date to the nearest Sunday (start of the week)
-    start.setDate(start.getDate() - start.getDay());
-
-    for (
-      let date = start;
-      date <= end;
-      date = new Date(date.getTime() + oneWeek)
-    ) {
-      dates.push(date.toISOString().split("T")[0]); // Formats the date to YYYY-MM-DD
-    }
-
-    return dates;
+  for (let i = 0; i < weeks; i++) {
+    const date = new Date(startDate.getTime() - i * oneWeek);
+    dates.push(date.toISOString().split("T")[0]); // Formats the date to YYYY-MM-DD
   }
-  const weeklyDates = generateWeeklyDates("2023-10-01", "2024-04-01");
 
-  return await getWordCountsByWeek(weeklyDates);
+  return dates.reverse(); // Reverse to get the most recent week first
 }
 
-export default getWeeklyWordCount;
+async function generateWeeklyWordCountData() {
+  const weeks = 10; // Number of weeks to generate data for
+
+  const users = await db.user.findMany({
+    where: {
+      reviewer_id: {
+        not: null,
+      },
+    },
+    select: {
+      id: true,
+      username: true,
+      picture: true,
+      nickname: true,
+      reviewer: {
+        select: {
+          id: true,
+          username: true,
+        },
+      },
+    },
+  });
+  const startOfCurrentWeek = getStartOfCurrentWeek();
+  const weeklyDates = generateWeeklyDates(startOfCurrentWeek, weeks);
+
+  // Generate dummy data for each user
+  const data = users.reduce((acc, userId) => {
+    weeklyDates.forEach((date) => {
+      acc.push({
+        userId,
+        date,
+        totalWordCount: Math.floor(Math.random() * 2000), // Random count for example
+      });
+    });
+    return acc;
+  }, []);
+  // Sort data by userId and date in descending order
+  data.sort((a, b) => {
+    if (a.userId.username === b.userId.username) {
+      return new Date(b.date) - new Date(a.date);
+    }
+    return a.userId.username.localeCompare(b.userId.username);
+  });
+
+  return data;
+}
+
+// Example usage:
+
+export default generateWeeklyWordCountData;
