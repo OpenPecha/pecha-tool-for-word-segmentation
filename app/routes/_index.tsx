@@ -43,7 +43,6 @@ export const loader: LoaderFunction = async ({ request }) => {
     }
     if (user?.allow_assign) {
       text = await getTextToDisplay(user?.id, history);
-
       if (text?.error) {
         return { error: text.error.message };
       }

@@ -390,7 +390,12 @@ export async function checkWordLimit(userId: string) {
   const now = new Date();
   const startOfWeekDate = getStartOfWeek(new Date(now)); // Start of the current week (Monday)
   const endOfWeekDate = getEndOfWeek(startOfWeekDate); // End of the current week (Sunday)
+  const startOfWeekDateIST = convertToIST(startOfWeekDate);
+  const endOfWeekDateIST = convertToIST(endOfWeekDate);
 
+  // Convert dates to UTC for database querying
+  const startOfWeekDateUTC = startOfWeekDate.toISOString();
+  const endOfWeekDateUTC = endOfWeekDate.toISOString();
   // Query total word count for the user within the current week
   const totalWordCount = await db.text.aggregate({
     _sum: {
@@ -399,27 +404,49 @@ export async function checkWordLimit(userId: string) {
     where: {
       modified_by_id: userId,
       modified_on: {
-        gte: startOfWeekDate,
-        lte: endOfWeekDate,
+        gte: startOfWeekDateUTC,
+        lte: endOfWeekDateUTC,
       },
     },
   });
-
   const currentWordCount = totalWordCount._sum.word_count || 0;
 
   // Check if the user has reached the word limit
   if (currentWordCount >= WORD_LIMIT)
-    return `You have reached the word limit of ${WORD_LIMIT} words for this week. try after ${endOfWeekDate}`;
+    return `You have reached the word limit of ${WORD_LIMIT} words for this week. try after ${endOfWeekDateIST}`;
 
   return false;
 }
 
-function getStartOfWeek(date) {
+function getStartOfWeek(date: Date): Date {
   const day = date.getDay();
-  const diff = date.getDate() - day + (day === 0 ? -6 : 1); // Adjust when day is Sunday
-  return new Date(date.setDate(diff));
+  const diff = (day + 6) % 7; // Calculate difference to get Monday
+  const monday = new Date(date);
+  monday.setDate(date.getDate() - diff);
+  monday.setHours(0, 0, 0, 0); // Set to 12 AM
+  return monday;
 }
 
-function getEndOfWeek(startOfWeek) {
-  return new Date(startOfWeek.getTime() + 6 * 24 * 60 * 60 * 1000);
+// Function to get end of the week (Sunday 11:59 PM)
+function getEndOfWeek(date: Date): Date {
+  const startOfWeek = getStartOfWeek(date);
+  const endOfWeek = new Date(startOfWeek);
+  endOfWeek.setDate(startOfWeek.getDate() + 6); // Set to Sunday
+  endOfWeek.setHours(23, 59, 59, 999); // Set to 11:59 PM
+  return endOfWeek;
+}
+
+function convertToIST(date: Date): string {
+  // Options for formatting date and time in IST
+  const options: Intl.DateTimeFormatOptions = {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+  };
+
+  return new Intl.DateTimeFormat("en-GB", options).format(date);
 }
