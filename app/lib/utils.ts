@@ -1,6 +1,6 @@
 export function replaceSpacesWithHTMLTag(text: string) {
   const tag = "<Space data-color='red'> </Space>";
-  const replacedText = text.replace(/\s/g, tag);
+  const replacedText = text?.replace(/\s/g, tag);
   return replacedText;
 }
 

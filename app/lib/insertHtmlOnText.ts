@@ -2,7 +2,7 @@ import checkUnknown from "./checkUnknown";
 import { replaceSpacesWithHTMLTag } from "./utils";
 
 function insertHTMLonText(text: string) {
-  var outputText = text.replace(/  /g, " ");
+  var outputText = text?.replace(/  /g, " ");
   let split = splitText(outputText.trim());
   let length = 0;
   let textHTML = "";
@@ -40,7 +40,7 @@ function splitText(text: string) {
   }
   let return_data = mergedArray.map((word) => {
     if (word.startsWith(" ")) {
-      let temp = word.replace(" ", "");
+      let temp = word?.replace(" ", "");
       return [" ", temp];
     }
     return word;

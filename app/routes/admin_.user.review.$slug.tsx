@@ -95,15 +95,22 @@ export const loader = async ({ request, params }: DataFunctionArgs) => {
       orderBy: { id: "asc" },
     });
   }
-  return { user, annotator, currentText, trashedtask };
+  return { user, annotator, currentText, trashedtask, history };
 };
 
 function UserDetail() {
   const fetcher = useFetcher();
-  const { annotator, user, currentText } = useLoaderData() as any;
-  let show =
-    (currentText && JSON.parse(currentText?.modified_text!)?.join(" ")) ||
-    currentText?.original_text;
+  const { annotator, user, currentText, history } = useLoaderData() as any;
+  let show = "";
+  if (history) {
+    show = currentText?.reviewed_text
+      ? JSON.parse(currentText.reviewed_text).join(" ")
+      : JSON.parse(currentText?.modified_text!).join(" ");
+  } else {
+    show =
+      (currentText && JSON.parse(currentText?.modified_text!).join(" ")) ||
+      currentText?.original_text;
+  }
   let newText = currentText ? insertHTMLonText(show) : "";
   let editor = useEditorTiptap();
   const submit_fetcher = useFetcher();
