@@ -129,14 +129,15 @@ export default function Index() {
             {error} . please contact admin .
           </div>
         )}
-        {!user?.allow_assign && (
-          <div className="font-bold first-letter:uppercase first-letter:text-red-400">
-            A single work must have been rejected 3 times or more. maybe system
-            blocked your work. please contact admin .
-          </div>
-        )}
+
         {!text ? (
           <div className="fixed top-[150px] md:static shadow-md max-h-[450px] w-[90%] rounded-sm text-center py-4">
+            {!user?.allow_assign && (
+              <div className="font-bold first-letter:uppercase first-letter:text-red-400">
+                A single work must have been rejected 3 times or more. maybe
+                system blocked your work. please contact admin .
+              </div>
+            )}
             Thank you . your work is complete ! 😊😊😊
             <br />
           </div>
