@@ -407,7 +407,6 @@ export async function checkWordLimit(userId: string) {
       word_count: true,
     },
     where: {
-      modified_by_id: userId,
       modified_on: {
         gte: startOfMonthDateUTC,
         lte: endOfMonthDateUTC,
