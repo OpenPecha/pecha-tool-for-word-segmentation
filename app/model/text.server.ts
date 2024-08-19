@@ -417,7 +417,7 @@ export async function checkWordLimit(userId: string) {
   const currentWordCount = totalWordCount._sum.word_count || 0;
   // Check if the user has reached the word limit
   if (currentWordCount >= WORD_LIMIT)
-    return `You have reached the word limit of ${WORD_LIMIT} words for this month. Try after ${endOfMonthDateIST}`;
+    return `You have reached the word limit of ${WORD_LIMIT} words for this month. Try after ${endOfMonthDateIST} to continue working. currently: ${currentWordCount}`;
 
   return false;
 }
