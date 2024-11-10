@@ -18,46 +18,47 @@ import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import ActiveUser from "~/components/ActiveUser";
 import { db } from "~/service/db.server";
+
 export const loader: LoaderFunction = async ({ request }) => {
   let { NODE_ENV } = process.env;
   let url = new URL(request.url);
   let session = url.searchParams.get("session");
   let detail = url.searchParams.get("detail");
   let history = url.searchParams.get("history") || null;
-  let activeWork = await db.system.findFirst();
 
-  if (!session) {
-    return redirect("https://pecha.tools");
-  } else {
-    let user = await createUserIfNotExists(session);
-    let text = null;
-    if (user?.role === "ADMIN" || user?.role === "REVIEWER") {
-      return redirect(`/admin/user/?session=${user.username}`);
-    }
-    if (user?.role === "OWNER") {
-      return redirect(`/owner?session=${user.username}`);
-    }
-    if (activeWork?.status === "Activated") {
-      return { activeWork };
-    }
-    if (user?.allow_assign) {
-      text = await getTextToDisplay(user, history);
-      if (text?.error) {
-        return { error: text.error.message };
-      }
-    }
+  if (!session) return redirect("https://pecha.tools");
 
-    let monthlyData = await getMonthlyWordCount(user?.id);
-    let current_time = Date.now();
-    return {
-      text,
-      user,
-      NODE_ENV,
-      history,
-      current_time,
-      monthlyData,
-    };
+  let user = await createUserIfNotExists(session);
+  if (user?.role === "ADMIN" || user?.role === "REVIEWER") {
+    return redirect(`/admin/user/?session=${user.username}`);
   }
+  if (user?.role === "OWNER") {
+    return redirect(`/owner?session=${user.username}`);
+  }
+
+  let activeWork = await db.system.findFirst();
+  if (activeWork?.status === "Activated") {
+    return { activeWork };
+  }
+
+  let text = null;
+  if (user?.allow_assign) {
+    text = await getTextToDisplay(user, history);
+    if (text?.error) {
+      return { error: text.error.message };
+    }
+  }
+
+  let monthlyData = await getMonthlyWordCount(user?.id);
+  let current_time = Date.now();
+  return {
+    text,
+    user,
+    NODE_ENV,
+    history,
+    current_time,
+    monthlyData,
+  };
 };
 
 export const meta = () => {

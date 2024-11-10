@@ -41,8 +41,8 @@ model Text {
   modified_on    DateTime? @default(now())
   rejected_by    User[]    @relation("UserRejectedText")
   ignored_by     User[]    @relation("UserIgnoredText")
-  createdAt      DateTime  @default(now())
-  updatedAt      DateTime  @updatedAt
+  createdAt      DateTime? @default(now())
+  updatedAt      DateTime? @updatedAt
   batch          Int?      @default(autoincrement())
   version        String?   @default("")
   reviewed       Boolean?
