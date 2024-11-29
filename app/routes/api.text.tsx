@@ -58,6 +58,19 @@ export const action: ActionFunction = async ({ request }) => {
   let admin_id = formData.get("adminId") as string;
   const action = formData.get("_action") as string;
 
+
+  if(action==='edit'){
+    let new_text= formData.get("new_text") as string;
+    let id = formData.get("id") as string;
+    let text = await db.text.update({
+      where: { id: parseInt(id) },
+      data: {
+        original_text: new_text,
+      },
+    });
+    return text;
+  }
+
   if (request.method === "POST") {
     const modified_text = formData.get("modified_text") as string;
     const reviewed_text = formData.get("reviewed_text") as string;

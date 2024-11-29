@@ -73,7 +73,6 @@ function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
     if (editor && !html) {
       let data = text?.original_text?.replaceAll("?", "");
       data = data?.replaceAll("\u0F37", "");
-      console.log(data);
       let textContent = cleanText(data) ?? "";
       let html = insertHTMLonText(textContent);
       editor?.commands.setContent(html);

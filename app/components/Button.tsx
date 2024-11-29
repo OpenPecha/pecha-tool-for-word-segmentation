@@ -6,7 +6,7 @@ interface ButtonProps {
   value: string;
   disabled: boolean;
   title: string;
-  shortCut: string;
+  shortCut?: string;
   className?: string;
 }
 

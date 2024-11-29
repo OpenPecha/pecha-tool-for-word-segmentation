@@ -1,5 +1,5 @@
 import { redirect, type LoaderFunction } from "@remix-run/node";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   useFetcher,
   useLoaderData,
@@ -77,6 +77,8 @@ export default function Index() {
   const { user, text, error } = useLoaderData();
   let id = text?.id;
   let editor = useEditorTiptap();
+  let edittextRef=useRef(null);
+  let [activeTab, setActiveTab] = useState<'segmentor'|'edit'>("segmentor");
   let original_text = text?.original_text?.replaceAll("?", "");
   original_text = original_text?.replaceAll("\u0F37", "");
 
@@ -110,6 +112,18 @@ export default function Index() {
   };
   let isButtonDisabled = !text || text.reviewed || fetcher.state !== "idle";
   let isSaving = fetcher.state !== "idle";
+  const editText=()=>{
+    const text_value=edittextRef.current?.value;
+
+    fetcher.submit(
+        { new_text:text_value ,id,_action:"edit" },
+        { method: "POST", action: "/api/text" });
+
+    setActiveTab('segmentor')
+
+  }
+
+
   return (
     <div className="flex flex-col md:flex-row">
       <Sidebar user={user} text={text} />
@@ -145,45 +159,60 @@ export default function Index() {
         ) : (
           <div className="fixed top-[120px] md:relative md:top-0 md:mt-20 shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2  pt-1 ">
-              {!isSaving && <ActiveUser />}
-              {isSaving && (
+              <div className="flex gap-2 w-full justify-between">
+              <div onClick={()=>setActiveTab('segmentor')} className={`p-2 ${activeTab==='segmentor' ? "bg-gray-600 text-white":"bg-white text-black"}  rounded mb-2 cursor-pointer`}>segmentor</div>
+              <div onClick={()=>setActiveTab('edit')} className={`p-2 ${activeTab==='edit' ? "bg-gray-600 text-white":"bg-white text-black"}  rounded mb-2 cursor-pointer`}> edit</div>
+              </div>
+                            {isSaving && (
                 <div className=" flex justify-center items-center">
                   saving...
                 </div>
               )}
             </div>
+            {activeTab === 'segmentor' && <>
             {!editor || isSaving ? <Loading /> : <Editor editor={editor} />}
+            </>}
+            {activeTab === 'edit' && <div className="p-2 bg-gray-200 text-black rounded mb-2">
+              <textarea ref={edittextRef} defaultValue={text.original_text}  className="w-full font-monlam leading-[normal]" rows={10}>
+              </textarea>
+              </div>}
           </div>
         )}
-        {text && (
+        {activeTab==='edit' && text && 
+          <div className="flex gap-2 fixed bottom-0 md:relative md:mt-10 justify-center ">
+           <Button
+              disabled={isButtonDisabled}
+              handleClick={editText}
+              value="CONFIRM"
+              title="SAVE"
+            />
+        </div>
+        }
+        {activeTab==='segmentor' && text && (
           <div className="flex gap-2 fixed bottom-0 md:relative md:mt-10 justify-center ">
             <Button
               disabled={isButtonDisabled}
               handleClick={saveText}
               value="CONFIRM"
-              title="CONFIRM (a)"
-              shortCut="a"
+              title="CONFIRM"
             />
             <Button
               disabled={isButtonDisabled}
               handleClick={rejectTask}
               value="REJECT"
-              title="REJECT (x)"
-              shortCut="x"
+              title="REJECT "
             />
             <Button
               disabled={isButtonDisabled}
               handleClick={trashTask}
               value="TRASH"
-              title="TRASH (delete)"
-              shortCut="Delete"
+              title="TRASH "
             />
             <Button
               disabled={isButtonDisabled}
               handleClick={undoTask}
               value="UNDO"
-              title="UNDO (backspace)"
-              shortCut="Backspace"
+              title="UNDO "
             />
           </div>
         )}

@@ -119,10 +119,10 @@ export async function getTextToDisplay(user: any, history: any) {
   if (!unassignedWork) {
     return { error: { message: "no text available" } };
   }
-  let countCheck = await checkWordLimit(userId);
-  if (countCheck) {
-    return { error: { message: countCheck } };
-  }
+  // let countCheck = await checkWordLimit(userId);
+  // if (countCheck) {
+  //   return { error: { message: countCheck } };
+  // }
   let assignText = await db.text.update({
     where: {
       id: unassignedWork?.id,
