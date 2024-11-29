@@ -78,6 +78,7 @@ export default function Index() {
   let id = text?.id;
   let editor = useEditorTiptap();
   let edittextRef=useRef(null);
+  let [editTextValue,setEditTextValue]=useState(text?.original_text);
   let [activeTab, setActiveTab] = useState<'segmentor'|'edit'>("segmentor");
   let original_text = text?.original_text?.replaceAll("?", "");
   original_text = original_text?.replaceAll("\u0F37", "");
@@ -120,7 +121,9 @@ export default function Index() {
         { method: "POST", action: "/api/text" });
 
     setActiveTab('segmentor')
-
+  }
+  const undoEdit=()=>{
+    setEditTextValue(original_text);
   }
 
 
@@ -161,7 +164,10 @@ export default function Index() {
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2  pt-1 ">
               <div className="flex gap-2 w-full justify-between">
               <div onClick={()=>setActiveTab('segmentor')} className={`p-2 ${activeTab==='segmentor' ? "bg-gray-600 text-white":"bg-white text-black"}  rounded mb-2 cursor-pointer`}>segmentor</div>
-              <div onClick={()=>setActiveTab('edit')} className={`p-2 ${activeTab==='edit' ? "bg-gray-600 text-white":"bg-white text-black"}  rounded mb-2 cursor-pointer`}> edit</div>
+              <div onClick={()=>{
+                setActiveTab('edit')
+                setEditTextValue(original_text)
+                }} className={`p-2 ${activeTab==='edit' ? "bg-gray-600 text-white":"bg-white text-black"}  rounded mb-2 cursor-pointer`}> edit</div>
               </div>
                             {isSaving && (
                 <div className=" flex justify-center items-center">
@@ -173,7 +179,7 @@ export default function Index() {
             {!editor || isSaving ? <Loading /> : <Editor editor={editor} />}
             </>}
             {activeTab === 'edit' && <div className="p-2 bg-gray-200 text-black rounded mb-2">
-              <textarea ref={edittextRef} defaultValue={text.original_text}  className="w-full font-monlam leading-[normal]" rows={10}>
+              <textarea ref={edittextRef} value={editTextValue} onChange={(e)=>setEditTextValue(e.target.value)}  className="w-full font-monlam leading-[normal]" rows={10}>
               </textarea>
               </div>}
           </div>
@@ -185,6 +191,12 @@ export default function Index() {
               handleClick={editText}
               value="CONFIRM"
               title="SAVE"
+            />
+             <Button
+              disabled={isButtonDisabled}
+              handleClick={undoEdit}
+              value="UNDO"
+              title="UNDO "
             />
         </div>
         }
