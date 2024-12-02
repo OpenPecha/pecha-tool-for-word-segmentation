@@ -167,7 +167,25 @@ export default function Index() {
               <div onClick={()=>{
                 setActiveTab('edit')
                 setEditTextValue(original_text)
-                }} className={`p-2 ${activeTab==='edit' ? "bg-gray-600 text-white":"bg-white text-black"}  rounded mb-2 cursor-pointer`}> edit</div>
+                }} className={`p-2 ${activeTab==='edit'||isSaving ? "hidden":"bg-white text-black"}  rounded mb-2 cursor-pointer`}> edit</div>
+            {activeTab==='edit' && text && 
+          <div className="flex gap-2 text-white  md:relative mb-2 justify-center ">
+           <button
+              disabled={isButtonDisabled}
+              onClick={editText}
+              className="px-2 py-1 text-green-400 bg-gray-500 rounded"
+              title="SAVE"
+            >Save
+              </button>
+             <button
+             className="px-2 py-1 text-red-400 bg-gray-500 rounded"
+              disabled={isButtonDisabled}
+              onClick={undoEdit}
+              title="UNDO "
+            >Undo
+            </button>
+        </div>
+        }
               </div>
                             {isSaving && (
                 <div className=" flex justify-center items-center">
@@ -184,22 +202,7 @@ export default function Index() {
               </div>}
           </div>
         )}
-        {activeTab==='edit' && text && 
-          <div className="flex gap-2 fixed bottom-0 md:relative md:mt-10 justify-center ">
-           <Button
-              disabled={isButtonDisabled}
-              handleClick={editText}
-              value="CONFIRM"
-              title="SAVE"
-            />
-             <Button
-              disabled={isButtonDisabled}
-              handleClick={undoEdit}
-              value="UNDO"
-              title="UNDO "
-            />
-        </div>
-        }
+        
         {activeTab==='segmentor' && text && (
           <div className="flex gap-2 fixed bottom-0 md:relative md:mt-10 justify-center ">
             <Button
