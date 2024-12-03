@@ -164,7 +164,9 @@ export default function Index() {
           <div className="fixed top-[120px] md:relative md:top-0 md:mt-20 shadow-md max-h-[450px] w-[90%] rounded-sm md:h-[54vh]">
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2  pt-1 ">
               <div className="flex gap-2 w-full justify-between">
-              <div onClick={()=>setActiveTab('segmentor')} className={`p-2 ${activeTab==='segmentor' ? "bg-gray-600 text-white":"bg-white text-black"}  rounded mb-2 cursor-pointer`}>segmentor</div>
+              {activeTab!=='segmentor'?
+              <div onClick={()=>setActiveTab('segmentor')} className={`p-2 bg-white text-black rounded mb-2 cursor-pointer font-monlam`}>ལས་ཀའི་ཁོར་ཡུག</div>
+              :<div/>}
               <button onClick={()=>{
                 setActiveTab('edit')
                 setEditTextValue(original_text)
@@ -175,10 +177,10 @@ export default function Index() {
            <button
               disabled={isButtonDisabled}
               onClick={editText}
-              className="flex font-monlam gap-2 items-center px-2 py-1 text-green-400 bg-gray-300 rounded"
+              className="flex font-monlam gap-2 items-center px-2 py-1 text-black bg-gray-100 border-black border-2  rounded"
               title="SAVE"
             >
-              <BiSave/>
+              <BiSave className="text-green-700"/>
               ཉར།
               </button>
              <button
