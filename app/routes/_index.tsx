@@ -18,6 +18,7 @@ import insertHTMLonText from "~/lib/insertHtmlOnText";
 import { useEditorTiptap } from "~/tiptapProps/useEditorTiptap";
 import ActiveUser from "~/components/ActiveUser";
 import { db } from "~/service/db.server";
+import { BiPencil, BiSave, BiUndo } from "react-icons/bi";
 
 export const loader: LoaderFunction = async ({ request }) => {
   let { NODE_ENV } = process.env;
@@ -164,25 +165,30 @@ export default function Index() {
             <div className="flex items-center justify-between opacity-75 text-sm font-bold px-2  pt-1 ">
               <div className="flex gap-2 w-full justify-between">
               <div onClick={()=>setActiveTab('segmentor')} className={`p-2 ${activeTab==='segmentor' ? "bg-gray-600 text-white":"bg-white text-black"}  rounded mb-2 cursor-pointer`}>segmentor</div>
-              <div onClick={()=>{
+              <button onClick={()=>{
                 setActiveTab('edit')
                 setEditTextValue(original_text)
-                }} className={`p-2 ${activeTab==='edit'||isSaving ? "hidden":"bg-white text-black"}  rounded mb-2 cursor-pointer`}> edit</div>
+                }} className={`flex border-2 bg-green-300 border-gray-400 gap-2 leading-tight font-monlam items-center p-2 ${activeTab==='edit'||isSaving ? "hidden":" text-black"}  rounded mb-2 cursor-pointer`}>
+                  <BiPencil/>ཞུ་དག</button>
             {activeTab==='edit' && text && 
           <div className="flex gap-2 text-white  md:relative mb-2 justify-center ">
            <button
               disabled={isButtonDisabled}
               onClick={editText}
-              className="px-2 py-1 text-green-400 bg-gray-500 rounded"
+              className="flex font-monlam gap-2 items-center px-2 py-1 text-green-400 bg-gray-300 rounded"
               title="SAVE"
-            >Save
+            >
+              <BiSave/>
+              ཉར།
               </button>
              <button
-             className="px-2 py-1 text-red-400 bg-gray-500 rounded"
+             className=" flex font-monlam gap-2 items-center px-2 py-1 text-red-400 rounded"
               disabled={isButtonDisabled}
               onClick={undoEdit}
               title="UNDO "
-            >Undo
+            >
+              <BiUndo/>
+              ཕྱིར་ལྡོག
             </button>
         </div>
         }
