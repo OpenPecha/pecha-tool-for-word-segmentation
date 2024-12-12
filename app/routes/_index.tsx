@@ -79,7 +79,7 @@ export default function Index() {
   let id = text?.id;
   let editor = useEditorTiptap();
   let edittextRef=useRef(null);
-  let [editTextValue,setEditTextValue]=useState('');
+  let [editTextValue,setEditTextValue]=useState(text?.original_text||'');
   let [activeTab, setActiveTab] = useState<'segmentor'|'edit'>("segmentor");
   let original_text = text?.original_text?.replaceAll("?", "");
   original_text = original_text?.replaceAll("\u0F37", "");
@@ -203,9 +203,9 @@ export default function Index() {
                 </div>
               )}
             </div>
-            {activeTab === 'segmentor' && <>
+            <span className={`${activeTab === 'segmentor'?'':'hidden'}`}>
             {!editor || isSaving ? <Loading /> : <Editor editor={editor} updateEditText={updateEditText} />}
-            </>}
+            </span>
             {activeTab === 'edit' && <div className="p-2 bg-gray-200 text-black rounded mb-2">
               <textarea ref={edittextRef} value={editTextValue} onChange={(e)=>setEditTextValue(e.target.value)}  className="w-full font-monlam leading-[normal]" rows={10}>
               </textarea>
