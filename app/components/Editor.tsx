@@ -5,7 +5,9 @@ import useDoubleClick from "use-double-click";
 import { useLoaderData } from "@remix-run/react";
 import { cleanText } from "~/const";
 
-function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
+    function EditorContainer({ editor, html,updateEditText }: { editor: Editor; html?: string ;
+    updateEditText:(data:string)=>void;
+    }) {
   const buttonRef = useRef(null);
   const { text } = useLoaderData();
   const handleSingleClick = (e: any) => {
@@ -28,6 +30,8 @@ function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
     }
     const newText = insertHTMLonText(modifiedContent);
     editor?.commands.setContent(newText);
+  
+    updateEditText(editor.getText());
   };
   function handleDoubleClick(e: any) {
     let modifiedContent = editor?.getText();
@@ -60,6 +64,8 @@ function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
       const newText = insertHTMLonText(modifiedContent);
       editor?.commands.setContent(newText);
     }
+    updateEditText(editor.getText());
+
   }
 
   useDoubleClick({
@@ -67,6 +73,7 @@ function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
     onDoubleClick: handleDoubleClick,
     ref: buttonRef,
     latency: 250,
+    
   });
 
   useEffect(() => {
@@ -80,8 +87,8 @@ function EditorContainer({ editor, html }: { editor: Editor; html?: string }) {
     if (html) {
       editor?.commands.setContent(html);
     }
-  }, [text, html]);
 
+  }, [text, html]);
   return (
     <div
       ref={buttonRef}

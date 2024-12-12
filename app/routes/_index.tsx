@@ -1,5 +1,5 @@
 import { redirect, type LoaderFunction } from "@remix-run/node";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   useFetcher,
   useLoaderData,
@@ -79,11 +79,11 @@ export default function Index() {
   let id = text?.id;
   let editor = useEditorTiptap();
   let edittextRef=useRef(null);
-  let [editTextValue,setEditTextValue]=useState(text?.original_text);
+  let [editTextValue,setEditTextValue]=useState('');
   let [activeTab, setActiveTab] = useState<'segmentor'|'edit'>("segmentor");
   let original_text = text?.original_text?.replaceAll("?", "");
   original_text = original_text?.replaceAll("\u0F37", "");
-
+ 
   let saveText = async () => {
     let duration = document?.querySelector("#activeTime")?.innerHTML ?? 0;
 
@@ -126,7 +126,10 @@ export default function Index() {
   const undoEdit=()=>{
     setEditTextValue(original_text);
   }
-
+  const updateEditText =(value)=>{
+    setEditTextValue(value)
+  }
+ 
 
   return (
     <div className="flex flex-col md:flex-row">
@@ -169,7 +172,6 @@ export default function Index() {
               :<div/>}
               <button onClick={()=>{
                 setActiveTab('edit')
-                setEditTextValue(original_text)
                 }} className={`flex border-2 bg-green-300 border-gray-400 gap-2 leading-tight font-monlam items-center p-2 ${activeTab==='edit'||isSaving ? "hidden":" text-black"}  rounded mb-2 cursor-pointer`}>
                   <BiPencil/>ཞུ་དག</button>
             {activeTab==='edit' && text && 
@@ -202,7 +204,7 @@ export default function Index() {
               )}
             </div>
             {activeTab === 'segmentor' && <>
-            {!editor || isSaving ? <Loading /> : <Editor editor={editor} />}
+            {!editor || isSaving ? <Loading /> : <Editor editor={editor} updateEditText={updateEditText} />}
             </>}
             {activeTab === 'edit' && <div className="p-2 bg-gray-200 text-black rounded mb-2">
               <textarea ref={edittextRef} value={editTextValue} onChange={(e)=>setEditTextValue(e.target.value)}  className="w-full font-monlam leading-[normal]" rows={10}>

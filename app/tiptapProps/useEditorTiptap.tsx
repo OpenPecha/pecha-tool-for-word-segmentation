@@ -16,6 +16,6 @@ export const useEditorTiptap = () => {
     },
     []
   );
-
+ 
   return editor;
 };
